@@ -1,0 +1,7 @@
+quixer.dev {
+    # use the certificate made with mkcert
+    tls dev/ssl/quixer.dev.pem dev/ssl/quixer.dev-key.pem
+
+    # forward all requests
+    reverse_proxy 127.0.0.1:5000
+}
