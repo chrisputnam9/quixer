@@ -1,6 +1,7 @@
 <script>
 	let search_category = '',
-			search_phrase = '';
+        search_phrase = '';
+
 	const services = [
 		{
 			"id": "0",
@@ -94,6 +95,6 @@
     {#each results as result (result.id)}
 		<li class="{result.id == defaultResult.id ? 'active' : ''}">
 			{result.alias} ({result.name})
-	  </li>
+        </li>
 	{/each}
 </ul>
