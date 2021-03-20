@@ -24,6 +24,7 @@ The hacker's bookmarks.
  1. Move the newly created files to:
     - dev/ssl/quixer.dev.pem
     - dev/ssl/quixer.dev-key.pem
+ 1. Run `npm install`
  1. Follow the dev workflow steps
 
 ## Development Workflow
