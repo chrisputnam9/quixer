@@ -33,6 +33,9 @@ This will not be needed for most contributors
  1. Run `npm install`
  1. Follow the dev workflow steps
 
+### Optional
+ 1. Set up your text editor. [Steps for vim](https://codechips.me/vim-setup-for-svelte-development/)
+
 ## Development Workflow
  1. npm run dev
  1. caddy run
