@@ -1,5 +1,7 @@
 /node_modules/
+/public/gd.html
 /public/build/
 
 .DS_Store
+.env
 .NERDTreeBookmarks

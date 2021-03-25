@@ -13,7 +13,11 @@ The hacker's bookmarks.
 ## Vision for 1.0 Milestone
 [See Github Milestone](https://github.com/chrisputnam9/quixer/milestone/4)
 
-## Development Setup
+## Contributing Search Configuration
+*TO FILL IN*
+
+## Full Local Development Setup
+This will not be needed for most contributors
  1. Install [Node](https://nodejs.org/en/)
  1. Install [Caddy](https://caddyserver.com/)
  1. Install [mkcert](https://github.com/FiloSottile/mkcert)
@@ -24,6 +28,8 @@ The hacker's bookmarks.
  1. Move the newly created files to:
     - dev/ssl/quixer.dev.pem
     - dev/ssl/quixer.dev-key.pem
+ 1. Copy .env.sample to .env and fill in details as needed
+    - Create new Google Drive API keys for yourself to use in development - keep them secret
  1. Run `npm install`
  1. Follow the dev workflow steps
 
