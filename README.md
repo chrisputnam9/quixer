@@ -29,7 +29,7 @@ This will not be needed for most contributors
     - dev/ssl/quixer.dev.pem
     - dev/ssl/quixer.dev-key.pem
  1. Copy .env.sample to .env and fill in details as needed
-    - Create new Google Drive API keys for yourself to use in development - keep them secret
+    - Create a new Google Drive API project for yourself to use in development - keep the API key secret, fill in details in .env file
  1. Run `npm install`
  1. Follow the dev workflow steps
 

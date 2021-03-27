@@ -6,6 +6,8 @@ import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import replace from '@rollup/plugin-replace';
+
 dotenv.config();
 
 const production = !process.env.ROLLUP_WATCH;
@@ -44,6 +46,10 @@ export default {
     file: 'public/build/bundle.js'
   },
   plugins: [
+    replace({
+      GOOGLE_DRIVE_API_KEY: JSON.stringify(process.env.GOOGLE_DRIVE_API_KEY),
+      GOOGLE_DRIVE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_DRIVE_CLIENT_ID)
+    }),
     svelte({
       compilerOptions: {
         // enable run-time checks when not in production
