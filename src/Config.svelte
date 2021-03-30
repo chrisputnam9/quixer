@@ -1,8 +1,11 @@
 <script>
   let isSignedIn = false;
-  let config = {
+  let isConfigSaved = false;
+
+  let configLocal = {
     test: 'test123'
   };
+  let configDrive = {};
   let error = '';
 
   /**
@@ -36,6 +39,14 @@
           error = JSON.stringify(error, null, 2);
         }
       );
+  }
+
+  /**
+   * Sync local config with config saved on GDrive
+   **/
+  function syncConfig() {
+    // TODO actually sync instead of overwriting
+    configDrive = configLocal;
   }
 
   /**
@@ -90,11 +101,16 @@
 <h2>Sync with Google Drive</h2>
 {#if isSignedIn}
   <button on:click={signOut}>Sign Out</button>
+  {#if isConfigSaved}
+    <button on:click={syncConfig}>Sync Config</button>
+  {:else}
+    <button on:click={syncConfig}>Save Config</button>
+  {/if}
 {:else}
   <button on:click={signIn}>Authorize</button>
 {/if}
 {#if error}
-  <strong style="color:red;">{error}</strong>
+  <p><strong style="color:red;">{error}</strong></p>
 {/if}
 
 <h2>Custom Services</h2>
