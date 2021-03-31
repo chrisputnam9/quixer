@@ -6,6 +6,8 @@
     test: 'test123'
   };
   let configDrive = {};
+  let configDriveId = 0;
+
   let error = '';
 
   /**
@@ -25,7 +27,8 @@
         apiKey: GOOGLE_DRIVE_API_KEY,
         clientId: GOOGLE_DRIVE_CLIENT_ID,
         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-        scope: 'https://www.googleapis.com/auth/drive.appdata'
+        scope:
+          'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file'
       })
       .then(
         function () {
@@ -47,6 +50,41 @@
   function syncConfig() {
     // TODO actually sync instead of overwriting
     configDrive = configLocal;
+
+    // Make sure we're signed in
+    if (!isSignedIn) {
+      error = 'Sign in before attempting to sync';
+      return false;
+    }
+
+    // Data for upload
+    let fileMetadata = {
+      name: 'config.json',
+      parents: ['appDataFolder']
+    };
+    let media = {
+      mimeType: 'application/json',
+      body: JSON.stringify(configDrive)
+    };
+
+    // Create config file if needed
+    if (!isConfigSaved) {
+      gapi.client.drive.files
+        .create({
+          resource: fileMetadata,
+          media: media,
+          fields: 'id'
+        })
+        .then(
+          function (response) {
+            console.log('Config created');
+            console.log(response);
+          },
+          function (_error) {
+            error = JSON.stringify(_error);
+          }
+        );
+    }
   }
 
   /**
