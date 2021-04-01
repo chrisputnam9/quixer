@@ -58,32 +58,37 @@
     }
 
     // Data for upload
-    let fileMetadata = {
+    var fileMetadata = {
       name: 'config.json',
       parents: ['appDataFolder']
     };
-    let media = {
+    var media = {
       mimeType: 'application/json',
       body: JSON.stringify(configDrive)
     };
 
     // Create config file if needed
     if (!isConfigSaved) {
+      console.log(fileMetadata);
+      console.log(media);
+
       gapi.client.drive.files
         .create({
           resource: fileMetadata,
           media: media,
-          fields: 'id'
+          fields: '*',
+          uploadType: 'multipart'
         })
-        .then(
-          function (response) {
-            console.log('Config created');
-            console.log(response);
-          },
-          function (_error) {
-            error = JSON.stringify(_error);
-          }
-        );
+        //.then(response => response.json)
+        .then(response => {
+          const file = JSON.parse(response.body);
+          configDriveId = file.id;
+          error = 'Config created, ID: ' + configDriveId;
+          console.log(file);
+        })
+        .catch(_error => {
+          error = JSON.stringify(_error);
+        });
     }
   }
 
@@ -100,14 +105,16 @@
       gapi.client.drive.files
         .list({
           spaces: 'appDataFolder',
-          q: 'name = "config.json"',
+          //q: 'name = "config.json"',
           fields: 'nextPageToken, files(id, name)',
-          pageSize: 100
+          pageSize: 1
         })
         .then(
           function (response) {
+            console.log(response);
             if (response.result.files && response.result.files.length > 0) {
-              console.log(response.result.files.length);
+              configDriveId = response.result.files[0].id;
+              console.log('Config found, ID: ' + configDriveId);
             } else {
               error = 'No config file saved yet';
             }
