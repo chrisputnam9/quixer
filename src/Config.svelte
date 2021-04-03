@@ -22,6 +22,14 @@
    *  listeners.
    */
   function initClient() {
+    // Trying out CORS request instead
+    onst user = gapi.auth2.getAuthInstance().currentUser.get();
+    onst oauthToken = user.getAuthResponse().access_token;
+    const xhr = new XMLHttpRequest();
+    xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+    
+    return;
+
     gapi.client
       .init({
         apiKey: GOOGLE_DRIVE_API_KEY,
