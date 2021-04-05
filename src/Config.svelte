@@ -22,14 +22,6 @@
    *  listeners.
    */
   function initClient() {
-    // Trying out CORS request instead
-    onst user = gapi.auth2.getAuthInstance().currentUser.get();
-    onst oauthToken = user.getAuthResponse().access_token;
-    const xhr = new XMLHttpRequest();
-    xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-    
-    return;
-
     gapi.client
       .init({
         apiKey: GOOGLE_DRIVE_API_KEY,
@@ -64,6 +56,40 @@
       error = 'Sign in before attempting to sync';
       return false;
     }
+
+    // Trying out CORS request instead
+    const user = gapi.auth2.getAuthInstance().currentUser.get();
+    const oauthToken = user.getAuthResponse().access_token;
+    // const oauthToken = gapi.auth2.getToken().access_token;
+
+    // const file = new Blob([configDrive], 'application/json');
+    const file = JSON.stringify(configDrive);
+    const metadata = {
+      name: 'config.json',
+      mimeType: 'application/json',
+      parents: ['appDataFolder']
+    };
+
+    const form = new FormData();
+    form.append(
+      'metadata',
+      new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+    );
+    form.append('file', file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open(
+      'post',
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
+    );
+    xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+    xhr.responseType = 'json';
+    xhr.onload = () => {
+      console.log(xhr.response.id); // Retrieve uploaded file ID.
+    };
+    xhr.send(form);
+
+    return;
 
     // Data for upload
     var fileMetadata = {
