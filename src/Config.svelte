@@ -62,67 +62,37 @@
     const oauthToken = user.getAuthResponse().access_token;
     // const oauthToken = gapi.auth2.getToken().access_token;
 
-    // const file = new Blob([configDrive], 'application/json');
-    const file = JSON.stringify(configDrive);
-    const metadata = {
-      name: 'config.json',
-      mimeType: 'application/json',
-      parents: ['appDataFolder']
-    };
-
-    const form = new FormData();
-    form.append(
-      'metadata',
-      new Blob([JSON.stringify(metadata)], { type: 'application/json' })
-    );
-    form.append('file', file);
-
-    const xhr = new XMLHttpRequest();
-    xhr.open(
-      'post',
-      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
-    );
-    xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-    xhr.responseType = 'json';
-    xhr.onload = () => {
-      console.log(xhr.response.id); // Retrieve uploaded file ID.
-    };
-    xhr.send(form);
-
-    return;
-
-    // Data for upload
-    var fileMetadata = {
-      name: 'config.json',
-      parents: ['appDataFolder']
-    };
-    var media = {
-      mimeType: 'application/json',
-      body: JSON.stringify(configDrive)
-    };
-
-    // Create config file if needed
     if (!isConfigSaved) {
-      console.log(fileMetadata);
-      console.log(media);
+      // const file = new Blob([configDrive], 'application/json');
+      const file = JSON.stringify(configDrive);
+      const metadata = {
+        name: 'config.json',
+        mimeType: 'application/json',
+        parents: ['appDataFolder']
+      };
 
-      gapi.client.drive.files
-        .create({
-          resource: fileMetadata,
-          media: media,
-          fields: '*',
-          uploadType: 'multipart'
-        })
-        //.then(response => response.json)
-        .then(response => {
-          const file = JSON.parse(response.body);
-          configDriveId = file.id;
-          error = 'Config created, ID: ' + configDriveId;
-          console.log(file);
-        })
-        .catch(_error => {
-          error = JSON.stringify(_error);
-        });
+      const form = new FormData();
+      form.append(
+        'metadata',
+        new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+      );
+      form.append('file', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(
+        'post',
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
+      );
+      xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+      xhr.responseType = 'json';
+      xhr.onload = () => {
+        configDriveId = xhr.response.id;
+        isConfigSaved = true;
+        error = 'Config created, ID: ' + configDriveId;
+      };
+      xhr.send(form);
+    } else {
+      error = 'Config already saved, ID: ' + configDriveId + '\nSyncing config...';
     }
   }
 
@@ -141,14 +111,20 @@
           spaces: 'appDataFolder',
           //q: 'name = "config.json"',
           fields: 'nextPageToken, files(id, name)',
-          pageSize: 1
+          pageSize: 10
         })
         .then(
           function (response) {
             console.log(response);
             if (response.result.files && response.result.files.length > 0) {
+              if (response.result.files.length > 1) {
+                console.err(
+                  'Multiple config files found - will use the first one - report error CS501 to https://github.com/chrisputnam9/quixer/issues along with any potentially helpful information'
+                );
+              }
               configDriveId = response.result.files[0].id;
-              console.log('Config found, ID: ' + configDriveId);
+              isConfigSaved = true;
+              error = 'Config found, ID: ' + configDriveId + ' - Loading...';
             } else {
               error = 'No config file saved yet';
             }
