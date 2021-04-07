@@ -57,10 +57,8 @@
       return false;
     }
 
-    // Trying out CORS request instead
     const user = gapi.auth2.getAuthInstance().currentUser.get();
     const oauthToken = user.getAuthResponse().access_token;
-    // const oauthToken = gapi.auth2.getToken().access_token;
 
     if (!isConfigSaved) {
       // const file = new Blob([configDrive], 'application/json');
@@ -125,6 +123,41 @@
               configDriveId = response.result.files[0].id;
               isConfigSaved = true;
               error = 'Config found, ID: ' + configDriveId + ' - Loading...';
+
+              /*
+              gapi.client.drive.files
+                .export({
+                  fileId: configDriveId,
+                  mimeType: 'application/json'
+                })
+                .then(
+                  function (response) {
+                    console.log(response);
+                    //success.result
+                  },
+                  function (error) {
+                    error = 'Error: ' + error.result.error.message;
+                  }
+                );
+              return;
+              */
+
+              const user = gapi.auth2.getAuthInstance().currentUser.get();
+              const oauthToken = user.getAuthResponse().access_token;
+              const xhr = new XMLHttpRequest();
+              xhr.open(
+                'get',
+                'https://www.googleapis.com/drive/v3/files/' +
+                  configDriveId +
+                  '/export?mimeType=application/json' //?fields=*'
+              );
+              xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+              xhr.responseType = 'json';
+              xhr.onload = () => {
+                console.log(xhr);
+                error = 'Config loaded';
+              };
+              xhr.send();
             } else {
               error = 'No config file saved yet';
             }
