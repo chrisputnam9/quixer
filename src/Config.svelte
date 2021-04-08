@@ -149,13 +149,36 @@
                 'get',
                 'https://www.googleapis.com/drive/v3/files/' +
                   configDriveId +
-                  '/export?mimeType=application/json' //?fields=*'
+                  '?alt=media' +
+                  /*'/export?mimeType=application/json' +*/
+                  /*'?fields=*' +*/
+                  ''
               );
               xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
               xhr.responseType = 'json';
               xhr.onload = () => {
-                console.log(xhr);
-                error = 'Config loaded';
+                console.log(xhr.response);
+                if (xhr.response.error) {
+                  error = xhr.response.error.message;
+                } else {
+                  error = 'Config metadata loaded: ' + JSON.stringify(xhr.response);
+
+                  /*
+                  const xhrDownload = new XMLHttpRequest();
+                  xhrDownload.open('get', xhr.response.webContentLink);
+                  xhrDownload.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+                  xhrDownload.responseType = 'json';
+                  xhrDownload.onload = () => {
+                    console.log(xhrDownload);
+                    if (xhrDownload.response.error) {
+                      error = xhrDownload.response.error.message;
+                    } else {
+                      error = 'Config content loaded';
+                    }
+                  };
+                  xhrDownload.send();
+                  */
+                }
               };
               xhr.send();
             } else {
