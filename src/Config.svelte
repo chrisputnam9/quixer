@@ -3,7 +3,8 @@
   let isConfigSaved = false;
 
   let configLocal = {
-    test: 'test123'
+    test: 'test123',
+    addition: 'test1234'
   };
   let configDrive = {};
   let configDriveId = 0;
@@ -60,23 +61,23 @@
     const user = gapi.auth2.getAuthInstance().currentUser.get();
     const oauthToken = user.getAuthResponse().access_token;
 
+    const file = JSON.stringify(configDrive);
+    const metadata = {
+      name: 'config.json',
+      mimeType: 'application/json',
+      parents: ['appDataFolder']
+    };
+
+    const form = new FormData();
+    form.append(
+      'metadata',
+      new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+    );
+    form.append('file', file);
+
+    const xhr = new XMLHttpRequest();
+
     if (!isConfigSaved) {
-      // const file = new Blob([configDrive], 'application/json');
-      const file = JSON.stringify(configDrive);
-      const metadata = {
-        name: 'config.json',
-        mimeType: 'application/json',
-        parents: ['appDataFolder']
-      };
-
-      const form = new FormData();
-      form.append(
-        'metadata',
-        new Blob([JSON.stringify(metadata)], { type: 'application/json' })
-      );
-      form.append('file', file);
-
-      const xhr = new XMLHttpRequest();
       xhr.open(
         'post',
         'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
@@ -90,7 +91,23 @@
       };
       xhr.send(form);
     } else {
-      error = 'Config already saved, ID: ' + configDriveId + '\nSyncing config...';
+      error = 'Config already saved, ID: ' + configDriveId + 'Updating config...';
+
+      xhr.open(
+        'patch',
+        'https://www.googleapis.com/upload/drive/v3/files/' +
+          encodeURIComponent(configDriveId) +
+          '?uploadType=multipart&fields=id'
+      );
+      xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
+      xhr.responseType = 'json';
+      xhr.onload = () => {
+        console.log(xhr.response);
+        configDriveId = xhr.response.id;
+        isConfigSaved = true;
+        error = 'Config updated, ID: ' + configDriveId;
+      };
+      xhr.send(form);
     }
   }
 
@@ -124,24 +141,6 @@
               isConfigSaved = true;
               error = 'Config found, ID: ' + configDriveId + ' - Loading...';
 
-              /*
-              gapi.client.drive.files
-                .export({
-                  fileId: configDriveId,
-                  mimeType: 'application/json'
-                })
-                .then(
-                  function (response) {
-                    console.log(response);
-                    //success.result
-                  },
-                  function (error) {
-                    error = 'Error: ' + error.result.error.message;
-                  }
-                );
-              return;
-              */
-
               const user = gapi.auth2.getAuthInstance().currentUser.get();
               const oauthToken = user.getAuthResponse().access_token;
               const xhr = new XMLHttpRequest();
@@ -149,10 +148,7 @@
                 'get',
                 'https://www.googleapis.com/drive/v3/files/' +
                   configDriveId +
-                  '?alt=media' +
-                  /*'/export?mimeType=application/json' +*/
-                  /*'?fields=*' +*/
-                  ''
+                  '?alt=media'
               );
               xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
               xhr.responseType = 'json';
@@ -161,23 +157,7 @@
                 if (xhr.response.error) {
                   error = xhr.response.error.message;
                 } else {
-                  error = 'Config metadata loaded: ' + JSON.stringify(xhr.response);
-
-                  /*
-                  const xhrDownload = new XMLHttpRequest();
-                  xhrDownload.open('get', xhr.response.webContentLink);
-                  xhrDownload.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-                  xhrDownload.responseType = 'json';
-                  xhrDownload.onload = () => {
-                    console.log(xhrDownload);
-                    if (xhrDownload.response.error) {
-                      error = xhrDownload.response.error.message;
-                    } else {
-                      error = 'Config content loaded';
-                    }
-                  };
-                  xhrDownload.send();
-                  */
+                  error = 'Config loaded: ' + JSON.stringify(xhr.response);
                 }
               };
               xhr.send();
