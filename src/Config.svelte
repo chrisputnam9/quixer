@@ -1,13 +1,16 @@
 <script>
+  import MultiPartBuilder from './multipart.js';
+
   let isSignedIn = false;
   let isConfigSaved = false;
 
   let configLocal = {
     test: 'test123',
-    addition: 'test1234'
+    addition: 'test1234',
+    addition2: 'test12345'
   };
   let configDrive = {};
-  let configDriveId = 0;
+  let configDriveId = null;
 
   let error = '';
 
@@ -63,24 +66,25 @@
 
     const file = JSON.stringify(configDrive);
     const metadata = {
+      id: configDriveId,
       name: 'config.json',
       mimeType: 'application/json',
       parents: ['appDataFolder']
     };
 
     const form = new FormData();
+    form.append('file', file);
     form.append(
       'metadata',
       new Blob([JSON.stringify(metadata)], { type: 'application/json' })
     );
-    form.append('file', file);
 
     const xhr = new XMLHttpRequest();
 
     if (!isConfigSaved) {
       xhr.open(
         'post',
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
+        'https://content.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
       );
       xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
       xhr.responseType = 'json';
@@ -91,23 +95,29 @@
       };
       xhr.send(form);
     } else {
-      error = 'Config already saved, ID: ' + configDriveId + 'Updating config...';
+      error = 'Config already exists.  Updating config...';
 
-      xhr.open(
-        'patch',
-        'https://www.googleapis.com/upload/drive/v3/files/' +
-          encodeURIComponent(configDriveId) +
-          '?uploadType=multipart&fields=id'
-      );
-      xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-      xhr.responseType = 'json';
-      xhr.onload = () => {
-        console.log(xhr.response);
-        configDriveId = xhr.response.id;
-        isConfigSaved = true;
-        error = 'Config updated, ID: ' + configDriveId;
-      };
-      xhr.send(form);
+      gapi.client
+        .request({
+          path:
+            'https://content.googleapis.com/upload/drive/v3/files/' +
+            encodeURIComponent(configDriveId) +
+            '?uploadType=media&fields=id',
+          method: isConfigSaved ? 'POST' : 'PATCH',
+          params: {
+            uploadType: 'multipart',
+            supportsTeamDrives: true,
+            fields: 'id'
+          },
+          headers: { 'Content-Type': 'application/json' },
+          body: file
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (_error) {
+          error = _error;
+        });
     }
   }
 
@@ -124,8 +134,8 @@
       gapi.client.drive.files
         .list({
           spaces: 'appDataFolder',
-          //q: 'name = "config.json"',
-          fields: 'nextPageToken, files(id, name)',
+          q: 'name = "config.json"',
+          fields: 'nextPageToken, files(*)',
           pageSize: 10
         })
         .then(
