@@ -1,6 +1,5 @@
 <script>
   import MultiPartBuilder from './multipart.js';
-
   let isSignedIn = false;
   let isConfigSaved = false;
 
@@ -64,61 +63,46 @@
     const user = gapi.auth2.getAuthInstance().currentUser.get();
     const oauthToken = user.getAuthResponse().access_token;
 
-    const file = JSON.stringify(configDrive);
+    const content = JSON.stringify(configDrive);
     const metadata = {
-      id: configDriveId,
       name: 'config.json',
-      mimeType: 'application/json',
-      parents: ['appDataFolder']
+      mimeType: 'application/json'
     };
 
-    const form = new FormData();
-    form.append('file', file);
-    form.append(
-      'metadata',
-      new Blob([JSON.stringify(metadata)], { type: 'application/json' })
-    );
-
-    const xhr = new XMLHttpRequest();
-
     if (!isConfigSaved) {
-      xhr.open(
-        'post',
-        'https://content.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id'
-      );
-      xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-      xhr.responseType = 'json';
-      xhr.onload = () => {
-        configDriveId = xhr.response.id;
-        isConfigSaved = true;
-        error = 'Config created, ID: ' + configDriveId;
-      };
-      xhr.send(form);
-    } else {
-      error = 'Config already exists.  Updating config...';
-
-      gapi.client
-        .request({
-          path:
-            'https://content.googleapis.com/upload/drive/v3/files/' +
-            encodeURIComponent(configDriveId) +
-            '?uploadType=media&fields=id',
-          method: isConfigSaved ? 'POST' : 'PATCH',
-          params: {
-            uploadType: 'multipart',
-            supportsTeamDrives: true,
-            fields: 'id'
-          },
-          headers: { 'Content-Type': 'application/json' },
-          body: file
-        })
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (_error) {
-          error = _error;
-        });
+      metadata.id = configDriveId;
+      metadata.parents = ['appDataFolder'];
     }
+
+    var multipart = new MultiPartBuilder()
+      .append('application/json', JSON.stringify(metadata))
+      .append(metadata.mimeType, content)
+      .finish();
+
+    error = 'Saving config...';
+
+    gapi.client
+      .request({
+        path:
+          'https://content.googleapis.com/upload/drive/v3/files/' +
+          encodeURIComponent(configDriveId) +
+          '?uploadType=multipart&fields=id',
+        method: isConfigSaved ? 'PATCH' : 'POST',
+        params: {
+          uploadType: 'multipart',
+          supportsTeamDrives: true,
+          fields: 'id'
+        },
+        headers: { 'Content-Type': multipart.type },
+        body: multipart.body
+      })
+      .then(function (response) {
+        console.log(response);
+        error = 'Config saved - ' + response.result.id;
+      })
+      .catch(function (_error) {
+        error = _error;
+      });
   }
 
   /**
