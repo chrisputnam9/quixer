@@ -13,6 +13,8 @@
     "@rollup/plugin-replace": "^2.4.2",
     "documentation": "^13.2.0",
     "dotenv": "^8.2.0",
+    "eslint": "^7.24.0",
+    "eslint-plugin-svelte3": "^3.1.2",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",

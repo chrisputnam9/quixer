@@ -1,4 +1,5 @@
 <script>
+  /* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
   import MultiPartBuilder from './multipart.js';
   let isSignedIn = false;
   let isConfigSaved = false;
@@ -41,8 +42,8 @@
           // Handle the initial sign-in state.
           updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         },
-        function (error) {
-          error = JSON.stringify(error, null, 2);
+        function (_error) {
+          error = JSON.stringify(_error, null, 2);
         }
       );
   }
@@ -59,9 +60,6 @@
       error = 'Sign in before attempting to sync';
       return false;
     }
-
-    const user = gapi.auth2.getAuthInstance().currentUser.get();
-    const oauthToken = user.getAuthResponse().access_token;
 
     const content = JSON.stringify(configDrive);
     const metadata = {
@@ -96,13 +94,15 @@
         headers: { 'Content-Type': multipart.type },
         body: multipart.body
       })
-      .then(function (response) {
-        console.log(response);
-        error = 'Config saved - ' + response.result.id;
-      })
-      .catch(function (_error) {
-        error = _error;
-      });
+      .then(
+        function (response) {
+          console.log(response);
+          error = 'Config saved - ' + response.result.id;
+        },
+        function (_error) {
+          error = _error;
+        }
+      );
   }
 
   /**
@@ -135,28 +135,22 @@
               isConfigSaved = true;
               error = 'Config found, ID: ' + configDriveId + ' - Loading...';
 
-              const user = gapi.auth2.getAuthInstance().currentUser.get();
-              const oauthToken = user.getAuthResponse().access_token;
-              const xhr = new XMLHttpRequest();
-              xhr.open(
-                'get',
-                'https://www.googleapis.com/drive/v3/files/' +
-                  configDriveId +
-                  '?alt=media'
-              );
-              xhr.setRequestHeader('Authorization', 'Bearer ' + oauthToken);
-              xhr.responseType = 'json';
-              xhr.onload = () => {
-                console.log(xhr.response);
-                if (xhr.response.error) {
-                  error = xhr.response.error.message;
-                } else {
-                  error = 'Config loaded: ' + JSON.stringify(xhr.response);
-                }
-              };
-              xhr.send();
-            } else {
-              error = 'No config file saved yet';
+              gapi.client
+                .request({
+                  path:
+                    'https://www.googleapis.com/drive/v3/files/' +
+                    encodeURIComponent(configDriveId) +
+                    '?alt=media',
+                  method: 'GET'
+                })
+                .then(function (response) {
+                  console.log(response);
+                  configDrive = response.result;
+                  error = 'Config loaded: ' + JSON.stringify(configDrive);
+                })
+                .catch(function (_error) {
+                  error = _error;
+                });
             }
           },
           function (_error) {
@@ -169,14 +163,14 @@
   /**
    *  Sign in the user upon button click.
    */
-  function signIn(event) {
+  function signIn() {
     gapi.auth2.getAuthInstance().signIn();
   }
 
   /**
    *  Sign out the user upon button click.
    */
-  function signOut(event) {
+  function signOut() {
     gapi.auth2.getAuthInstance().signOut();
   }
 </script>
@@ -206,5 +200,6 @@
     defer
     src="https://apis.google.com/js/api.js"
     on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+    onreadystatechange="if (this.readyState === 'complete') this.onload()">
+  </script>
 </svelte:head>
