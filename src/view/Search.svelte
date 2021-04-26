@@ -40,7 +40,7 @@
     else defaultResult = results[0];
   }
 
-  function complete(event) {
+  function complete() {
     const exact = results.filter(service => {
       return service.alias == this.value;
     });
@@ -51,14 +51,14 @@
     }
   }
 
-  function filterResults(event) {
+  function filterResults() {
     results = services.filter(service => {
       const regex = new RegExp(this.value, 'i');
       return regex.test(service.alias) || regex.test(service.name);
     });
   }
 
-  function search(event) {
+  function search() {
     const action = defaultResult.action;
     if ('url' in action) {
       let url = action.url;

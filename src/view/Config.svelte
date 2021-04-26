@@ -1,6 +1,6 @@
 <script>
   /* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
-  import MultiPartBuilder from './multipart.js';
+  import MultiPartBuilder from '../inc/multipart.js';
   let isSignedIn = false;
   let isConfigSaved = false;
 
@@ -193,13 +193,3 @@
 {/if}
 
 <h2>Custom Services</h2>
-
-<svelte:head>
-  <script
-    async
-    defer
-    src="https://apis.google.com/js/api.js"
-    on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()">
-  </script>
-</svelte:head>
