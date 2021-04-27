@@ -21,55 +21,64 @@ import google_drive from '../inc/google-drive.js'
  */
 function constructConfig(default_config) {
 
-  const { subscribe, set } = writable(default_config);
-
-  const config = this;
-  config.subscribe = subscribe;
-  config.data = default_config;
+  let data = default_config;
+  const { subscribe, set } = writable(data);
 
   /**
    * Initialize the config instance
    *  - Load Local if any
    *  - Attempt Sync
    */
-  config.initialize = function () {
-    config.loadLocal();
-    config.sync();
+  const initialize = function () {
+    loadLocal();
+    sync();
   }  
 
   /**
    * Load from local storage if any
    */
-  config.loadLocal = function () {
+  const loadLocal = function () {
     // TODO
   }
 
   /**
    * Save to local storage
    */
-  config.saveLocal = function () {
+  const saveLocal = function () {
     // TODO
   }
 
   /**
    * Sync with third-party storage
    */
-  config.sync = function () {
-    config.data = google_drive.sync(config.data);
-    set(config.data);
+  const sync = function () {
+    data = google_drive.sync(data);
+    updateData(false);
   }
 
   /**
    * Set key value on data object
-   * TODO consider making a function that does "set" and optionally sets updated_at...
    */
-  config.set = function (key, value) {
-    config.data.key = value;
-    // TODO - set updated_at to current utime
-    set(config.data);
+  const setValue = function (key, value) {
+    data.key = value;
+    saveLocal();
+    updateData();
   }
 
-  return config;
+  /**
+   * Update data in store
+   *  - Update the updated_at stamp unless "false"
+   */
+  const updateData = function (update_date=true) {
+    if (update_date) {
+      data.updated_at = new Date().getTime();
+    }
+    set(data);
+  }
+
+  initialize();
+
+  return { subscribe, setValue};
 }
 
 export const config = constructConfig(default_config);
