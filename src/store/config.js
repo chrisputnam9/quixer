@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
-import default_config from '../data/default-config.js'
-import google_drive from '../inc/google-drive.js'
+import {default_config} from '../data/default-config.js'
+import {google_drive} from '../inc/google-drive.js'
 
 /**
  * Build a new config store interface

@@ -5,7 +5,7 @@ export const default_config = {
   },
   'services': [
     {
-      id: '0',
+      id: 'd0',
       alias: 'ddg:',
       name: 'DuckDuckGo / Bang!',
       action: {
@@ -13,7 +13,7 @@ export const default_config = {
       }
     },
     {
-      id: '2',
+      id: 'd2',
       alias: 'gm:',
       name: 'Gmail / Google Mail',
       action: {
@@ -21,11 +21,19 @@ export const default_config = {
       }
     },
     {
-      id: '3',
+      id: 'd3',
       alias: 'g:',
       name: 'Google',
       action: {
         url: 'https://www.google.com/search?hl=en&q=%s'
+      }
+    },
+    {
+      id: 'd5',
+      alias: 'ip:',
+      name: 'IP Address',
+      action: {
+        url: 'https://ip-api.com/#%s'
       }
     }
   ]
