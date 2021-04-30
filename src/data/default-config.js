@@ -1,5 +1,10 @@
 export const default_config = {
   'updated_at': 0,
+  'sync': {
+    'google_drive': [{
+      'id': 0,
+    }]
+  },
   'preferences': {
     'default_service': 0
   },

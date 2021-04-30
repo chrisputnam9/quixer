@@ -1,18 +1,5 @@
 <script>
-  /* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
-  import MultiPartBuilder from '../inc/multipart.js';
-  let isSignedIn = false;
-  let isConfigSaved = false;
-
-  let configLocal = {
-    test: 'test123',
-    addition: 'test1234',
-    addition2: 'test12345'
-  };
-  let configDrive = {};
-  let configDriveId = null;
-
-  let error = '';
+  import {config} from "../store/config.js"
 
   /**
    *  On load, called to load the auth2 library and API client library.

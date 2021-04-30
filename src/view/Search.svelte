@@ -4,7 +4,7 @@
   let search_category = '',
       search_phrase = '';
 
-  const services = $config.services;
+  const services = config.getValue('services');
   let results = services;
   let defaultResult = results[0];
 

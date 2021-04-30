@@ -57,6 +57,17 @@ function constructConfig(default_config) {
   }
 
   /**
+   * Get key value on data object
+   */
+  const getValue = function (key) {
+    if (key in data) {
+      return data[key];
+    }
+
+    return undefined;
+  }
+
+  /**
    * Set key value on data object
    */
   const setValue = function (key, value) {
@@ -78,7 +89,7 @@ function constructConfig(default_config) {
 
   initialize();
 
-  return { subscribe, setValue};
+  return { subscribe, setValue, getValue};
 }
 
 export const config = constructConfig(default_config);
