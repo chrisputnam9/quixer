@@ -11,11 +11,11 @@
 </script>
 
 {#if hash === '#config'}
-  <Config />
   <a href="/#">Back to app</a>
+  <Config />
 {:else}
-  <Search />
   <a href="/#config">Configure Options</a>
+  <Search />
 {/if}
 
 <svelte:head>
@@ -27,3 +27,9 @@
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
   </script>
 </svelte:head>
+
+<style>
+  a {
+    float: right;
+  }
+</style>
