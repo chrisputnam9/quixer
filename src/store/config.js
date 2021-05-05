@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store'
-import {default_config} from '../data/default-config.js'
-import {google_drive} from '../inc/google-drive.js'
+import { writable } from 'svelte/store';
+import { default_config } from '../data/default-config.js';
+import { google_drive } from '../inc/google-drive.js';
 
 /**
  * Build a new config store interface
@@ -20,7 +20,6 @@ import {google_drive} from '../inc/google-drive.js'
  *  - DeleteService
  */
 function constructConfig(default_config) {
-
   let data = default_config;
   const { subscribe, set } = writable(data);
 
@@ -32,21 +31,21 @@ function constructConfig(default_config) {
   const initialize = function () {
     loadLocal();
     sync();
-  }  
+  };
 
   /**
    * Load from local storage if any
    */
   const loadLocal = function () {
     // TODO
-  }
+  };
 
   /**
    * Save to local storage
    */
   const saveLocal = function () {
     // TODO
-  }
+  };
 
   /**
    * Sync with third-party storage
@@ -54,7 +53,7 @@ function constructConfig(default_config) {
   const sync = function () {
     data = google_drive.sync(data);
     updateData(false);
-  }
+  };
 
   /**
    * Get key value on data object
@@ -65,7 +64,7 @@ function constructConfig(default_config) {
     }
 
     return undefined;
-  }
+  };
 
   /**
    * Set key value on data object
@@ -74,22 +73,22 @@ function constructConfig(default_config) {
     data.key = value;
     saveLocal();
     updateData();
-  }
+  };
 
   /**
    * Update data in store
    *  - Update the updated_at stamp unless "false"
    */
-  const updateData = function (update_date=true) {
+  const updateData = function (update_date = true) {
     if (update_date) {
       data.updated_at = new Date().getTime();
     }
     set(data);
-  }
+  };
 
   initialize();
 
-  return { subscribe, setValue, getValue};
+  return { subscribe, setValue, getValue };
 }
 
 export const config = constructConfig(default_config);

@@ -2,7 +2,7 @@
  * Default config data to kick things off
  *
  * NEW SERVICES will be considered based on:
- *  - Usefulness as a service in this app
+ *  - Usefulness as a service in this app specifically (vs. a simple bookmark for example)
  *  - Ethical content & purpose
  *  - Reasonably appropriate content for all ages
  *  - Popularity as a service
