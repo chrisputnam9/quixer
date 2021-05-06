@@ -12,31 +12,33 @@ export const default_config = {
   /**
    * Last updated time for this specific dataset.  Used for syncing.
    */
-  'updated_at': 0,
+  updated_at: 0,
   /**
    * Configuration for syncing to third-party services
    */
-  'sync': {
-    'google_drive': [{
-      'id': 0,
-    }]
+  sync: {
+    google_drive: [
+      {
+        id: 0
+      }
+    ]
   },
   /**
    * User preferences outside of services
    */
-  'preferences': {
-    'default_service': 0
+  preferences: {
+    default_service: 0
   },
   /**
    * Services
    * Each service has:
-   * 
+   *
    * - id: A unique identifier.  Defaults will have "d" prepended to keep them unique & separate from custom additions.
    * - alias: Shortcut alias for use in the app
    * - name: Descriptive name
    * - action: Action that the service uses, one of:
    *    - url: Open a URL, replacing "%s" with the search term entered (if any)
-   * 
+   *
    * TODO
    * The following attributes will be automatically set:
    * - active: Whether to use the service. Can be set to false to disable unwanted default services
@@ -45,7 +47,18 @@ export const default_config = {
    * - updated_at: Last updated time for this specific service in this specific dataset.  Used for syncing.
    *    - 0 by default
    */
-  'services': [
+  service_template: {
+    id: null,
+    alias: '',
+    name: '',
+    action: {
+      url: ''
+    },
+    active: true,
+    from_default_config: false,
+    updated_at: 0
+  },
+  services: [
     {
       id: '0',
       alias: 'ddg:',
@@ -79,4 +92,4 @@ export const default_config = {
       }
     }
   ]
-}
+};

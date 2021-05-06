@@ -5,13 +5,18 @@
   $: {
     config.setValue('services', services);
   }
+
+  function addNewService() {
+    services.push(config.newService());
+    services = services;
+  }
 </script>
 
 <h1>Config</h1>
 
 <h2>Custom Services</h2>
 
-<button>Add New Service</button>
+<button on:click={addNewService}>Add New Service</button>
 
 <div class="service-boxes">
   {#each services as service (service.id)}
@@ -19,20 +24,20 @@
       <div class="service_field">
         <label for="service_name">Name: </label>
         <input id="service_name" bind:value={service.name} />
-        <br><small>{service.name}</small>
+        <br /><small>{service.name}</small>
       </div>
 
       <div class="service_field">
         <label for="service_alias">Alias: </label>
         <input id="service_alias" bind:value={service.alias} />
-        <br><small>{service.alias}</small>
+        <br /><small>{service.alias}</small>
       </div>
 
       <div class="service_field">
         <label for="service_action_url">URL: </label>
         <input id="service_action_url" bind:value={service.action.url} />
         <br /><small>Use "%s" as placeholder for search term </small>
-        <br><small>{service.action.url}</small>
+        <br /><small>{service.action.url}</small>
       </div>
 
       <button>Delete</button>
