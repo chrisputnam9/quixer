@@ -22,6 +22,9 @@ import { google_drive } from '../inc/google-drive.js';
 function constructConfig(default_config) {
   let data = default_config;
   let service_auto_id = 0; // TODO have this set up during init
+
+  console.log(data.service_template);
+  const service_template_string = JSON.stringify(data.service_template);
   const { subscribe, set } = writable(data);
 
   /**
@@ -75,6 +78,7 @@ function constructConfig(default_config) {
     data.key = value;
     saveLocal();
     updateData();
+    console.log(data);
   };
 
   /**
@@ -89,10 +93,17 @@ function constructConfig(default_config) {
   };
 
   /**
+   * Get a clone of the service template object
+   */
+  const serviceTemplate = function () {
+    return JSON.parse(service_template_string);
+  };
+
+  /**
    * Create a new service from the service template
    */
   const newService = function () {
-    const service = { ...data.service_template };
+    const service = serviceTemplate();
     service.id = ++service_auto_id;
     return service;
   };

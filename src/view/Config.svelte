@@ -3,12 +3,18 @@
 
   let services = config.getValue('services');
   $: {
+    console.log('reacting to services change');
+    console.log(services);
     config.setValue('services', services);
   }
 
   function addNewService() {
     services.push(config.newService());
     services = services;
+  }
+
+  function deleteService(id) {
+    services = services.filter(service => service.id !== id);
   }
 </script>
 
@@ -24,23 +30,20 @@
       <div class="service_field">
         <label for="service_name">Name: </label>
         <input id="service_name" bind:value={service.name} />
-        <br /><small>{service.name}</small>
       </div>
 
       <div class="service_field">
         <label for="service_alias">Alias: </label>
         <input id="service_alias" bind:value={service.alias} />
-        <br /><small>{service.alias}</small>
       </div>
 
       <div class="service_field">
         <label for="service_action_url">URL: </label>
         <input id="service_action_url" bind:value={service.action.url} />
         <br /><small>Use "%s" as placeholder for search term </small>
-        <br /><small>{service.action.url}</small>
       </div>
 
-      <button>Delete</button>
+      <button on:click={deleteService(service.id)}>Delete</button>
     </div>
   {/each}
 </div>
