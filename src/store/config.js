@@ -23,7 +23,6 @@ function constructConfig(default_config) {
   let data = default_config;
   let service_auto_id = 0; // TODO have this set up during init
 
-  console.log(data.service_template);
   const service_template_string = JSON.stringify(data.service_template);
   const { subscribe, set } = writable(data);
 
@@ -34,6 +33,19 @@ function constructConfig(default_config) {
    */
   const initialize = function () {
     // TODO populate default services with extra data from template & custom logic
+    const service_template = serviceTemplate();
+    setValue(
+      'services',
+      data.services.map(service => {
+        service = {
+          ...service_template,
+          ...service
+        };
+        service.from_default_config = true;
+        service.id = 'd' + service.id;
+        return service;
+      })
+    );
     loadLocal();
     sync();
   };
@@ -75,10 +87,9 @@ function constructConfig(default_config) {
    * Set key value on data object
    */
   const setValue = function (key, value) {
-    data.key = value;
+    data[key] = value;
     saveLocal();
     updateData();
-    console.log(data);
   };
 
   /**

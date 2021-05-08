@@ -1,8 +1,8 @@
 <script>
-  import {config} from "../store/config.js"
+  import { config } from '../store/config.js';
 
   let search_category = '',
-      search_phrase = '';
+    search_phrase = '';
 
   const services = config.getValue('services');
   let results = services;
@@ -41,6 +41,7 @@
       url = url.replace('%s', search_phrase);
       const newWindow = window.open(url, '_blank');
       if (newWindow) {
+        // TODO
         console.log('WINDOW WOULD CLOSE AT THIS POINT');
         // window.close();
       } else {
@@ -49,8 +50,6 @@
     } else {
       alert('Action for ' + defaultResult.name + ' not yet supported');
     }
-    console.log(defaultResult);
-    console.log(search_phrase);
   }
 </script>
 

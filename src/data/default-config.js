@@ -61,7 +61,7 @@ export const default_config = {
   services: [
     {
       id: '0',
-      alias: 'ddg:',
+      alias: 'ddg',
       name: 'DuckDuckGo / Bang!',
       action: {
         url: 'https://next.duckduckgo.com/?q=%s'
@@ -69,7 +69,7 @@ export const default_config = {
     },
     {
       id: '1',
-      alias: 'gm:',
+      alias: 'gm',
       name: 'Gmail / Google Mail',
       action: {
         url: 'https://mail.google.com/mail/u/0/#search/%s'
@@ -77,7 +77,7 @@ export const default_config = {
     },
     {
       id: '2',
-      alias: 'g:',
+      alias: 'g',
       name: 'Google',
       action: {
         url: 'https://www.google.com/search?hl=en&q=%s'
@@ -85,7 +85,7 @@ export const default_config = {
     },
     {
       id: '3',
-      alias: 'ip:',
+      alias: 'ip',
       name: 'IP Address',
       action: {
         url: 'https://ip-api.com/#%s'

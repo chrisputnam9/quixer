@@ -3,8 +3,6 @@
 
   let services = config.getValue('services');
   $: {
-    console.log('reacting to services change');
-    console.log(services);
     config.setValue('services', services);
   }
 
@@ -28,22 +26,47 @@
   {#each services as service (service.id)}
     <div class="service-box" title="Service id {service.id} - {service.name}">
       <div class="service_field">
-        <label for="service_name">Name: </label>
-        <input id="service_name" bind:value={service.name} />
+        <label for="service_{service.id}_name">Name: </label>
+        <input
+          id="service_{service.id}_name"
+          bind:value={service.name}
+          placeholder="Descriptive Name"
+        />
       </div>
 
       <div class="service_field">
-        <label for="service_alias">Alias: </label>
-        <input id="service_alias" bind:value={service.alias} />
+        <label for="service_{service.id}_alias">Alias: </label>
+        <input
+          id="service_{service.id}_alias"
+          bind:value={service.alias}
+          placeholder="Alias / abbreviation"
+        />
       </div>
 
       <div class="service_field">
-        <label for="service_action_url">URL: </label>
-        <input id="service_action_url" bind:value={service.action.url} />
+        <label for="service_{service.id}_action_url">URL: </label>
+        <input
+          id="service_{service.id}_action_url"
+          bind:value={service.action.url}
+          placeholder="URL to open"
+        />
         <br /><small>Use "%s" as placeholder for search term </small>
       </div>
 
-      <button on:click={deleteService(service.id)}>Delete</button>
+      <div class="service_field">
+        <label for="service_{service.id}_active">
+          <input
+            id="service_{service.id}_active"
+            type="checkbox"
+            bind:checked={service.active}
+          />
+          Enabled
+        </label>
+      </div>
+
+      {#if !service.from_default_config}
+        <button on:click={deleteService(service.id)}>Delete</button>
+      {/if}
     </div>
   {/each}
 </div>
