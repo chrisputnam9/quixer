@@ -39,7 +39,6 @@ export const default_config = {
    * - action: Action that the service uses, one of:
    *    - url: Open a URL, replacing "%s" with the search term entered (if any)
    *
-   * TODO
    * The following attributes will be automatically set:
    * - active: Whether to use the service. Can be set to false to disable unwanted default services
    *    - true by default
@@ -65,7 +64,8 @@ export const default_config = {
       name: 'DuckDuckGo / Bang!',
       action: {
         url: 'https://next.duckduckgo.com/?q=%s'
-      }
+      },
+      active: true
     },
     {
       id: '1',

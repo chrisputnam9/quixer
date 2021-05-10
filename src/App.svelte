@@ -18,16 +18,14 @@
   <Search />
 {/if}
 
-<svelte:head>
+<!-- svelte:head>
   <script
     async
     defer
     src="https://apis.google.com/js/api.js"
     on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()">
-  </script>
-</svelte:head>
-
+    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=">{}</script>
+</svelte:head -->
 <style>
   a {
     float: right;

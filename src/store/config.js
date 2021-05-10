@@ -21,7 +21,7 @@ import { google_drive } from '../inc/google-drive.js';
  */
 function constructConfig(default_config) {
   let data = default_config;
-  let service_auto_id = 0; // TODO have this set up during init
+  let service_auto_id = 0;
 
   const service_template_string = JSON.stringify(data.service_template);
   const { subscribe, set } = writable(data);
@@ -32,7 +32,6 @@ function constructConfig(default_config) {
    *  - Attempt Sync
    */
   const initialize = function () {
-    // TODO populate default services with extra data from template & custom logic
     const service_template = serviceTemplate();
     setValue(
       'services',
@@ -48,6 +47,39 @@ function constructConfig(default_config) {
     );
     loadLocal();
     sync();
+    sortServices();
+    service_auto_id = data.services.reduce((highest_id, service) => {
+      if (typeof service.id === 'number') {
+        if (service.id > highest_id) {
+          return service.id;
+        }
+      }
+      return highest_id;
+    }, service_auto_id);
+  };
+
+  /**
+   * Sort services
+   *  - Active last
+   *  - Defaults last
+   *  - Newest first - based on ID
+   */
+  const sortServices = function () {
+    data.services.sort((service1, service2) => {
+      if (service1.active !== service2.active) {
+        return service1.active ? -1 : 1;
+      }
+
+      if (service1.from_default_config !== service2.from_default_config) {
+        return service1.from_default_config ? 1 : -1;
+      }
+
+      if (typeof service1.id === typeof service2.id) {
+        return service1.id > service2.id ? -1 : 1;
+      }
+    });
+    updateData(false);
+    return data.services;
   };
 
   /**
@@ -121,7 +153,7 @@ function constructConfig(default_config) {
 
   initialize();
 
-  return { subscribe, setValue, getValue, newService };
+  return { subscribe, setValue, getValue, newService, sortServices };
 }
 
 export const config = constructConfig(default_config);

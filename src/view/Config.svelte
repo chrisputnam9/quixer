@@ -4,6 +4,7 @@
   let services = config.getValue('services');
   $: {
     config.setValue('services', services);
+    services = config.sortServices(services);
   }
 
   function addNewService() {
@@ -14,17 +15,41 @@
   function deleteService(id) {
     services = services.filter(service => service.id !== id);
   }
+
+  function filter(event) {
+    const pattern = new RegExp(event.target.value, 'i');
+    console.log('Filtering', pattern);
+    services = services.map(service => {
+      const values = Object.values(service);
+      console.log(values);
+      service.hidden = !values.some(value => {
+        return String(value).match(pattern);
+      });
+      return service;
+    });
+  }
 </script>
 
 <h1>Config</h1>
 
 <h2>Custom Services</h2>
 
-<button on:click={addNewService}>Add New Service</button>
+<div class="boxes">
+  <div class="box" style="flex:3">
+    <button on:click={addNewService}>Add New Service</button>
+  </div>
 
-<div class="service-boxes">
+  <div class="box" style="flex:1">
+    <input id="filter" class="filter" on:keyup={filter} placeholder="Filter services" />
+  </div>
+</div>
+
+<div class="boxes">
   {#each services as service (service.id)}
-    <div class="service-box" title="Service id {service.id} - {service.name}">
+    <div
+      class="box {service.hidden ? 'hidden' : ''}"
+      title="Service id {service.id} - {service.name}"
+    >
       <div class="service_field">
         <label for="service_{service.id}_name">Name: </label>
         <input
@@ -81,11 +106,16 @@
   small {
     font-size: 0.6em;
   }
-  .service-boxes {
+  .boxes {
     display: flex;
     flex-wrap: wrap;
+    align-items: end;
   }
-  .service-box {
+  .box {
+    flex: 1 auto;
     padding: 10px;
+  }
+  .hidden {
+    display: none !important;
   }
 </style>
