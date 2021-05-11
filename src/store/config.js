@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { default_config } from '../data/default-config.js';
 import { google_drive } from '../inc/google-drive.js';
+import { local_storage } from '../inc/local-storage.js';
 
 /**
  * Build a new config store interface
@@ -86,14 +87,25 @@ function constructConfig(default_config) {
    * Load from local storage if any
    */
   const loadLocal = function () {
-    // TODO
+    const json = local_storage.get('config');
+    console.log('Loaded from local: ', json);
+    if (json) {
+      const _data = JSON.parse(json);
+      // Check out the data before saving it
+      if (_data && typeof _data === 'object' && Object.values(_data).length > 0) {
+        data = _data;
+        updateData(false);
+      }
+    }
   };
 
   /**
    * Save to local storage
    */
   const saveLocal = function () {
-    // TODO
+    const json = JSON.stringify(data);
+    local_storage.set('config', json);
+    console.log('Saved to local', json);
   };
 
   /**

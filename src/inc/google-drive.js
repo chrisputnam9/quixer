@@ -6,4 +6,4 @@ export const google_drive = {
   sync: function (data) {
     return data;
   }
-}
+};
