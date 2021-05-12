@@ -34,18 +34,15 @@ function constructConfig(default_config) {
    */
   const initialize = function () {
     const service_template = serviceTemplate();
-    setValue(
-      'services',
-      data.services.map(service => {
-        service = {
-          ...service_template,
-          ...service
-        };
-        service.from_default_config = true;
-        service.id = 'd' + service.id;
-        return service;
-      })
-    );
+    data.services = data.services.map(service => {
+      service = {
+        ...service_template,
+        ...service
+      };
+      service.from_default_config = true;
+      service.id = 'd' + service.id;
+      return service;
+    });
     loadLocal();
     sync();
     sortServices();
@@ -88,13 +85,11 @@ function constructConfig(default_config) {
    */
   const loadLocal = function () {
     const json = local_storage.get('config');
-    console.log('Loaded from local: ', json);
     if (json) {
       const _data = JSON.parse(json);
       // Check out the data before saving it
       if (_data && typeof _data === 'object' && Object.values(_data).length > 0) {
         data = _data;
-        updateData(false);
       }
     }
   };
@@ -105,7 +100,6 @@ function constructConfig(default_config) {
   const saveLocal = function () {
     const json = JSON.stringify(data);
     local_storage.set('config', json);
-    console.log('Saved to local', json);
   };
 
   /**
@@ -113,7 +107,6 @@ function constructConfig(default_config) {
    */
   const sync = function () {
     data = google_drive.sync(data);
-    updateData(false);
   };
 
   /**

@@ -80,6 +80,7 @@ export default {
     !production &&
       livereload({
         watch: 'public',
+        port: 35728,
         https:
           tlsCert && tlsKey
             ? {
