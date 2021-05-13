@@ -1,5 +1,13 @@
 <script>
   import { config } from '../store/config.js';
+  import { slide } from 'svelte/transition';
+
+  let configText = '';
+
+  let showImportExport = false;
+  function toggleImportExport() {
+    showImportExport = !showImportExport;
+  }
 
   let services = config.getValue('services');
   $: {
@@ -31,6 +39,21 @@
 </script>
 
 <h1>Config</h1>
+
+<button on:click={toggleImportExport}
+  >{#if showImportExport}Hide{/if} Import/Export</button
+>
+{#if showImportExport}
+  <div class="import-export" transition:slide>
+    <p>
+      <b>Use Caution With This Feature</b>
+      <br />Copy the JSON formatted text and save it somewhere safe to create a backup.
+      <br />To import, paste in valid JSON and click Save.
+    </p>
+    <textarea bind:value={configText} style="width:100%;height:400px" />
+    <br /><button>Save</button>
+  </div>
+{/if}
 
 <h2>Custom Services</h2>
 
