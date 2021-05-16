@@ -2,7 +2,7 @@
   import { config } from '../store/config.js';
   import { slide } from 'svelte/transition';
 
-  let configText = '';
+  let config_json = config.json;
 
   let showImportExport = false;
   function toggleImportExport() {
@@ -11,8 +11,10 @@
 
   let services = config.getValue('services');
   $: {
+    console.log('updating');
     config.setValue('services', services);
     services = config.sortServices(services);
+    config_json = config.json;
   }
 
   function addNewService() {
@@ -50,7 +52,7 @@
       <br />Copy the JSON formatted text and save it somewhere safe to create a backup.
       <br />To import, paste in valid JSON and click Save.
     </p>
-    <textarea bind:value={configText} style="width:100%;height:400px" />
+    <textarea bind:value={config_json} style="width:100%;height:400px" />
     <br /><button>Save</button>
   </div>
 {/if}
