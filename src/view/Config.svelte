@@ -3,6 +3,12 @@
   import { slide } from 'svelte/transition';
 
   let config_json = config.json;
+  let config_json_altered = config_json;
+  let txtConfigJsonSave = false;
+  let txtConfigJson;
+  function txtConfigJsonKeyUp() {
+    config_json_altered = txtConfigJson.value;
+  }
 
   let showImportExport = false;
   function toggleImportExport() {
@@ -13,8 +19,8 @@
   $: {
     console.log('updating');
     config.setValue('services', services);
-    services = config.sortServices(services);
-    config_json = config.json;
+    services = config.sortServices();
+    config_json = config.toJson();
   }
 
   function addNewService() {
@@ -52,8 +58,15 @@
       <br />Copy the JSON formatted text and save it somewhere safe to create a backup.
       <br />To import, paste in valid JSON and click Save.
     </p>
-    <textarea bind:value={config_json} style="width:100%;height:400px" />
-    <br /><button>Save</button>
+    <textarea
+      style="width:100%;height:400px"
+      bind:this={txtConfigJson}
+      on:keyup={txtConfigJsonKeyUp}
+    >
+      {config_json}
+    </textarea>
+    <br />
+    <button>Save</button>
   </div>
 {/if}
 

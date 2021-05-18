@@ -23,7 +23,6 @@ import { local_storage } from '../inc/local-storage.js';
 function constructConfig(default_config) {
   let data = default_config;
   let service_auto_id = 0;
-  let json = '';
 
   const service_template_string = JSON.stringify(data.service_template);
   const { subscribe, set } = writable(data);
@@ -99,8 +98,7 @@ function constructConfig(default_config) {
    * Save to local storage
    */
   const saveLocal = function () {
-    const json = JSON.stringify(data);
-    local_storage.set('config', json);
+    local_storage.set('config', JSON.stringify(data));
   };
 
   /**
@@ -126,8 +124,8 @@ function constructConfig(default_config) {
    */
   const setValue = function (key, value) {
     data[key] = value;
-    saveLocal();
     updateData();
+    saveLocal();
   };
 
   /**
@@ -138,8 +136,6 @@ function constructConfig(default_config) {
     if (update_date) {
       data.updated_at = new Date().getTime();
     }
-    json = JSON.stringify(data);
-    console.log('Updated JSON:', json);
     set(data);
   };
 
@@ -159,9 +155,16 @@ function constructConfig(default_config) {
     return service;
   };
 
+  /**
+   * Get data as JSON
+   */
+  const toJson = function () {
+    return JSON.stringify(data, null, 2);
+  };
+
   initialize();
 
-  return { subscribe, setValue, getValue, json, newService, sortServices };
+  return { subscribe, setValue, getValue, toJson, newService, sortServices };
 }
 
 export const config = constructConfig(default_config);
