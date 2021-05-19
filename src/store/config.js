@@ -162,9 +162,16 @@ function constructConfig(default_config) {
     return JSON.stringify(data, null, 2);
   };
 
+  /**
+   * Import data from JSON
+   */
+  const importJson = function (json) {
+    console.log('import:', json);
+  };
+
   initialize();
 
-  return { subscribe, setValue, getValue, toJson, newService, sortServices };
+  return { subscribe, setValue, getValue, toJson, importJson, newService, sortServices };
 }
 
 export const config = constructConfig(default_config);

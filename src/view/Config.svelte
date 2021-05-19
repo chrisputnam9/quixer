@@ -4,10 +4,18 @@
 
   let config_json = config.json;
   let config_json_altered = config_json;
-  let txtConfigJsonSave = false;
+  let btnConfigSaveDisabled = true;
   let txtConfigJson;
   function txtConfigJsonKeyUp() {
     config_json_altered = txtConfigJson.value;
+    btnConfigSaveDisabled = config_json_altered == config_json;
+  }
+  function btnConfigSaveClick() {
+    config.importJson(config_json_altered);
+    services = config.getValue('services');
+    config_json = config.toJson();
+    config_json_altered = config_json;
+    btnConfigSaveDisabled = true;
   }
 
   let showImportExport = false;
@@ -17,10 +25,12 @@
 
   let services = config.getValue('services');
   $: {
-    console.log('updating');
     config.setValue('services', services);
     services = config.sortServices();
+
     config_json = config.toJson();
+    config_json_altered = config_json;
+    btnConfigSaveDisabled = true;
   }
 
   function addNewService() {
@@ -34,10 +44,8 @@
 
   function filter(event) {
     const pattern = new RegExp(event.target.value, 'i');
-    console.log('Filtering', pattern);
     services = services.map(service => {
       const values = Object.values(service);
-      console.log(values);
       service.hidden = !values.some(value => {
         return String(value).match(pattern);
       });
@@ -62,11 +70,10 @@
       style="width:100%;height:400px"
       bind:this={txtConfigJson}
       on:keyup={txtConfigJsonKeyUp}
-    >
-      {config_json}
-    </textarea>
+      value={config_json}
+    />
     <br />
-    <button>Save</button>
+    <button disabled={btnConfigSaveDisabled} on:click={btnConfigSaveClick}>Save</button>
   </div>
 {/if}
 
