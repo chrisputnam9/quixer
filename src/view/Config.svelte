@@ -11,11 +11,12 @@
     btnConfigSaveDisabled = config_json_altered == config_json;
   }
   function btnConfigSaveClick() {
-    config.importJson(config_json_altered);
-    services = config.getValue('services');
-    config_json = config.toJson();
-    config_json_altered = config_json;
-    btnConfigSaveDisabled = true;
+    if (config.importJson(config_json_altered)) {
+      services = config.getValue('services');
+      config_json = config.toJson();
+      config_json_altered = config_json;
+      btnConfigSaveDisabled = true;
+    }
   }
 
   let showImportExport = false;
@@ -64,7 +65,7 @@
     <p>
       <b>Use Caution With This Feature</b>
       <br />Copy the JSON formatted text and save it somewhere safe to create a backup.
-      <br />To import, paste in valid JSON and click Save.
+      <br />To import, edit or paste in valid JSON and click Save.
     </p>
     <textarea
       style="width:100%;height:400px"

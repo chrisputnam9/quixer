@@ -166,7 +166,21 @@ function constructConfig(default_config) {
    * Import data from JSON
    */
   const importJson = function (json) {
-    console.log('import:', json);
+    if (json == toJson()) {
+      alert('No changes to data, skipping import');
+      return false;
+    }
+
+    try {
+      const _data = JSON.parse(json);
+      data = _data;
+      updateData();
+    } catch (error) {
+      alert('Issue with import:\n\n' + error);
+      return false;
+    }
+
+    return true;
   };
 
   initialize();
