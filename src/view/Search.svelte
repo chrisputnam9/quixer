@@ -2,7 +2,9 @@
   import { config } from '../store/config.js';
 
   let search_category = '',
-    search_phrase = '';
+    search_phrase = '',
+    elSearchCategory,
+    elSearchPhrase;
 
   const services = config.getValue('services');
   let results = services;
@@ -51,17 +53,26 @@
       alert('Action for ' + defaultResult.name + ' not yet supported');
     }
   }
+
+  // Quick and dirty query parse
+  const query_pattern = /^\?q=([^&]+)(&|=|$)/;
+  const match = document.location.search.match(query_pattern);
+  if (match) {
+    const search_split = decodeURI(match[1]).split(/ |:/);
+    console.log(search_split);
+  }
 </script>
 
 <form on:submit|preventDefault={search}>
   <input
     class="search_category"
+    bind:this={elSearchCategory}
     bind:value={search_category}
     on:keyup={filterResults}
     on:change={complete}
     placeholder="ddg:"
   />
-  <input class="search_category" bind:value={search_phrase} />
+  <input class="search_phrase" bind:this={elSearchPhrase} bind:value={search_phrase} />
   <button type="submit">Go</button>
 </form>
 <ul>

@@ -67,29 +67,176 @@ export const default_config = {
       },
       active: true
     },
+
     {
       id: '1',
-      alias: 'gm',
-      name: 'Gmail / Google Mail',
-      action: {
-        url: 'https://mail.google.com/mail/u/0/#search/%s'
-      }
-    },
-    {
-      id: '2',
       alias: 'g',
       name: 'Google',
       action: {
-        url: 'https://www.google.com/search?hl=en&q=%s'
-      }
+        url: 'https://google.com/search?q=%s'
+      },
+      active: true
     },
+
+    {
+      id: '2',
+      alias: 'gc',
+      name: 'Google Calendar Search',
+      action: {
+        url: 'https://calendar.google.com/calendar/r/search?q=%s'
+      },
+      active: true
+    },
+
     {
       id: '3',
+      alias: 'gd',
+      name: 'Google Drive Search',
+      action: {
+        url: 'https://drive.google.com/drive/search?q=%s'
+      },
+      active: true
+    },
+
+    {
+      id: '4',
+      alias: 'gdns',
+      name: 'Google DNS',
+      action: {
+        url: 'https://dns.google.com/query?name=%s'
+      },
+      active: true
+    },
+
+    {
+      id: '5',
+      alias: 'gi',
+      name: 'Google Images',
+      action: {
+        url: 'https://www.google.com/search?tbm=isch&q=%s'
+      },
+      active: true
+    },
+
+    {
+      id: '6',
+      alias: 'gm',
+      name: 'Google Mail (GMail) Search',
+      action: {
+        url: 'https://mail.google.com/mail/u/0/#search/%s'
+      },
+      active: true
+    },
+
+    {
+      id: '7',
+      alias: 'gmc',
+      name: 'Google Mail (GMail) Compose',
+      action: {
+        url: 'https://mail.google.com/mail/u/0/?view=cm&fs=1&to=%s'
+      },
+      active: true
+    },
+
+    {
+      id: '8',
+      alias: 'gmap',
+      name: 'Google Maps',
+      action: {
+        url: 'https://www.google.com/maps/search/%s?hl=en&source=opensearch'
+      },
+      active: true
+    },
+
+    {
+      id: '9',
+      alias: 'et',
+      name: 'Eggtimer',
+      action: {
+        url:
+          'https://e.ggtimer.com/%s?theme=gg_timer_digital&hideToolbar=true&hideNudge=true'
+      },
+      active: true
+    },
+
+    {
+      id: '10',
       alias: 'ip',
       name: 'IP Address',
       action: {
         url: 'https://ip-api.com/#%s'
-      }
+      },
+      active: true
+    },
+
+    {
+      id: '11',
+      alias: 'nc',
+      name: 'Namecheap Domain Search',
+      action: {
+        url: 'https://www.namecheap.com/domains/registration/results/?domain='
+      },
+      active: true
+    },
+
+    {
+      id: '12',
+      alias: 'dc',
+      name: 'Domain Compare (supports the author)',
+      action: {
+        url: 'https://www.domcomp.com/?refcode=60a8fe0a77b1e604078ba0ed'
+      },
+      active: true
+    },
+
+    {
+      id: '13',
+      alias: 'dh',
+      name: 'DevHints / Cheet Sheets',
+      action: {
+        url: 'https://devhints.io/%s'
+      },
+      active: true
+    },
+
+    {
+      id: '14',
+      alias: 'wttr',
+      name: 'Weather Report / wttr.in',
+      action: {
+        url: 'https://wttr.in/%s'
+      },
+      active: true
+    },
+
+    {
+      id: '15',
+      alias: 'cht',
+      name: 'Cheet Sheets / Command References',
+      action: {
+        url: 'https://cheat.sh/%s'
+      },
+      active: true
+    },
+
+    {
+      id: '16',
+      alias: 'bang',
+      name: 'DuckDuckGo Search all *Bang*s',
+      action: {
+        url: 'https://next.duckduckgo.com/bang?q=%s'
+      },
+      active: true
+    },
+
+    {
+      id: '17',
+      alias: 'csm',
+      name: 'Common Sense Media',
+      action: {
+        url: 'https://www.commonsensemedia.org/search/%s'
+      },
+      active: true
     }
   ]
 };
