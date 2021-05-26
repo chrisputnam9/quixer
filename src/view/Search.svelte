@@ -3,8 +3,7 @@
 
   let search_category = '',
     search_phrase = '',
-    elSearchCategory,
-    elSearchPhrase;
+    elSearchForm;
 
   const services = config.getValue('services');
   let results = services;
@@ -58,21 +57,36 @@
   const query_pattern = /^\?q=([^&]+)(&|=|$)/;
   const match = document.location.search.match(query_pattern);
   if (match) {
-    const search_split = decodeURI(match[1]).split(/ |:/);
-    console.log(search_split);
+    const search = decodeURI(match[1]);
+    const search_match = search.match(/(^[^ :]+)( |:|$)(.*)$/);
+    let service_match = false,
+      category_alias = '';
+
+    if (search_match) {
+      category_alias = search_match[1].toLowerCase();
+      service_match = services.filter(service => {
+        return service.toLowerCase == category_alias;
+      });
+    }
+    if (service_match) {
+      search_category = category_alias;
+      search_phrase = search_match[3];
+      elSearchForm.submit();
+    } else {
+      search_phrase = search;
+    }
   }
 </script>
 
-<form on:submit|preventDefault={search}>
+<form on:submit|preventDefault={search} bind:this={elSearchForm}>
   <input
     class="search_category"
-    bind:this={elSearchCategory}
     bind:value={search_category}
     on:keyup={filterResults}
     on:change={complete}
     placeholder="ddg:"
   />
-  <input class="search_phrase" bind:this={elSearchPhrase} bind:value={search_phrase} />
+  <input class="search_phrase" bind:value={search_phrase} />
   <button type="submit">Go</button>
 </form>
 <ul>
