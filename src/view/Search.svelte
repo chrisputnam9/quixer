@@ -1,9 +1,9 @@
 <script>
   import { config } from '../store/config.js';
+  import { onMount, tick } from 'svelte';
 
   let search_category = '',
-    search_phrase = '',
-    elSearchForm;
+    search_phrase = '';
 
   const services = config.getValue('services');
   let results = services;
@@ -30,7 +30,7 @@
 
   function filterResults() {
     results = services.filter(service => {
-      const regex = new RegExp(this.value, 'i');
+      const regex = new RegExp(search_category, 'i');
       return regex.test(service.alias) || regex.test(service.name);
     });
   }
@@ -53,32 +53,36 @@
     }
   }
 
-  // Quick and dirty query parse
-  const query_pattern = /^\?q=([^&]+)(&|=|$)/;
-  const match = document.location.search.match(query_pattern);
-  if (match) {
-    const search = decodeURI(match[1]);
-    const search_match = search.match(/(^[^ :]+)( |:|$)(.*)$/);
-    let service_match = false,
-      category_alias = '';
+  onMount(async () => {
+    // Quick and dirty query parse
+    const query_pattern = /^\?q=([^&]+)(&|=|$)/;
+    const query_match = document.location.search.match(query_pattern);
+    if (query_match) {
+      const query_search = decodeURI(query_match[1]);
+      const query_search_match = query_search.match(/(^[^ :]+)( |:|$)(.*)$/);
+      let service_match = false,
+        category_alias = '';
 
-    if (search_match) {
-      category_alias = search_match[1].toLowerCase();
-      service_match = services.filter(service => {
-        return service.toLowerCase == category_alias;
-      });
+      if (query_search_match) {
+        category_alias = query_search_match[1].toLowerCase();
+        service_match = services.filter(service => {
+          return service.toLowerCase == category_alias;
+        });
+      }
+      if (service_match) {
+        search_category = category_alias;
+        search_phrase = query_search_match[3];
+        filterResults();
+        await tick();
+        search();
+      } else {
+        search_phrase = query_search;
+      }
     }
-    if (service_match) {
-      search_category = category_alias;
-      search_phrase = search_match[3];
-      elSearchForm.submit();
-    } else {
-      search_phrase = search;
-    }
-  }
+  });
 </script>
 
-<form on:submit|preventDefault={search} bind:this={elSearchForm}>
+<form on:submit|preventDefault={search}>
   <input
     class="search_category"
     bind:value={search_category}
