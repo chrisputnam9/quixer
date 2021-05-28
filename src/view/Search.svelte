@@ -40,13 +40,21 @@
     if ('url' in action) {
       let url = action.url;
       url = url.replace('%s', search_phrase);
-      const newWindow = window.open(url, '_blank');
-      if (newWindow) {
-        // TODO
-        console.log('WINDOW WOULD CLOSE AT THIS POINT');
-        // window.close();
+
+      // TODO make this env dependent?
+      const live = true;
+
+      if (live) {
+        window.location.href = url;
       } else {
-        alert('Something went wrong, maybe popup blocked?');
+        const newWindow = window.open(url, '_blank');
+        if (newWindow) {
+          // TODO
+          console.log('WINDOW WOULD CLOSE AT THIS POINT');
+          window.close();
+        } else {
+          alert('Something went wrong, maybe popup blocked?');
+        }
       }
     } else {
       alert('Action for ' + defaultResult.name + ' not yet supported');
@@ -65,8 +73,10 @@
 
       if (query_search_match) {
         category_alias = query_search_match[1].toLowerCase();
+        console.log(category_alias);
         service_match = services.filter(service => {
-          return service.toLowerCase == category_alias;
+          console.log(service.alias.toLowerCase());
+          return service.alias.toLowerCase() == category_alias;
         });
       }
       console.log(service_match);
