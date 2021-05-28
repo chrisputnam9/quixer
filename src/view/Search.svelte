@@ -69,15 +69,17 @@
           return service.toLowerCase == category_alias;
         });
       }
-      if (service_match) {
+      console.log(service_match);
+      if (service_match.length > 0) {
         search_category = category_alias;
         search_phrase = query_search_match[3];
         filterResults();
-        await tick();
-        search();
       } else {
         search_phrase = query_search;
       }
+
+      await tick();
+      search();
     }
   });
 </script>
