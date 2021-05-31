@@ -48,11 +48,7 @@
         window.location.href = url;
       } else {
         const newWindow = window.open(url, '_blank');
-        if (newWindow) {
-          // TODO
-          console.log('WINDOW WOULD CLOSE AT THIS POINT');
-          window.close();
-        } else {
+        if (!newWindow) {
           alert('Something went wrong, maybe popup blocked?');
         }
       }
@@ -67,7 +63,7 @@
     const query_match = document.location.search.match(query_pattern);
     if (query_match) {
       const query_search = decodeURI(query_match[1]);
-      const query_search_match = query_search.match(/(^[^ :]+)( |:|$)(.*)$/);
+      const query_search_match = query_search.match(/(^[^ :]+)( |:|\+|$)(.*)$/);
       let service_match = false,
         category_alias = '';
 
