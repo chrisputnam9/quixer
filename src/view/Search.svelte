@@ -69,13 +69,10 @@
 
       if (query_search_match) {
         category_alias = query_search_match[1].toLowerCase();
-        console.log(category_alias);
         service_match = services.filter(service => {
-          console.log(service.alias.toLowerCase());
           return service.alias.toLowerCase() == category_alias;
         });
       }
-      console.log(service_match);
       if (service_match.length > 0) {
         search_category = category_alias;
         search_phrase = query_search_match[3];
