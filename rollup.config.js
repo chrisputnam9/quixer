@@ -47,6 +47,7 @@ export default {
   },
   plugins: [
     replace({
+      ENV_IS_LIVE: JSON.stringify(process.env.ENV_IS_LIVE),
       GOOGLE_DRIVE_API_KEY: JSON.stringify(process.env.GOOGLE_DRIVE_API_KEY),
       GOOGLE_DRIVE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_DRIVE_CLIENT_ID)
     }),

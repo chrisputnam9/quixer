@@ -40,20 +40,24 @@
     if ('url' in action) {
       let url = action.url;
       url = url.replace('%s', search_phrase);
-
-      // TODO make this env dependent?
-      const live = true;
-
-      if (live) {
-        window.location.href = url;
-      } else {
-        const newWindow = window.open(url, '_blank');
-        if (!newWindow) {
-          alert('Something went wrong, maybe popup blocked?');
-        }
-      }
+      openUrl(url);
     } else {
       alert('Action for ' + defaultResult.name + ' not yet supported');
+    }
+  }
+
+  /**
+   * Open a URL in browser
+   */
+  function openUrl(url) {
+    const is_live = ENV_IS_LIVE;
+    if (is_live) {
+      window.location.href = url;
+    } else {
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        alert('Something went wrong, maybe popup blocked?');
+      }
     }
   }
 
@@ -73,10 +77,17 @@
           return service.alias.toLowerCase() == category_alias;
         });
       }
+
+      // Got a service alias match? Hit it!
       if (service_match.length > 0) {
         search_category = category_alias;
         search_phrase = query_search_match[3];
         filterResults();
+
+        // See if it starts with "!" - if so, send to DDG
+      } else if (query_search.match(/^!.*$/)) {
+        openUrl('https://next.duckduckgo.com/?q=' + query_search);
+        return true;
       } else {
         search_phrase = query_search;
       }
