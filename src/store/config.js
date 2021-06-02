@@ -88,8 +88,18 @@ function constructConfig(default_config) {
     if (json) {
       const _data = JSON.parse(json);
       // Check out the data before saving it
-      if (_data && typeof _data === 'object' && Object.values(_data).length > 0) {
+      if (
+        _data &&
+        typeof _data === 'object' &&
+        Object.values(_data).length > 0 &&
+        'services' in _data
+      ) {
+        // Load services with special logic to prevent *removal* of defaults
+        const services = _data.services;
+        delete _data.services;
         data = _data;
+      } else {
+        console.warn('Not loading local data - there is an issue with it.');
       }
     }
   };
