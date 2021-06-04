@@ -33,7 +33,7 @@ export const default_config = {
    * Services
    * Each service has:
    *
-   * - id: A unique identifier.  Defaults will have "d" prepended to keep them unique & separate from custom additions.
+   * - id: A unique identifier.  Defaults should have "d" prepended to keep them unique & separate from custom additions.
    * - alias: Shortcut alias for use in the app
    * - name: Descriptive name
    * - action: Action that the service uses, one of:

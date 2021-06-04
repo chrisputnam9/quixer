@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { default_config } from '../data/default-config.js';
 import { google_drive } from '../inc/google-drive.js';
 import { local_storage } from '../inc/local-storage.js';
+import { util } from '../inc/util.js';
 
 /**
  * Build a new config store interface
@@ -34,19 +35,18 @@ function constructConfig(default_config) {
    */
   const initialize = function () {
     const service_template = serviceTemplate();
-    data.services = data.services.map(service => {
+    data.services = util.objectMap(data.services, service => {
       service = {
         ...service_template,
         ...service
       };
       service.from_default_config = true;
-      service.id = 'd' + service.id;
+      //service.id = 'd' + service.id;
       return service;
     });
     loadLocal();
     sync();
-    sortServices();
-    service_auto_id = data.services.reduce((highest_id, service) => {
+    service_auto_id = Object.entries(data.services).reduce((highest_id, service) => {
       if (typeof service.id === 'number') {
         if (service.id > highest_id) {
           return service.id;
@@ -62,8 +62,8 @@ function constructConfig(default_config) {
    *  - Defaults last
    *  - Newest first - based on ID
    */
-  const sortServices = function () {
-    data.services.sort((service1, service2) => {
+  const getSortedServices = function () {
+    return Object.values(data.services).sort((service1, service2) => {
       if (service1.active !== service2.active) {
         return service1.active ? -1 : 1;
       }
@@ -76,8 +76,6 @@ function constructConfig(default_config) {
         return service1.id > service2.id ? -1 : 1;
       }
     });
-    updateData(false);
-    return data.services;
   };
 
   /**
@@ -96,8 +94,6 @@ function constructConfig(default_config) {
       ) {
         // Load services with special logic to prevent *removal* of defaults
         const services = _data.services;
-        delete _data.services;
-        data = _data;
       } else {
         console.warn('Not loading local data - there is an issue with it.');
       }
@@ -195,7 +191,15 @@ function constructConfig(default_config) {
 
   initialize();
 
-  return { subscribe, setValue, getValue, toJson, importJson, newService, sortServices };
+  return {
+    subscribe,
+    setValue,
+    getValue,
+    toJson,
+    importJson,
+    newService,
+    getSortedServices
+  };
 }
 
 export const config = constructConfig(default_config);

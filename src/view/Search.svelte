@@ -1,11 +1,12 @@
 <script>
+  /* global ENV_IS_LIVE */
   import { config } from '../store/config.js';
   import { onMount, tick } from 'svelte';
 
   let search_category = '',
     search_phrase = '';
 
-  const services = config.getValue('services');
+  const services = config.getSortedServices();
   let results = services;
   let defaultResult = results[0];
 
@@ -50,7 +51,7 @@
    * Open a URL in browser
    */
   function openUrl(url) {
-    const is_live = ENV_IS_LIVE;
+    const is_live = parseInt(ENV_IS_LIVE);
     if (is_live) {
       window.location.href = url;
     } else {

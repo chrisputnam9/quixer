@@ -27,7 +27,7 @@
   let services = config.getValue('services');
   $: {
     config.setValue('services', services);
-    services = config.sortServices();
+    services = config.getSortedServices();
 
     config_json = config.toJson();
     config_json_altered = config_json;
