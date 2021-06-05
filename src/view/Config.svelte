@@ -25,9 +25,10 @@
   }
 
   let services = config.getValue('services');
+  let servicesDisplay;
   $: {
     config.setValue('services', services);
-    services = config.getSortedServices();
+    sortAndMaybeFilter();
 
     config_json = config.toJson();
     config_json_altered = config_json;
@@ -35,23 +36,27 @@
   }
 
   function addNewService() {
-    services.push(config.newService());
-    services = services;
+    services = config.addNewService();
   }
 
   function deleteService(id) {
     services = services.filter(service => service.id !== id);
   }
 
-  function filter(event) {
-    const pattern = new RegExp(event.target.value, 'i');
-    services = services.map(service => {
-      const values = Object.values(service);
-      service.hidden = !values.some(value => {
-        return String(value).match(pattern);
+  let filterInput;
+  function sortAndMaybeFilter() {
+    servicesDisplay = config.getSortedServices();
+
+    if (filterInput && filterInput.value) {
+      console.log(filterInput.value);
+      const pattern = new RegExp(filterInput.value, 'i');
+      servicesDisplay = servicesDisplay.filter(service => {
+        const values = Object.values(service);
+        return values.some(value => {
+          return String(value).match(pattern);
+        });
       });
-      return service;
-    });
+    }
   }
 </script>
 
@@ -86,12 +91,16 @@
   </div>
 
   <div class="box" style="flex:1">
-    <input id="filter" class="filter" on:keyup={filter} placeholder="Filter services" />
+    <input
+      on:keyup={sortAndMaybeFilter}
+      bind:this={filterInput}
+      placeholder="Filter services"
+    />
   </div>
 </div>
 
 <div class="boxes">
-  {#each services as service (service.id)}
+  {#each servicesDisplay as service (service.id)}
     <div
       class="box {service.hidden ? 'hidden' : ''}"
       title="Service id {service.id} - {service.name}"
