@@ -155,10 +155,12 @@ function constructConfig(default_config) {
   /**
    * Create a new service from the service template
    */
-  const newService = function () {
+  const addNewService = function () {
     const service = serviceTemplate();
     service.id = ++service_auto_id;
-    return service;
+    data.services[service.id] = service;
+    updateData();
+    return data.services;
   };
 
   /**
@@ -197,7 +199,7 @@ function constructConfig(default_config) {
     getValue,
     toJson,
     importJson,
-    newService,
+    addNewService,
     getSortedServices
   };
 }

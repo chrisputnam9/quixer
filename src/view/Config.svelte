@@ -27,6 +27,7 @@
   let services = config.getValue('services');
   let servicesDisplay;
   $: {
+    console.log('Reacting to services change');
     config.setValue('services', services);
     sortAndMaybeFilter();
 
@@ -34,13 +35,26 @@
     config_json_altered = config_json;
     btnConfigSaveDisabled = true;
   }
+  $: {
+    console.log('Reacting to servicesDisplay change');
+    if (servicesDisplay) {
+      servicesDisplay.forEach(service => {
+        services[service.id] = service;
+      });
+    }
+  }
 
   function addNewService() {
     services = config.addNewService();
   }
 
   function deleteService(id) {
-    services = services.filter(service => service.id !== id);
+    console.log('Delete', id);
+    console.log(typeof id);
+    console.log(services[id]);
+    delete services[id];
+    services = services;
+    console.log(services);
   }
 
   let filterInput;
