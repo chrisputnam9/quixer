@@ -93,7 +93,22 @@ function constructConfig(default_config) {
         'services' in _data
       ) {
         // Load services with special logic to prevent *removal* of defaults
-        const services = _data.services;
+        const new_services = _data.services;
+        delete _data.services;
+
+        for (const id in new_services) {
+          const service = data.services[id];
+          const new_service = new_services[id];
+          // If it's a default service, only allow overwrite of certain data
+          if (service && service.from_default_config) {
+            service.action = new_service.action;
+            service.active = new_service.active;
+            service.alias = new_service.alias;
+            service.updated_at = new_service.updated_at;
+          } else {
+            data.services[id] = new_service;
+          }
+        }
       } else {
         console.warn('Not loading local data - there is an issue with it.');
       }

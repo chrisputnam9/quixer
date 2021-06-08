@@ -13,6 +13,7 @@
   function btnConfigSaveClick() {
     if (config.importJson(config_json_altered)) {
       services = config.getValue('services');
+      updateServices();
       config_json = config.toJson();
       config_json_altered = config_json;
       btnConfigSaveDisabled = true;
@@ -26,8 +27,13 @@
 
   let services = config.getValue('services');
   let servicesDisplay;
-  $: {
-    console.log('Reacting to services change');
+  function updateServices(fromDisplay = false) {
+    if (fromDisplay && servicesDisplay) {
+      servicesDisplay.forEach(service => {
+        services[service.id] = service;
+      });
+    }
+
     config.setValue('services', services);
     sortAndMaybeFilter();
 
@@ -38,23 +44,18 @@
   $: {
     console.log('Reacting to servicesDisplay change');
     if (servicesDisplay) {
-      servicesDisplay.forEach(service => {
-        services[service.id] = service;
-      });
+      updateServices(true);
     }
   }
 
   function addNewService() {
     services = config.addNewService();
+    updateServices();
   }
 
   function deleteService(id) {
-    console.log('Delete', id);
-    console.log(typeof id);
-    console.log(services[id]);
     delete services[id];
-    services = services;
-    console.log(services);
+    updateServices();
   }
 
   let filterInput;
@@ -62,7 +63,6 @@
     servicesDisplay = config.getSortedServices();
 
     if (filterInput && filterInput.value) {
-      console.log(filterInput.value);
       const pattern = new RegExp(filterInput.value, 'i');
       servicesDisplay = servicesDisplay.filter(service => {
         const values = Object.values(service);
@@ -72,6 +72,8 @@
       });
     }
   }
+
+  updateServices();
 </script>
 
 <h1>Config</h1>
