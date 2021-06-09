@@ -47,13 +47,15 @@ function constructConfig(default_config) {
     loadLocal();
     sync();
     service_auto_id = Object.entries(data.services).reduce((highest_id, service) => {
-      if (typeof service.id === 'number') {
-        if (service.id > highest_id) {
-          return service.id;
+      const _id = parseInt(service[1].id);
+      if (typeof _id === 'number' && !isNaN(_id)) {
+        if (_id > highest_id) {
+          return _id;
         }
       }
       return highest_id;
     }, service_auto_id);
+    console.log('auto id: ', service_auto_id);
   };
 
   /**
@@ -173,6 +175,7 @@ function constructConfig(default_config) {
   const addNewService = function () {
     const service = serviceTemplate();
     service.id = ++service_auto_id;
+    console.log('auto id: ', service_auto_id);
     data.services[service.id] = service;
     updateData();
     return data.services;

@@ -27,7 +27,7 @@ export const default_config = {
    * User preferences outside of services
    */
   preferences: {
-    default_service: 0
+    default_service_alias: 'g'
   },
   /**
    * Services
