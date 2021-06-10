@@ -4,6 +4,7 @@
   import { onMount, tick } from 'svelte';
 
   let search_category = '',
+    search_category_default = config.getValue('preferences').default_service_alias,
     search_phrase = '';
 
   const services = config.getSortedServices();
@@ -11,8 +12,12 @@
   let defaultResult = results[0];
 
   $: {
+    let _search_category = search_category;
+    if (_search_category == '') {
+      _search_category = search_category_default;
+    }
     const exact = results.filter(service => {
-      return service.alias == search_category;
+      return service.alias == _search_category;
     });
     if (exact.length) defaultResult = exact[0];
     else defaultResult = results[0];

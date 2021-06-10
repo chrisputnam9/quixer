@@ -60,23 +60,39 @@ function constructConfig(default_config) {
 
   /**
    * Sort services
+   *  - Default fallback first
    *  - Active last
-   *  - Defaults last
+   *  - Custom config first, default config last
    *  - Newest first - based on ID
+   *  - Alphabetical from there
    */
   const getSortedServices = function () {
     return Object.values(data.services).sort((service1, service2) => {
+      /** Sort default service first **/
+      if (service1.alias == data.preferences.default_service_alias) {
+        return -1;
+      }
+      if (service2.alias == data.preferences.default_service_alias) {
+        return 1;
+      }
+
+      /** Active at end **/
       if (service1.active !== service2.active) {
         return service1.active ? -1 : 1;
       }
 
+      /** Custom first, default config last **/
       if (service1.from_default_config !== service2.from_default_config) {
         return service1.from_default_config ? 1 : -1;
       }
 
-      if (typeof service1.id === typeof service2.id) {
+      /** Newest custom first **/
+      if (typeof service1.id == 'number' && typeof service2.id == 'number') {
         return service1.id > service2.id ? -1 : 1;
       }
+
+      /** Alphabetical by alias after that **/
+      return service1.alias.localeCompare(service2.alias);
     });
   };
 

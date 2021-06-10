@@ -63,7 +63,7 @@ export const default_config = {
       alias: 'ali',
       name: 'AliExpress',
       action: {
-        url: ''
+        url: 'https://www.aliexpress.com/wholesale?SearchText=%s'
       },
       active: true
     },
@@ -79,9 +79,9 @@ export const default_config = {
     d3: {
       id: 'd3',
       alias: 'az',
-      name: 'Amazon (affiliate?)',
+      name: 'Amazon (Smile URL - for charity)',
       action: {
-        url: ''
+        url: 'https://smile.amazon.com/s?k=%s'
       },
       active: true
     },
@@ -90,7 +90,7 @@ export const default_config = {
       alias: 'baidu',
       name: 'Baidu',
       action: {
-        url: ''
+        url: 'https://www.baidu.com/s?wd=%s'
       },
       active: true
     },
@@ -108,7 +108,7 @@ export const default_config = {
       alias: 'bili',
       name: 'Bilibili',
       action: {
-        url: ''
+        url: 'https://search.bilibili.com/all?keyword=%s'
       },
       active: true
     },
@@ -117,7 +117,7 @@ export const default_config = {
       alias: 'bing',
       name: 'Bing',
       action: {
-        url: ''
+        url: 'https://www.bing.com/search?q=%s'
       },
       active: true
     },
@@ -133,7 +133,7 @@ export const default_config = {
     d9: {
       id: 'd9',
       alias: 'cht',
-      name: 'Cheet Sheets / Command References',
+      name: 'Cheat Sheets / Command References',
       action: {
         url: 'https://cheat.sh/%s'
       },
@@ -151,7 +151,7 @@ export const default_config = {
     d11: {
       id: 'd11',
       alias: 'dc',
-      name: 'Domain Compare (supports the author)',
+      name: 'Domain Compare (supports the author, no direct search yet)',
       action: {
         url: 'https://www.domcomp.com/?refcode=60a8fe0a77b1e604078ba0ed'
       },
@@ -169,7 +169,7 @@ export const default_config = {
     d13: {
       id: 'd13',
       alias: 'dh',
-      name: 'DevHints / Cheet Sheets',
+      name: 'DevHints / Cheat Sheets',
       action: {
         url: 'https://devhints.io/%s'
       },
@@ -520,8 +520,8 @@ export const default_config = {
     },
     d52: {
       id: 'd52',
-      alias: 'tt',
-      name: 'TikTok',
+      alias: 'tg',
+      name: 'Target (affiliate?)',
       action: {
         url: ''
       },
@@ -529,6 +529,15 @@ export const default_config = {
     },
     d53: {
       id: 'd53',
+      alias: 'tt',
+      name: 'TikTok',
+      action: {
+        url: ''
+      },
+      active: true
+    },
+    d54: {
+      id: 'd54',
       alias: 'tw',
       name: 'Twitter',
       action: {
@@ -536,8 +545,8 @@ export const default_config = {
       },
       active: true
     },
-    d54: {
-      id: 'd54',
+    d55: {
+      id: 'd55',
       alias: 'twitch',
       name: 'Twitch',
       action: {
@@ -545,8 +554,8 @@ export const default_config = {
       },
       active: true
     },
-    d55: {
-      id: 'd55',
+    d56: {
+      id: 'd56',
       alias: 'unix',
       name: 'Unix (Stack Exchange)',
       action: {
@@ -554,8 +563,8 @@ export const default_config = {
       },
       active: true
     },
-    d56: {
-      id: 'd56',
+    d57: {
+      id: 'd57',
       alias: 'vk',
       name: '',
       action: {
@@ -563,8 +572,8 @@ export const default_config = {
       },
       active: true
     },
-    d57: {
-      id: 'd57',
+    d58: {
+      id: 'd58',
       alias: 'whois',
       name: 'Whois Lookup - domain ownership / information',
       action: {
@@ -572,8 +581,8 @@ export const default_config = {
       },
       active: true
     },
-    d58: {
-      id: 'd58',
+    d59: {
+      id: 'd59',
       alias: 'wiki',
       name: 'Wikipedia - online encyclopedia',
       action: {
@@ -581,19 +590,10 @@ export const default_config = {
       },
       active: true
     },
-    d59: {
-      id: 'd59',
-      alias: 'wttr',
-      name: 'Weather Report / wttr.in',
-      action: {
-        url: 'https://wttr.in/%s'
-      },
-      active: true
-    },
     d60: {
       id: 'd60',
-      alias: 'yahoo',
-      name: 'Yahoo',
+      alias: 'wm',
+      name: 'Walmart (affiliate?)',
       action: {
         url: ''
       },
@@ -601,6 +601,24 @@ export const default_config = {
     },
     d61: {
       id: 'd61',
+      alias: 'wttr',
+      name: 'Weather Report / wttr.in',
+      action: {
+        url: 'https://wttr.in/%s'
+      },
+      active: true
+    },
+    d62: {
+      id: 'd62',
+      alias: 'yahoo',
+      name: 'Yahoo',
+      action: {
+        url: ''
+      },
+      active: true
+    },
+    d63: {
+      id: 'd63',
       alias: 'yandex',
       name: 'Yandex',
       action: {
@@ -608,30 +626,12 @@ export const default_config = {
       },
       active: true
     },
-    d62: {
-      id: 'd62',
+    d64: {
+      id: 'd64',
       alias: 'yt',
       name: 'YouTube',
       action: {
         url: 'https://www.youtube.com/results?search_query=%s'
-      },
-      active: true
-    },
-    d63: {
-      id: 'd63',
-      alias: '',
-      name: 'Walmart (affiliate?)',
-      action: {
-        url: ''
-      },
-      active: true
-    },
-    d64: {
-      id: 'd64',
-      alias: '',
-      name: 'Target (affiliate?)',
-      action: {
-        url: ''
       },
       active: true
     }
