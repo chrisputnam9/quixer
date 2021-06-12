@@ -226,7 +226,8 @@ export const default_config = {
       alias: 'gc',
       name: 'Google Calendar Search',
       action: {
-        url: 'https://calendar.google.com/calendar/r/search?q=%s'
+        url: 'https://calendar.google.com/calendar/r/search?q=%s',
+        url_no_search: 'https://calendar.google.com'
       },
       active: true
     },

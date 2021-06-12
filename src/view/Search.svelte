@@ -43,7 +43,10 @@
 
   function search() {
     const action = defaultResult.action;
-    if ('url' in action) {
+    if (search_phrase == '' && 'url_no_search' in action) {
+      let url = action.url_no_search;
+      openUrl(url);
+    } else if ('url' in action) {
       let url = action.url;
       url = url.replace('%s', search_phrase);
       openUrl(url);
@@ -72,7 +75,7 @@
     const query_pattern = /^\?q=([^&]+)(&|=|$)/;
     const query_match = document.location.search.match(query_pattern);
     if (query_match) {
-      const query_search = decodeURI(query_match[1]);
+      const query_search = decodeURIComponent(query_match[1]);
       const query_search_match = query_search.match(/(^[^ :+]+)( |:|\+|$)(.*)$/);
       let service_match = false,
         category_alias = '';
