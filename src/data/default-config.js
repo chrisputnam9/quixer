@@ -63,7 +63,8 @@ export const default_config = {
       alias: 'ali',
       name: 'AliExpress',
       action: {
-        url: 'https://www.aliexpress.com/wholesale?SearchText=%s'
+        url: 'https://www.aliexpress.com/wholesale?SearchText=%s',
+        url_no_search: 'https://www.aliexpress.com'
       },
       active: true
     },
@@ -72,7 +73,8 @@ export const default_config = {
       alias: 'au',
       name: 'Ask Ubuntu (Stack Exchange)',
       action: {
-        url: 'https://askubuntu.com/search?q=%s'
+        url: 'https://askubuntu.com/search?q=%s',
+        url_no_search: 'https://askubuntu.com'
       },
       active: true
     },
@@ -81,7 +83,8 @@ export const default_config = {
       alias: 'az',
       name: 'Amazon (Smile URL - for charity)',
       action: {
-        url: 'https://smile.amazon.com/s?k=%s'
+        url: 'https://smile.amazon.com/s?k=%s',
+        url_no_search: 'https://smile.amazon.com'
       },
       active: true
     },
@@ -90,7 +93,8 @@ export const default_config = {
       alias: 'baidu',
       name: 'Baidu',
       action: {
-        url: 'https://www.baidu.com/s?wd=%s'
+        url: 'https://www.baidu.com/s?wd=%s',
+        url_no_search: 'https://www.baidu.com'
       },
       active: true
     },
@@ -99,7 +103,8 @@ export const default_config = {
       alias: 'bang',
       name: 'DuckDuckGo Search all *Bang*s',
       action: {
-        url: 'https://next.duckduckgo.com/bang?q=%s'
+        url: 'https://next.duckduckgo.com/bang?q=%s',
+        url_no_search: 'https://next.duckduckgo.com/bang'
       },
       active: true
     },
@@ -108,7 +113,8 @@ export const default_config = {
       alias: 'bili',
       name: 'Bilibili',
       action: {
-        url: 'https://search.bilibili.com/all?keyword=%s'
+        url: 'https://search.bilibili.com/all?keyword=%s',
+        url_no_search: 'https://www.bilibili.com/'
       },
       active: true
     },
@@ -117,21 +123,33 @@ export const default_config = {
       alias: 'bing',
       name: 'Bing',
       action: {
-        url: 'https://www.bing.com/search?q=%s'
+        url: 'https://www.bing.com/search?q=%s',
+        url_no_search: 'https://www.bing.com'
       },
       active: true
     },
     d8: {
       id: 'd8',
-      alias: 'censys',
-      name: 'Censys - Domain / Hosting information including origins',
+      alias: 'cal',
+      name: 'Google Calendar',
       action: {
-        url: 'https://search.censys.io/search?resource=hosts&q=%s'
+        url: 'https://calendar.google.com/calendar/r/search?q=%s',
+        url_no_search: 'https://calendar.google.com'
       },
       active: true
     },
     d9: {
       id: 'd9',
+      alias: 'censys',
+      name: 'Censys - Domain / Hosting information including origins',
+      action: {
+        url: 'https://search.censys.io/search?resource=hosts&q=%s',
+        url_no_search: 'https://search.censys.io'
+      },
+      active: true
+    },
+    d10: {
+      id: 'd10',
       alias: 'cht',
       name: 'Cheat Sheets / Command References',
       action: {
@@ -139,17 +157,28 @@ export const default_config = {
       },
       active: true
     },
-    d10: {
-      id: 'd10',
-      alias: 'csm',
-      name: 'Common Sense Media',
+    d11: {
+      id: 'd11',
+      alias: 'contacts',
+      name: 'Google Contacts',
       action: {
-        url: 'https://www.commonsensemedia.org/search/%s'
+        url: 'https://contacts.google.com/search/%s',
+        url_no_search: 'https://contacts.google.com'
       },
       active: true
     },
-    d11: {
-      id: 'd11',
+    d12: {
+      id: 'd12',
+      alias: 'csm',
+      name: 'Common Sense Media',
+      action: {
+        url: 'https://www.commonsensemedia.org/search/%s',
+        url_no_search: 'https://www.commonsensemedia.org'
+      },
+      active: true
+    },
+    d13: {
+      id: 'd13',
       alias: 'dc',
       name: 'Domain Compare (supports the author, no direct search yet)',
       action: {
@@ -157,17 +186,18 @@ export const default_config = {
       },
       active: true
     },
-    d12: {
-      id: 'd12',
+    d14: {
+      id: 'd14',
       alias: 'ddg',
-      name: 'DuckDuckGo / Bang!',
+      name: 'DuckDuckGo / With Bang (!) Shortcuts',
       action: {
-        url: 'https://next.duckduckgo.com/?q=%s'
+        url: 'https://next.duckduckgo.com/?q=%s',
+        url_no_search: 'https://next.duckduckgo.com'
       },
       active: true
     },
-    d13: {
-      id: 'd13',
+    d15: {
+      id: 'd15',
       alias: 'dh',
       name: 'DevHints / Cheat Sheets',
       action: {
@@ -175,73 +205,69 @@ export const default_config = {
       },
       active: true
     },
-    d14: {
-      id: 'd14',
-      alias: 'ebay',
-      name: 'Ebay (affiliate?)',
-      action: {
-        url: ''
-      },
-      active: true
-    },
-    d15: {
-      id: 'd15',
-      alias: 'et',
-      name: 'Eggtimer',
-      action: {
-        url:
-          'https://e.ggtimer.com/%s?theme=gg_timer_digital&hideToolbar=true&hideNudge=true'
-      },
-      active: true
-    },
     d16: {
       id: 'd16',
-      alias: 'etsy',
-      name: 'Etsy (affiliate?)',
+      alias: 'ebay',
+      name: 'Ebay',
       action: {
-        url: ''
+        url: 'https://www.ebay.com/sch/items/?_nkw=%s',
+        url_no_search: 'https://www.ebay.com/'
       },
       active: true
     },
     d17: {
       id: 'd17',
-      alias: 'fb',
-      name: 'Facebook',
+      alias: 'et',
+      name: 'Eggtimer',
       action: {
-        url: 'https://www.facebook.com/search/str/test/keywords_search?f=%s'
+        url:
+          'https://e.ggtimer.com/%s?theme=gg_timer_digital&hideToolbar=true&hideNudge=true',
+        url_no_search: 'https://e.ggtimer.com'
       },
       active: true
     },
     d18: {
       id: 'd18',
-      alias: 'g',
-      name: 'Google',
+      alias: 'etsy',
+      name: 'Etsy',
       action: {
-        url: 'https://google.com/search?q=%s'
+        url: 'https://www.etsy.com/search?q=%s',
+        url_no_search: 'https://www.etsy.com/'
       },
       active: true
     },
     d19: {
       id: 'd19',
-      alias: 'gc',
-      name: 'Google Calendar Search',
+      alias: 'fb',
+      name: 'Facebook',
       action: {
-        url: 'https://calendar.google.com/calendar/r/search?q=%s',
-        url_no_search: 'https://calendar.google.com'
+        url: 'https://www.facebook.com/search/str/test/keywords_search?f=%s',
+        url_no_search: 'https://www.facebook.com'
       },
       active: true
     },
     d20: {
       id: 'd20',
-      alias: 'gd',
-      name: 'Google Drive Search',
+      alias: 'g',
+      name: 'Google',
       action: {
-        url: 'https://drive.google.com/drive/search?q=%s'
+        url: 'https://google.com/search?q=%s',
+        url_no_search: 'https://google.com'
       },
       active: true
     },
     d21: {
       id: 'd21',
+      alias: 'gd',
+      name: 'Google Drive Search',
+      action: {
+        url: 'https://drive.google.com/drive/search?q=%s',
+        url_no_search: 'https://drive.google.com'
+      },
+      active: true
+    },
+    d22: {
+      id: 'd22',
       alias: 'gdD',
       name: 'Google Drive - New Doc',
       action: {
@@ -249,8 +275,8 @@ export const default_config = {
       },
       active: true
     },
-    d22: {
-      id: 'd22',
+    d23: {
+      id: 'd23',
       alias: 'gdF',
       name: 'Google Drive - New Form',
       action: {
@@ -258,26 +284,27 @@ export const default_config = {
       },
       active: true
     },
-    d23: {
-      id: 'd23',
+    d24: {
+      id: 'd24',
       alias: 'gdns',
       name: 'Google DNS',
       action: {
-        url: 'https://dns.google.com/query?name=%s'
-      },
-      active: true
-    },
-    d24: {
-      id: 'd24',
-      alias: 'gdP',
-      name: 'Google Drive - New Presentation (Slides)',
-      action: {
-        url: 'https://docs.google.com/presentation/create'
+        url: 'https://dns.google.com/query?name=%s',
+        url_no_search: 'https://dns.google.com'
       },
       active: true
     },
     d25: {
       id: 'd25',
+      alias: 'gdP',
+      name: 'Google Drive - New Presentation / Slides',
+      action: {
+        url: 'https://docs.google.com/presentation/create'
+      },
+      active: true
+    },
+    d26: {
+      id: 'd26',
       alias: 'gdS',
       name: 'Google Drive - New Sheet',
       action: {
@@ -285,48 +312,43 @@ export const default_config = {
       },
       active: true
     },
-    d26: {
-      id: 'd26',
+    d27: {
+      id: 'd27',
       alias: 'gh',
       name: 'Github',
       action: {
-        url: 'https://github.com/search?q=%s'
-      },
-      active: true
-    },
-    d27: {
-      id: 'd27',
-      alias: 'gi',
-      name: 'Google Images',
-      action: {
-        url: 'https://www.google.com/search?tbm=isch&q=%s'
+        url: 'https://github.com/search?q=%s',
+        url_no_search: 'https://github.com'
       },
       active: true
     },
     d28: {
       id: 'd28',
-      alias: 'globo',
-      name: 'Globo',
+      alias: 'gi',
+      name: 'Google Images',
       action: {
-        url: ''
+        url: 'https://www.google.com/search?tbm=isch&q=%s',
+        url_no_search: 'https://www.google.com/imghp'
       },
       active: true
     },
     d29: {
       id: 'd29',
-      alias: 'gm',
-      name: 'Google Mail (GMail) Search',
+      alias: 'globo',
+      name: 'Globo',
       action: {
-        url: 'https://mail.google.com/mail/u/0/#search/%s'
+        url: 'https://www.globo.com/busca/?q=%s',
+        url_no_search: 'https://www.globo.com/'
       },
       active: true
     },
     d30: {
       id: 'd30',
-      alias: 'gmap',
-      name: 'Google Maps',
+      alias: 'gm',
+      name: 'Google Mail (GMail)',
       action: {
-        url: 'https://www.google.com/maps/search/%s?hl=en&source=opensearch'
+        url: 'https://mail.google.com/mail/#search/%s',
+        url_no_search: 'https://mail.google.com'
       },
       active: true
     },
@@ -335,304 +357,369 @@ export const default_config = {
       alias: 'gmc',
       name: 'Google Mail (GMail) Compose',
       action: {
-        url: 'https://mail.google.com/mail/u/0/?view=cm&fs=1&to=%s'
+        url: 'https://mail.google.com/mail/?view=cm&fs=1&to=%s',
+        url_no_search: 'https://mail.google.com/mail/?view=cm&fs=1'
       },
       active: true
     },
     d32: {
       id: 'd32',
-      alias: 'ip',
-      name: 'IP Address',
+      alias: 'gmd',
+      name: 'Google Mail (GMail) - In Drafts',
       action: {
-        url: 'https://ip-api.com/#%s'
+        url: 'https://mail.google.com/mail/#search/in:draft %s',
+        url_no_search: 'https://mail.google.com/mail/#search/in:draft'
       },
       active: true
     },
     d33: {
       id: 'd33',
-      alias: 'jw',
-      name: 'Just Watch',
+      alias: 'gml',
+      name: 'Google Mail (GMail) - In Label (specify)',
       action: {
-        url: ''
+        url: 'https://mail.google.com/mail/#search/in:%s',
+        url_no_search: 'https://mail.google.com/mail/#settings/labels'
       },
       active: true
     },
     d34: {
       id: 'd34',
-      alias: 'li',
-      name: 'LinkedIn',
+      alias: 'gms',
+      name: 'Google Mail (GMail) - Starred Items',
       action: {
-        url: ''
+        url: 'https://mail.google.com/mail/#search/is:starred %s',
+        url_no_search: 'https://mail.google.com/mail/#search/is:starred'
       },
       active: true
     },
-    d35: {
-      id: 'd35',
-      alias: 'mdn',
-      name: 'Mozilla Developer Network',
-      action: {
-        url: 'https://developer.mozilla.org/en-US/search?q='
-      },
-      active: true
-    },
-    d36: {
-      id: 'd36',
-      alias: 'mru',
-      name: '',
-      action: {
-        url: 'Mail.ru ?'
-      },
-      active: true
-    },
+
     d37: {
       id: 'd37',
-      alias: 'naver',
-      name: 'Naver',
+      alias: 'gmt',
+      name: 'Google Mail (GMail) - Sent Items',
       action: {
-        url: ''
+        url: 'https://mail.google.com/mail/#search/in:sent %s',
+        url_no_search: 'https://mail.google.com/mail/#search/in:sent'
       },
       active: true
     },
     d38: {
       id: 'd38',
-      alias: 'nc',
-      name: 'Namecheap Domain Search (affiliate?)',
+      alias: 'gmu',
+      name: 'Google Mail (GMail) - Unread Items',
       action: {
-        url: 'https://www.namecheap.com/domains/registration/results/?domain=%s'
+        url: 'https://mail.google.com/mail/#search/is:unread %s',
+        url_no_search: 'https://mail.google.com/mail/#search/is:unread'
       },
       active: true
     },
     d39: {
       id: 'd39',
-      alias: 'nf',
-      name: 'Netflix (referral?)',
+      alias: 'ip',
+      name: 'IP Address',
       action: {
-        url: ''
+        url: 'https://ip-api.com/#%s',
+        url_no_search: 'https://ip-api.com'
       },
       active: true
     },
     d40: {
       id: 'd40',
-      alias: 'okru',
-      name: '',
+      alias: 'jw',
+      name: 'Just Watch',
       action: {
-        url: 'OK.ru'
+        url: 'https://www.justwatch.com/us/search?q=%s',
+        url_no_search: 'https://www.justwatch.com'
       },
       active: true
     },
     d41: {
       id: 'd41',
-      alias: 'pen',
-      name: 'Codepen (referral?)',
+      alias: 'li',
+      name: 'LinkedIn',
       action: {
-        url: 'https://codepen.io/search/pens?q=%s'
+        url: 'https://www.linkedin.com/search/results/all/?keywords=%s',
+        url_no_search: 'https://www.linkedin.com'
       },
       active: true
     },
     d42: {
       id: 'd42',
-      alias: 'penN',
-      name: 'New Codepen',
+      alias: 'map',
+      name: 'Google Maps',
       action: {
-        url: 'https://codepen.io/pen/'
+        url: 'https://www.google.com/maps/search/%s?hl=en&source=opensearch',
+        url_no_search: 'https://www.google.com/maps'
       },
       active: true
     },
     d43: {
       id: 'd43',
-      alias: 'pi',
-      name: 'Pinterest',
+      alias: 'mdn',
+      name: 'Mozilla Developer Network',
       action: {
-        url: ''
+        url: 'https://developer.mozilla.org/en-US/search?q=',
+        url_no_search: 'https://developer.mozilla.org'
       },
       active: true
     },
     d44: {
       id: 'd44',
-      alias: 'qq',
-      name: 'QQ',
+      alias: 'mru',
+      name: 'Mail.ru',
       action: {
-        url: ''
+        url: 'https://go.mail.ru/search?q=%s',
+        url_no_search: 'https://go.mail.ru'
       },
       active: true
     },
     d45: {
       id: 'd45',
-      alias: 'rakuten',
-      name: 'Rakuten',
+      alias: 'naver',
+      name: 'Naver',
       action: {
-        url: ''
+        url: 'https://search.naver.com/search.naver?query=%s',
+        url_no_search: 'https://www.naver.com'
       },
       active: true
     },
     d46: {
       id: 'd46',
-      alias: 'rd',
-      name: 'Reddit',
+      alias: 'nc',
+      name: 'Namecheap Domain Search',
       action: {
-        url: ''
+        url: 'https://www.namecheap.com/domains/registration/results/?domain=%s',
+        url_no_search: 'https://www.namecheap.com'
       },
       active: true
     },
     d47: {
       id: 'd47',
-      alias: 'replit',
-      name: 'Replit (referral?)',
+      alias: 'nf',
+      name: 'Netflix',
       action: {
-        url: ''
+        url: 'https://www.netflix.com/search?q=%s',
+        url_no_search: 'https://www.netflix.com'
       },
       active: true
     },
     d48: {
       id: 'd48',
-      alias: 'replitN',
-      name: 'New Replit',
+      alias: 'pen',
+      name: 'Codepen',
       action: {
-        url: ''
+        url: 'https://codepen.io/search/pens?q=%s',
+        url_no_search: 'https://codepen.io'
       },
       active: true
     },
     d49: {
       id: 'd49',
-      alias: 'sf',
-      name: 'Server Fault (Stack Exchange)',
+      alias: 'penN',
+      name: 'New Codepen',
       action: {
-        url: 'https://serverfault.com/search?q=%s'
+        url: 'https://codepen.io/pen/',
+        url_no_search: 'https://codepen.io'
       },
       active: true
     },
     d50: {
       id: 'd50',
-      alias: 'so',
-      name: 'Stack Overflow (Stack Exchange)',
+      alias: 'pi',
+      name: 'Pinterest',
       action: {
-        url: 'https://stackoverflow.com/search?q=%s'
+        url: 'https://www.pinterest.com/search/pins/?q=%s',
+        url_no_search: 'https://www.pinterest.com'
       },
       active: true
     },
     d51: {
       id: 'd51',
-      alias: 'su',
-      name: 'Super User (Stack Exchange)',
+      alias: 'qq',
+      name: 'QQ / Sougou',
       action: {
-        url: 'https://superuser.com/search?q=%s'
+        url: 'https://www.sogou.com/tx?query=%s',
+        url_no_search: 'https://www.qq.com'
       },
       active: true
     },
     d52: {
       id: 'd52',
-      alias: 'tg',
-      name: 'Target (affiliate?)',
+      alias: 'rakuten',
+      name: 'Rakuten',
       action: {
-        url: ''
+        url: 'https://search.rakuten.co.jp/search/mall/%s',
+        url_no_search: 'https://www.rakuten.co.jp/'
       },
       active: true
     },
     d53: {
       id: 'd53',
-      alias: 'tt',
-      name: 'TikTok',
+      alias: 'rd',
+      name: 'Reddit',
       action: {
-        url: ''
+        url: 'https://www.reddit.com/search?q=%s',
+        url_no_search: 'https://www.reddit.com'
       },
       active: true
     },
     d54: {
       id: 'd54',
-      alias: 'tw',
-      name: 'Twitter',
+      alias: 'sf',
+      name: 'Server Fault (Stack Exchange)',
       action: {
-        url: 'https://twitter.com/search?q=%s'
+        url: 'https://serverfault.com/search?q=%s',
+        url_no_search: 'https://serverfault.com'
       },
       active: true
     },
     d55: {
       id: 'd55',
-      alias: 'twitch',
-      name: 'Twitch',
+      alias: 'so',
+      name: 'Stack Overflow (Stack Exchange)',
       action: {
-        url: ''
+        url: 'https://stackoverflow.com/search?q=%s',
+        url_no_search: 'https://stackoverflow.com'
       },
       active: true
     },
     d56: {
       id: 'd56',
-      alias: 'unix',
-      name: 'Unix (Stack Exchange)',
+      alias: 'su',
+      name: 'Super User (Stack Exchange)',
       action: {
-        url: 'https://unix.stackexchange.com/search?q=%s'
+        url: 'https://superuser.com/search?q=%s',
+        url_no_search: 'https://superuser.com'
       },
       active: true
     },
     d57: {
       id: 'd57',
-      alias: 'vk',
-      name: '',
+      alias: 'tg',
+      name: 'Target',
       action: {
-        url: 'VK.com'
+        url: 'https://www.target.com/s?searchTerm=%s',
+        url_no_search: 'https://www.target.com'
       },
       active: true
     },
     d58: {
       id: 'd58',
-      alias: 'whois',
-      name: 'Whois Lookup - domain ownership / information',
+      alias: 'tt',
+      name: 'TikTok',
       action: {
-        url: 'https://www.whois.com/whois/%s'
+        url: 'https://www.tiktok.com/search?q=%s',
+        url_no_search: 'https://www.tiktok.com'
       },
       active: true
     },
     d59: {
       id: 'd59',
-      alias: 'wiki',
-      name: 'Wikipedia - online encyclopedia',
+      alias: 'tw',
+      name: 'Twitter',
       action: {
-        url: 'https://en.wikipedia.org/w/index.php?search=%s'
+        url: 'https://twitter.com/search?q=%s',
+        url_no_search: 'https://twitter.com'
       },
       active: true
     },
     d60: {
       id: 'd60',
-      alias: 'wm',
-      name: 'Walmart (affiliate?)',
+      alias: 'twitch',
+      name: 'Twitch',
       action: {
-        url: ''
+        url: 'https://www.twitch.tv/search?term=%s',
+        url_no_search: 'https://www.twitch.tv'
       },
       active: true
     },
     d61: {
       id: 'd61',
-      alias: 'wttr',
-      name: 'Weather Report / wttr.in',
+      alias: 'unix',
+      name: 'Unix (Stack Exchange)',
       action: {
-        url: 'https://wttr.in/%s'
+        url: 'https://unix.stackexchange.com/search?q=%s',
+        url_no_search: 'https://unix.stackexchange.com'
       },
       active: true
     },
     d62: {
       id: 'd62',
-      alias: 'yahoo',
-      name: 'Yahoo',
+      alias: 'vk',
+      name: 'VK',
       action: {
-        url: ''
+        url: 'https://vk.com/search?c%5Bq%5D=%s',
+        url_no_search: 'https://vk.com'
       },
       active: true
     },
     d63: {
       id: 'd63',
-      alias: 'yandex',
-      name: 'Yandex',
+      alias: 'whois',
+      name: 'Whois Lookup - domain ownership / information',
       action: {
-        url: ''
+        url: 'https://www.whois.com/whois/%s',
+        url_no_search: 'https://www.whois.com'
       },
       active: true
     },
     d64: {
       id: 'd64',
+      alias: 'wiki',
+      name: 'Wikipedia - online encyclopedia',
+      action: {
+        url: 'https://en.wikipedia.org/w/index.php?search=%s',
+        url_no_search: 'https://en.wikipedia.org'
+      },
+      active: true
+    },
+    d65: {
+      id: 'd65',
+      alias: 'wm',
+      name: 'Walmart',
+      action: {
+        url: 'https://www.walmart.com/search/?query=%s',
+        url_no_search: 'https://www.walmart.com'
+      },
+      active: true
+    },
+    d66: {
+      id: 'd66',
+      alias: 'wttr',
+      name: 'Weather Report / wttr.in',
+      action: {
+        url: 'https://wttr.in/%s',
+        url_no_search: 'https://wttr.in'
+      },
+      active: true
+    },
+    d67: {
+      id: 'd67',
+      alias: 'yahoo',
+      name: 'Yahoo',
+      action: {
+        url: 'https://search.yahoo.com/search?p=%s',
+        url_no_search: 'https://www.yahoo.com/'
+      },
+      active: true
+    },
+    d68: {
+      id: 'd68',
+      alias: 'yandex',
+      name: 'Yandex',
+      action: {
+        url: 'https://www.yandex.ru/yandsearch?text=%s',
+        url_no_search: 'https://www.yandex.ru'
+      },
+      active: true
+    },
+    d69: {
+      id: 'd69',
       alias: 'yt',
       name: 'YouTube',
       action: {
-        url: 'https://www.youtube.com/results?search_query=%s'
+        url: 'https://www.youtube.com/results?search_query=%s',
+        url_no_search: 'https://www.youtube.com'
       },
       active: true
     }
