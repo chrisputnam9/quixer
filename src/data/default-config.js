@@ -374,6 +374,15 @@ export const default_config = {
     },
     d33: {
       id: 'd33',
+      alias: 'gmF',
+      name: 'Google Mail (GMail) - Filters',
+      action: {
+        url: 'https://mail.google.com/mail/#settings/filters'
+      },
+      active: true
+    },
+    d34: {
+      id: 'd34',
       alias: 'gml',
       name: 'Google Mail (GMail) - In Label (specify)',
       action: {
@@ -382,8 +391,8 @@ export const default_config = {
       },
       active: true
     },
-    d34: {
-      id: 'd34',
+    d35: {
+      id: 'd35',
       alias: 'gms',
       name: 'Google Mail (GMail) - Starred Items',
       action: {
@@ -392,7 +401,15 @@ export const default_config = {
       },
       active: true
     },
-
+    d36: {
+      id: 'd36',
+      alias: 'gmS',
+      name: 'Google Mail (GMail) - Settings',
+      action: {
+        url: 'https://mail.google.com/mail/#settings/general'
+      },
+      active: true
+    },
     d37: {
       id: 'd37',
       alias: 'gmt',
