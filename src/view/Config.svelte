@@ -134,7 +134,7 @@
         <label for="service_{service.id}_alias">Alias: </label>
         <input
           id="service_{service.id}_alias"
-          bind:value={service.alias}
+          bind:value={service.alias[0]}
           placeholder="Alias / abbreviation"
         />
       </div>

@@ -34,10 +34,12 @@ export const default_config = {
    * Each service has:
    *
    * - id: A unique identifier.  Defaults should have "d" prepended to keep them unique & separate from custom additions.
-   * - alias: Shortcut alias for use in the app
+   * - alias: Array of shortcut aliases for use in the app
+   *   - TODO App currently only uses the first one, but the array is in place to support multiple aliases in the future, while hopefully keeping data structure consistent
    * - name: Descriptive name
    * - action: Action that the service uses, one of:
    *    - url: Open a URL, replacing "%s" with the search term entered (if any)
+   *    - url_no_search: Optional alternate URL to use if search term is not entered
    *
    * The following attributes will be automatically set:
    * - active: Whether to use the service. Can be set to false to disable unwanted default services
@@ -48,7 +50,7 @@ export const default_config = {
    */
   service_template: {
     id: null,
-    alias: '',
+    alias: [],
     name: '',
     action: {
       url: ''
@@ -60,7 +62,7 @@ export const default_config = {
   services: {
     d1: {
       id: 'd1',
-      alias: 'ali',
+      alias: ['ali'],
       name: 'AliExpress',
       action: {
         url: 'https://www.aliexpress.com/wholesale?SearchText=%s',
@@ -70,7 +72,7 @@ export const default_config = {
     },
     d2: {
       id: 'd2',
-      alias: 'au',
+      alias: ['au'],
       name: 'Ask Ubuntu (Stack Exchange)',
       action: {
         url: 'https://askubuntu.com/search?q=%s',
@@ -80,7 +82,7 @@ export const default_config = {
     },
     d3: {
       id: 'd3',
-      alias: 'az',
+      alias: ['az'],
       name: 'Amazon (Smile URL - for charity)',
       action: {
         url: 'https://smile.amazon.com/s?k=%s',
@@ -90,7 +92,7 @@ export const default_config = {
     },
     d4: {
       id: 'd4',
-      alias: 'baidu',
+      alias: ['baidu'],
       name: 'Baidu',
       action: {
         url: 'https://www.baidu.com/s?wd=%s',
@@ -100,7 +102,7 @@ export const default_config = {
     },
     d5: {
       id: 'd5',
-      alias: 'bang',
+      alias: ['bang'],
       name: 'DuckDuckGo Search all *Bang*s',
       action: {
         url: 'https://next.duckduckgo.com/bang?q=%s',
@@ -110,7 +112,7 @@ export const default_config = {
     },
     d6: {
       id: 'd6',
-      alias: 'bili',
+      alias: ['bili'],
       name: 'Bilibili',
       action: {
         url: 'https://search.bilibili.com/all?keyword=%s',
@@ -120,7 +122,7 @@ export const default_config = {
     },
     d7: {
       id: 'd7',
-      alias: 'bing',
+      alias: ['bing'],
       name: 'Bing',
       action: {
         url: 'https://www.bing.com/search?q=%s',
@@ -130,7 +132,7 @@ export const default_config = {
     },
     d8: {
       id: 'd8',
-      alias: 'cal',
+      alias: ['cal'],
       name: 'Google Calendar',
       action: {
         url: 'https://calendar.google.com/calendar/r/search?q=%s',
@@ -140,7 +142,7 @@ export const default_config = {
     },
     d9: {
       id: 'd9',
-      alias: 'censys',
+      alias: ['censys'],
       name: 'Censys - Domain / Hosting information including origins',
       action: {
         url: 'https://search.censys.io/search?resource=hosts&q=%s',
@@ -150,7 +152,7 @@ export const default_config = {
     },
     d10: {
       id: 'd10',
-      alias: 'cht',
+      alias: ['cht'],
       name: 'Cheat Sheets / Command References',
       action: {
         url: 'https://cheat.sh/%s'
@@ -159,7 +161,7 @@ export const default_config = {
     },
     d11: {
       id: 'd11',
-      alias: 'contacts',
+      alias: ['contacts'],
       name: 'Google Contacts',
       action: {
         url: 'https://contacts.google.com/search/%s',
@@ -169,7 +171,7 @@ export const default_config = {
     },
     d12: {
       id: 'd12',
-      alias: 'csm',
+      alias: ['csm'],
       name: 'Common Sense Media',
       action: {
         url: 'https://www.commonsensemedia.org/search/%s',
@@ -179,7 +181,7 @@ export const default_config = {
     },
     d13: {
       id: 'd13',
-      alias: 'dc',
+      alias: ['dc'],
       name: 'Domain Compare (supports the author, no direct search yet)',
       action: {
         url: 'https://www.domcomp.com/?refcode=60a8fe0a77b1e604078ba0ed'
@@ -188,7 +190,7 @@ export const default_config = {
     },
     d14: {
       id: 'd14',
-      alias: 'ddg',
+      alias: ['ddg'],
       name: 'DuckDuckGo / With Bang (!) Shortcuts',
       action: {
         url: 'https://next.duckduckgo.com/?q=%s',
@@ -198,7 +200,7 @@ export const default_config = {
     },
     d15: {
       id: 'd15',
-      alias: 'dh',
+      alias: ['dh'],
       name: 'DevHints / Cheat Sheets',
       action: {
         url: 'https://devhints.io/%s'
@@ -207,7 +209,7 @@ export const default_config = {
     },
     d16: {
       id: 'd16',
-      alias: 'ebay',
+      alias: ['ebay'],
       name: 'Ebay',
       action: {
         url: 'https://www.ebay.com/sch/items/?_nkw=%s',
@@ -217,7 +219,7 @@ export const default_config = {
     },
     d17: {
       id: 'd17',
-      alias: 'et',
+      alias: ['et'],
       name: 'Eggtimer',
       action: {
         url:
@@ -228,7 +230,7 @@ export const default_config = {
     },
     d18: {
       id: 'd18',
-      alias: 'etsy',
+      alias: ['etsy'],
       name: 'Etsy',
       action: {
         url: 'https://www.etsy.com/search?q=%s',
@@ -238,7 +240,7 @@ export const default_config = {
     },
     d19: {
       id: 'd19',
-      alias: 'fb',
+      alias: ['fb'],
       name: 'Facebook',
       action: {
         url: 'https://www.facebook.com/search/str/test/keywords_search?f=%s',
@@ -248,7 +250,7 @@ export const default_config = {
     },
     d20: {
       id: 'd20',
-      alias: 'g',
+      alias: ['g'],
       name: 'Google',
       action: {
         url: 'https://google.com/search?q=%s',
@@ -258,7 +260,7 @@ export const default_config = {
     },
     d21: {
       id: 'd21',
-      alias: 'gd',
+      alias: ['gd'],
       name: 'Google Drive Search',
       action: {
         url: 'https://drive.google.com/drive/search?q=%s',
@@ -268,7 +270,7 @@ export const default_config = {
     },
     d22: {
       id: 'd22',
-      alias: 'gdD',
+      alias: ['gdD'],
       name: 'Google Drive - New Doc',
       action: {
         url: 'https://docs.google.com/document/create'
@@ -277,7 +279,7 @@ export const default_config = {
     },
     d23: {
       id: 'd23',
-      alias: 'gdF',
+      alias: ['gdF'],
       name: 'Google Drive - New Form',
       action: {
         url: 'https://docs.google.com/forms/create'
@@ -286,7 +288,7 @@ export const default_config = {
     },
     d24: {
       id: 'd24',
-      alias: 'gdns',
+      alias: ['gdns'],
       name: 'Google DNS',
       action: {
         url: 'https://dns.google.com/query?name=%s',
@@ -296,7 +298,7 @@ export const default_config = {
     },
     d25: {
       id: 'd25',
-      alias: 'gdP',
+      alias: ['gdP'],
       name: 'Google Drive - New Presentation / Slides',
       action: {
         url: 'https://docs.google.com/presentation/create'
@@ -305,7 +307,7 @@ export const default_config = {
     },
     d26: {
       id: 'd26',
-      alias: 'gdS',
+      alias: ['gdS'],
       name: 'Google Drive - New Sheet',
       action: {
         url: 'https://docs.google.com/spreadsheets/create'
@@ -314,7 +316,7 @@ export const default_config = {
     },
     d27: {
       id: 'd27',
-      alias: 'gh',
+      alias: ['gh'],
       name: 'Github',
       action: {
         url: 'https://github.com/search?q=%s',
@@ -324,7 +326,7 @@ export const default_config = {
     },
     d28: {
       id: 'd28',
-      alias: 'gi',
+      alias: ['gi'],
       name: 'Google Images',
       action: {
         url: 'https://www.google.com/search?tbm=isch&q=%s',
@@ -334,7 +336,7 @@ export const default_config = {
     },
     d29: {
       id: 'd29',
-      alias: 'globo',
+      alias: ['globo'],
       name: 'Globo',
       action: {
         url: 'https://www.globo.com/busca/?q=%s',
@@ -344,7 +346,7 @@ export const default_config = {
     },
     d30: {
       id: 'd30',
-      alias: 'gm',
+      alias: ['gm'],
       name: 'Google Mail (GMail)',
       action: {
         url: 'https://mail.google.com/mail/#search/%s',
@@ -354,7 +356,7 @@ export const default_config = {
     },
     d31: {
       id: 'd31',
-      alias: 'gmc',
+      alias: ['gmc'],
       name: 'Google Mail (GMail) Compose',
       action: {
         url: 'https://mail.google.com/mail/?view=cm&fs=1&to=%s',
@@ -364,7 +366,7 @@ export const default_config = {
     },
     d32: {
       id: 'd32',
-      alias: 'gmd',
+      alias: ['gmd'],
       name: 'Google Mail (GMail) - In Drafts',
       action: {
         url: 'https://mail.google.com/mail/#search/in:draft %s',
@@ -374,7 +376,7 @@ export const default_config = {
     },
     d33: {
       id: 'd33',
-      alias: 'gmF',
+      alias: ['gmF'],
       name: 'Google Mail (GMail) - Filters',
       action: {
         url: 'https://mail.google.com/mail/#settings/filters'
@@ -383,7 +385,7 @@ export const default_config = {
     },
     d34: {
       id: 'd34',
-      alias: 'gml',
+      alias: ['gml'],
       name: 'Google Mail (GMail) - In Label (specify)',
       action: {
         url: 'https://mail.google.com/mail/#search/in:%s',
@@ -393,7 +395,7 @@ export const default_config = {
     },
     d35: {
       id: 'd35',
-      alias: 'gms',
+      alias: ['gms'],
       name: 'Google Mail (GMail) - Starred Items',
       action: {
         url: 'https://mail.google.com/mail/#search/is:starred %s',
@@ -403,7 +405,7 @@ export const default_config = {
     },
     d36: {
       id: 'd36',
-      alias: 'gmS',
+      alias: ['gmS'],
       name: 'Google Mail (GMail) - Settings',
       action: {
         url: 'https://mail.google.com/mail/#settings/general'
@@ -412,7 +414,7 @@ export const default_config = {
     },
     d37: {
       id: 'd37',
-      alias: 'gmt',
+      alias: ['gmt'],
       name: 'Google Mail (GMail) - Sent Items',
       action: {
         url: 'https://mail.google.com/mail/#search/in:sent %s',
@@ -422,7 +424,7 @@ export const default_config = {
     },
     d38: {
       id: 'd38',
-      alias: 'gmu',
+      alias: ['gmu'],
       name: 'Google Mail (GMail) - Unread Items',
       action: {
         url: 'https://mail.google.com/mail/#search/is:unread %s',
@@ -432,7 +434,7 @@ export const default_config = {
     },
     d39: {
       id: 'd39',
-      alias: 'ip',
+      alias: ['ip'],
       name: 'IP Address',
       action: {
         url: 'https://ip-api.com/#%s',
@@ -442,7 +444,7 @@ export const default_config = {
     },
     d40: {
       id: 'd40',
-      alias: 'jw',
+      alias: ['jw'],
       name: 'Just Watch',
       action: {
         url: 'https://www.justwatch.com/us/search?q=%s',
@@ -452,7 +454,7 @@ export const default_config = {
     },
     d41: {
       id: 'd41',
-      alias: 'li',
+      alias: ['li'],
       name: 'LinkedIn',
       action: {
         url: 'https://www.linkedin.com/search/results/all/?keywords=%s',
@@ -462,7 +464,7 @@ export const default_config = {
     },
     d42: {
       id: 'd42',
-      alias: 'map',
+      alias: ['map'],
       name: 'Google Maps',
       action: {
         url: 'https://www.google.com/maps/search/%s?hl=en&source=opensearch',
@@ -472,7 +474,7 @@ export const default_config = {
     },
     d43: {
       id: 'd43',
-      alias: 'mdn',
+      alias: ['mdn'],
       name: 'Mozilla Developer Network',
       action: {
         url: 'https://developer.mozilla.org/en-US/search?q=',
@@ -482,7 +484,7 @@ export const default_config = {
     },
     d44: {
       id: 'd44',
-      alias: 'mru',
+      alias: ['mru'],
       name: 'Mail.ru',
       action: {
         url: 'https://go.mail.ru/search?q=%s',
@@ -492,7 +494,7 @@ export const default_config = {
     },
     d45: {
       id: 'd45',
-      alias: 'naver',
+      alias: ['naver'],
       name: 'Naver',
       action: {
         url: 'https://search.naver.com/search.naver?query=%s',
@@ -502,7 +504,7 @@ export const default_config = {
     },
     d46: {
       id: 'd46',
-      alias: 'nc',
+      alias: ['nc'],
       name: 'Namecheap Domain Search',
       action: {
         url: 'https://www.namecheap.com/domains/registration/results/?domain=%s',
@@ -512,7 +514,7 @@ export const default_config = {
     },
     d47: {
       id: 'd47',
-      alias: 'nf',
+      alias: ['nf'],
       name: 'Netflix',
       action: {
         url: 'https://www.netflix.com/search?q=%s',
@@ -522,7 +524,7 @@ export const default_config = {
     },
     d48: {
       id: 'd48',
-      alias: 'pen',
+      alias: ['pen'],
       name: 'Codepen',
       action: {
         url: 'https://codepen.io/search/pens?q=%s',
@@ -532,7 +534,7 @@ export const default_config = {
     },
     d49: {
       id: 'd49',
-      alias: 'penN',
+      alias: ['penN'],
       name: 'New Codepen',
       action: {
         url: 'https://codepen.io/pen/',
@@ -542,7 +544,7 @@ export const default_config = {
     },
     d50: {
       id: 'd50',
-      alias: 'pi',
+      alias: ['pi'],
       name: 'Pinterest',
       action: {
         url: 'https://www.pinterest.com/search/pins/?q=%s',
@@ -552,7 +554,7 @@ export const default_config = {
     },
     d51: {
       id: 'd51',
-      alias: 'qq',
+      alias: ['qq'],
       name: 'QQ / Sougou',
       action: {
         url: 'https://www.sogou.com/tx?query=%s',
@@ -562,7 +564,7 @@ export const default_config = {
     },
     d52: {
       id: 'd52',
-      alias: 'rakuten',
+      alias: ['rakuten'],
       name: 'Rakuten',
       action: {
         url: 'https://search.rakuten.co.jp/search/mall/%s',
@@ -572,7 +574,7 @@ export const default_config = {
     },
     d53: {
       id: 'd53',
-      alias: 'rd',
+      alias: ['rd'],
       name: 'Reddit',
       action: {
         url: 'https://www.reddit.com/search?q=%s',
@@ -582,7 +584,7 @@ export const default_config = {
     },
     d54: {
       id: 'd54',
-      alias: 'sf',
+      alias: ['sf'],
       name: 'Server Fault (Stack Exchange)',
       action: {
         url: 'https://serverfault.com/search?q=%s',
@@ -592,7 +594,7 @@ export const default_config = {
     },
     d55: {
       id: 'd55',
-      alias: 'so',
+      alias: ['so'],
       name: 'Stack Overflow (Stack Exchange)',
       action: {
         url: 'https://stackoverflow.com/search?q=%s',
@@ -602,7 +604,7 @@ export const default_config = {
     },
     d56: {
       id: 'd56',
-      alias: 'su',
+      alias: ['su'],
       name: 'Super User (Stack Exchange)',
       action: {
         url: 'https://superuser.com/search?q=%s',
@@ -612,7 +614,7 @@ export const default_config = {
     },
     d57: {
       id: 'd57',
-      alias: 'tg',
+      alias: ['tg'],
       name: 'Target',
       action: {
         url: 'https://www.target.com/s?searchTerm=%s',
@@ -622,7 +624,7 @@ export const default_config = {
     },
     d58: {
       id: 'd58',
-      alias: 'tt',
+      alias: ['tt'],
       name: 'TikTok',
       action: {
         url: 'https://www.tiktok.com/search?q=%s',
@@ -632,7 +634,7 @@ export const default_config = {
     },
     d59: {
       id: 'd59',
-      alias: 'tw',
+      alias: ['tw'],
       name: 'Twitter',
       action: {
         url: 'https://twitter.com/search?q=%s',
@@ -642,7 +644,7 @@ export const default_config = {
     },
     d60: {
       id: 'd60',
-      alias: 'twitch',
+      alias: ['twitch'],
       name: 'Twitch',
       action: {
         url: 'https://www.twitch.tv/search?term=%s',
@@ -652,7 +654,7 @@ export const default_config = {
     },
     d61: {
       id: 'd61',
-      alias: 'unix',
+      alias: ['unix'],
       name: 'Unix (Stack Exchange)',
       action: {
         url: 'https://unix.stackexchange.com/search?q=%s',
@@ -662,7 +664,7 @@ export const default_config = {
     },
     d62: {
       id: 'd62',
-      alias: 'vk',
+      alias: ['vk'],
       name: 'VK',
       action: {
         url: 'https://vk.com/search?c%5Bq%5D=%s',
@@ -672,7 +674,7 @@ export const default_config = {
     },
     d63: {
       id: 'd63',
-      alias: 'whois',
+      alias: ['whois'],
       name: 'Whois Lookup - domain ownership / information',
       action: {
         url: 'https://www.whois.com/whois/%s',
@@ -682,7 +684,7 @@ export const default_config = {
     },
     d64: {
       id: 'd64',
-      alias: 'wiki',
+      alias: ['wiki'],
       name: 'Wikipedia - online encyclopedia',
       action: {
         url: 'https://en.wikipedia.org/w/index.php?search=%s',
@@ -692,7 +694,7 @@ export const default_config = {
     },
     d65: {
       id: 'd65',
-      alias: 'wm',
+      alias: ['wm'],
       name: 'Walmart',
       action: {
         url: 'https://www.walmart.com/search/?query=%s',
@@ -702,7 +704,7 @@ export const default_config = {
     },
     d66: {
       id: 'd66',
-      alias: 'wttr',
+      alias: ['wttr'],
       name: 'Weather Report / wttr.in',
       action: {
         url: 'https://wttr.in/%s',
@@ -712,7 +714,7 @@ export const default_config = {
     },
     d67: {
       id: 'd67',
-      alias: 'yahoo',
+      alias: ['yahoo'],
       name: 'Yahoo',
       action: {
         url: 'https://search.yahoo.com/search?p=%s',
@@ -722,7 +724,7 @@ export const default_config = {
     },
     d68: {
       id: 'd68',
-      alias: 'yandex',
+      alias: ['yandex'],
       name: 'Yandex',
       action: {
         url: 'https://www.yandex.ru/yandsearch?text=%s',
@@ -732,7 +734,7 @@ export const default_config = {
     },
     d69: {
       id: 'd69',
-      alias: 'yt',
+      alias: ['yt'],
       name: 'YouTube',
       action: {
         url: 'https://www.youtube.com/results?search_query=%s',

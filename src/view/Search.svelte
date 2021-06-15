@@ -17,7 +17,7 @@
       _search_category = search_category_default;
     }
     const exact = results.filter(service => {
-      return service.alias == _search_category;
+      return service.alias[0] == _search_category;
     });
     if (exact.length) defaultResult = exact[0];
     else defaultResult = results[0];
@@ -25,19 +25,19 @@
 
   function complete() {
     const exact = results.filter(service => {
-      return service.alias == this.value;
+      return service.alias[0] == this.value;
     });
     if (exact.length) {
-      this.value = exact[0].alias;
+      this.value = exact[0].alias[0];
     } else {
-      this.value = defaultResult.alias;
+      this.value = defaultResult.alias[0];
     }
   }
 
   function filterResults() {
     results = services.filter(service => {
       const regex = new RegExp(search_category, 'i');
-      return regex.test(service.alias) || regex.test(service.name);
+      return regex.test(service.alias[0]) || regex.test(service.name);
     });
   }
 
@@ -83,7 +83,7 @@
       if (query_search_match) {
         category_alias = query_search_match[1].toLowerCase();
         service_match = services.filter(service => {
-          return service.alias.toLowerCase() == category_alias;
+          return service.alias[0].toLowerCase() == category_alias;
         });
       }
 
@@ -121,7 +121,7 @@
 <ul>
   {#each results as result (result.id)}
     <li class={result.id == defaultResult.id ? 'active' : ''}>
-      {result.alias} ({result.name})
+      {result.alias[0]} ({result.name})
     </li>
   {/each}
 </ul>

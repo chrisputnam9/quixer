@@ -69,10 +69,10 @@ function constructConfig(default_config) {
   const getSortedServices = function () {
     return Object.values(data.services).sort((service1, service2) => {
       /** Sort default service first **/
-      if (service1.alias == data.preferences.default_service_alias) {
+      if (service1.alias[0] == data.preferences.default_service_alias) {
         return -1;
       }
-      if (service2.alias == data.preferences.default_service_alias) {
+      if (service2.alias[0] == data.preferences.default_service_alias) {
         return 1;
       }
 
@@ -92,7 +92,7 @@ function constructConfig(default_config) {
       }
 
       /** Alphabetical by alias after that **/
-      return service1.alias.localeCompare(service2.alias);
+      return service1.alias[0].localeCompare(service2.alias[0]);
     });
   };
 
@@ -121,7 +121,7 @@ function constructConfig(default_config) {
           if (service && service.from_default_config) {
             service.action = new_service.action;
             service.active = new_service.active;
-            service.alias = new_service.alias;
+            service.alias[0] = new_service.alias[0];
             service.updated_at = new_service.updated_at;
           } else {
             data.services[id] = new_service;
