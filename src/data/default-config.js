@@ -271,7 +271,7 @@ export const default_config = {
       alias: 'gdD',
       name: 'Google Drive - New Doc',
       action: {
-        url: 'https://docs.google.com/document/create'
+        url: 'https://docs.google.com/document/u/0/create'
       },
       active: true
     },
@@ -280,7 +280,7 @@ export const default_config = {
       alias: 'gdF',
       name: 'Google Drive - New Form',
       action: {
-        url: 'https://docs.google.com/forms/create'
+        url: 'https://docs.google.com/forms/u/0/create'
       },
       active: true
     },
@@ -299,7 +299,7 @@ export const default_config = {
       alias: 'gdP',
       name: 'Google Drive - New Presentation / Slides',
       action: {
-        url: 'https://docs.google.com/presentation/create'
+        url: 'https://docs.google.com/presentation/u/0/create'
       },
       active: true
     },
@@ -308,7 +308,7 @@ export const default_config = {
       alias: 'gdS',
       name: 'Google Drive - New Sheet',
       action: {
-        url: 'https://docs.google.com/spreadsheets/create'
+        url: 'https://docs.google.com/spreadsheets/u/0/create'
       },
       active: true
     },
