@@ -55,7 +55,6 @@ function constructConfig(default_config) {
       }
       return highest_id;
     }, service_auto_id);
-    console.log('auto id: ', service_auto_id);
   };
 
   /**
@@ -119,6 +118,7 @@ function constructConfig(default_config) {
           const new_service = new_services[id];
           // If it's a default service, only allow overwrite of certain data
           if (service && service.from_default_config) {
+            // REFERENCE: Service_Data_Allowed_To_Change
             service.action = new_service.action;
             service.active = new_service.active;
             service.alias[0] = new_service.alias[0];
@@ -134,10 +134,46 @@ function constructConfig(default_config) {
   };
 
   /**
+   * Prep data to save
+   *  - Compare default data against
+   */
+  const prepToSave = function () {
+    const toSave = data;
+    // Filter out
+    console.log('All Data:', toSave.services);
+    toSave.services = util.objectFilter(toSave.services, (service, id) => {
+      console.log(' - checking id ' + id);
+
+      // Is it a default service? If not, good to save
+      if (!(id in default_config.services)) {
+        console.log('   - not a default service');
+        return true;
+      }
+
+      // Otherwise, this is a default service - check for any change to service data
+      const default_service = default_config.services[id];
+      if (
+        // REFERENCE: Service_Data_Allowed_To_Change
+        service.action !== default_service.action ||
+        service.active !== default_service.active ||
+        service.alias[0] !== default_service.alias[0] ||
+        service.updated_at !== default_service.updated_at
+      ) {
+        console.log('   - something changed');
+        return true;
+      }
+
+      return false;
+    });
+    console.log('To Save:', toSave.services);
+    return JSON.stringify(toSave);
+  };
+
+  /**
    * Save to local storage
    */
   const saveLocal = function () {
-    local_storage.set('config', JSON.stringify(data));
+    local_storage.set('config', prepToSave());
   };
 
   /**
@@ -191,7 +227,6 @@ function constructConfig(default_config) {
   const addNewService = function () {
     const service = serviceTemplate();
     service.id = ++service_auto_id;
-    console.log('auto id: ', service_auto_id);
     data.services[service.id] = service;
     updateData();
     return data.services;
