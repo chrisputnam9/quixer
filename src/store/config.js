@@ -140,6 +140,9 @@ function constructConfig(default_config) {
   const prepToSave = function () {
     const toSave = data;
     // Filter out
+    // TODO really need to filter, then map...? or loop and build new object...
+    // Each service that did change, ONLY want to save the CHANGED data
+    // Kind of want to get this working first though... something odd about it... could be instructive
     console.log('All Data:', toSave.services);
     toSave.services = util.objectFilter(toSave.services, (service, id) => {
       console.log(' - checking id ' + id);
