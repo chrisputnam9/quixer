@@ -42,7 +42,6 @@
     btnConfigSaveDisabled = true;
   }
   $: {
-    console.log('Reacting to servicesDisplay change');
     if (servicesDisplay) {
       updateServices(true);
     }
@@ -126,6 +125,7 @@
         <input
           id="service_{service.id}_name"
           bind:value={service.name}
+          readonly={service.from_default_config}
           placeholder="Descriptive Name"
         />
       </div>

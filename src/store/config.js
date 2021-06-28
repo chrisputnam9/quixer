@@ -22,7 +22,7 @@ import { util } from '../inc/util.js';
  *  - DeleteService
  */
 function constructConfig(default_config) {
-  let data = default_config;
+  let data = util.objectClone(default_config);
   let service_auto_id = 0;
 
   const service_template_string = JSON.stringify(data.service_template);
@@ -138,12 +138,12 @@ function constructConfig(default_config) {
    *  - Compare default data against
    */
   const prepToSave = function () {
-    const toSave = data;
+    const toSave = util.objectClone(data);
     // Filter out
     // TODO really need to filter, then map...? or loop and build new object...
     // Each service that did change, ONLY want to save the CHANGED data
     // Kind of want to get this working first though... something odd about it... could be instructive
-    console.log('All Data:', toSave.services);
+    //console.log('All Data:', toSave.services);
     toSave.services = util.objectFilter(toSave.services, (service, id) => {
       console.log(' - checking id ' + id);
 
@@ -155,12 +155,20 @@ function constructConfig(default_config) {
 
       // Otherwise, this is a default service - check for any change to service data
       const default_service = default_config.services[id];
+
+      console.log('   - Service:', service.action, service.active, service.alias);
+      console.log(
+        '   - Default:',
+        default_service.action,
+        default_service.active,
+        default_service.alias
+      );
+
       if (
         // REFERENCE: Service_Data_Allowed_To_Change
-        service.action !== default_service.action ||
+        JSON.stringify(service.action) !== JSON.stringify(default_service.action) ||
         service.active !== default_service.active ||
-        service.alias[0] !== default_service.alias[0] ||
-        service.updated_at !== default_service.updated_at
+        service.alias[0] !== default_service.alias[0]
       ) {
         console.log('   - something changed');
         return true;

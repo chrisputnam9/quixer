@@ -10,5 +10,6 @@ export const util = {
   objectFilter: (object, callback) =>
     Object.fromEntries(
       Object.entries(object).filter(([key, value], index) => callback(value, key, index))
-    )
+    ),
+  objectClone: object => Object.fromEntries(Object.entries(object))
 };
