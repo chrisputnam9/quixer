@@ -139,22 +139,22 @@ function constructConfig(default_config) {
    */
   const prepToSave = function () {
     const toSave = util.objectClone(data);
-    // Filter out
-    // TODO really need to filter, then map...? or loop and build new object...
-    // Each service that did change, ONLY want to save the CHANGED data
-    // Kind of want to get this working first though... something odd about it... could be instructive
-    //console.log('All Data:', toSave.services);
-    toSave.services = util.objectFilter(toSave.services, (service, id) => {
+    toSave.services = {};
+
+    // Filter services and save only custom & changed data
+    for (const id in data.services) {
+      const service = data.services[id];
       console.log(' - checking id ' + id);
 
       // Is it a default service? If not, good to save
       if (!(id in default_config.services)) {
         console.log('   - not a default service');
-        return true;
+        toSave.services[id] = service;
       }
 
       // Otherwise, this is a default service - check for any change to service data
       const default_service = default_config.services[id];
+      const changed_data = {};
 
       console.log('   - Service:', service.action, service.active, service.alias);
       console.log(
@@ -164,17 +164,21 @@ function constructConfig(default_config) {
         default_service.alias
       );
 
-      if (
-        // REFERENCE: Service_Data_Allowed_To_Change
-        JSON.stringify(service.action) !== JSON.stringify(default_service.action) ||
-        service.active !== default_service.active ||
+      // REFERENCE: Service_Data_Allowed_To_Change
+      if (JSON.stringify(service.action) !== JSON.stringify(default_service.action)) {
+
+      }
+        service.active !== default_service.active
         service.alias[0] !== default_service.alias[0]
       ) {
         console.log('   - something changed');
         return true;
       }
 
-      return false;
+      if (!util.isEmptyObject(changed_data)) {
+      toSave.services[id] = changed_dat;
+      }
+
     });
     console.log('To Save:', toSave.services);
     return JSON.stringify(toSave);
