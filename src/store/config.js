@@ -150,36 +150,24 @@ function constructConfig(default_config) {
       if (!(id in default_config.services)) {
         console.log('   - not a default service');
         toSave.services[id] = service;
+        continue;
       }
 
       // Otherwise, this is a default service - check for any change to service data
       const default_service = default_config.services[id];
-      const changed_data = {};
+      let changed_data = {
+        // REFERENCE: Service_Data_Allowed_To_Change
+        action: service.action,
+        alias: service.alias,
+        active: service.active
+      };
 
-      console.log('   - Service:', service.action, service.active, service.alias);
-      console.log(
-        '   - Default:',
-        default_service.action,
-        default_service.active,
-        default_service.alias
-      );
-
-      // REFERENCE: Service_Data_Allowed_To_Change
-      if (JSON.stringify(service.action) !== JSON.stringify(default_service.action)) {
-
-      }
-        service.active !== default_service.active
-        service.alias[0] !== default_service.alias[0]
-      ) {
-        console.log('   - something changed');
-        return true;
-      }
+      changed_data = util.diffObjectRecursive(changed_data, default_service);
 
       if (!util.isEmptyObject(changed_data)) {
-      toSave.services[id] = changed_dat;
+        toSave.services[id] = changed_data;
       }
-
-    });
+    }
     console.log('To Save:', toSave.services);
     return JSON.stringify(toSave);
   };
