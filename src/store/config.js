@@ -118,11 +118,23 @@ function constructConfig(default_config) {
           const new_service = new_services[id];
           // If it's a default service, only allow overwrite of certain data
           if (service && service.from_default_config) {
-            // REFERENCE: Service_Data_Allowed_To_Change
-            service.action = new_service.action;
-            service.active = new_service.active;
-            service.alias[0] = new_service.alias[0];
-            service.updated_at = new_service.updated_at;
+            for (const key in new_service) {
+              switch (key) {
+                // REFERENCE: Service_Data_Allowed_To_Change
+                case 'action':
+                case 'active':
+                case 'alias':
+                case 'updated_at':
+                  service[key] = new_service[key];
+                  break;
+                default:
+                  console.warn(
+                    key +
+                      ' found in config data is not allowed to override default data - this will be ignored and removed from stored data'
+                  );
+                  break;
+              }
+            }
           } else {
             data.services[id] = new_service;
           }
@@ -144,11 +156,9 @@ function constructConfig(default_config) {
     // Filter services and save only custom & changed data
     for (const id in data.services) {
       const service = data.services[id];
-      console.log(' - checking id ' + id);
 
       // Is it a default service? If not, good to save
       if (!(id in default_config.services)) {
-        console.log('   - not a default service');
         toSave.services[id] = service;
         continue;
       }
@@ -160,15 +170,16 @@ function constructConfig(default_config) {
         action: service.action,
         alias: service.alias,
         active: service.active
+        // updated_at - add it below only if something else changed
       };
 
       changed_data = util.diffObjectRecursive(changed_data, default_service);
 
       if (!util.isEmptyObject(changed_data)) {
+        changed_data.updated_at = service.updated_at;
         toSave.services[id] = changed_data;
       }
     }
-    console.log('To Save:', toSave.services);
     return JSON.stringify(toSave);
   };
 

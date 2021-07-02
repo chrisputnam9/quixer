@@ -30,6 +30,8 @@ export const util = {
    * Compare two objects recursively
    *  - return an object with only the differences
    *  - (where both objects have the key but the values differ)
+   *  - recursively compare objects within values
+   *  - compare arrays as json, all or nothing to preserve array index order
    */
   diffObjectRecursive: (object, otherObject) => {
     if (!util.isObject(object) || !util.isObject(otherObject)) {
@@ -45,10 +47,16 @@ export const util = {
           if (!util.isEmptyObject(_changes)) {
             changes[key] = _changes;
           }
+        } else if (Array.isArray(value) && Array.isArray(otherValue)) {
+          if (JSON.stringify(value) !== JSON.stringify(otherValue)) {
+            changes[key] = value;
+          }
         } else if (value !== otherValue) {
           changes[key] = value;
         }
       }
     }
+
+    return changes;
   }
 };
