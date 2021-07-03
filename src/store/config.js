@@ -194,7 +194,10 @@ function constructConfig(default_config) {
    * Sync with third-party storage
    */
   const sync = function () {
+    // Sync up with Google Drive
     data = google_drive.sync(data);
+    // Save synced data set to local storage
+    saveLocal();
   };
 
   /**
@@ -215,6 +218,7 @@ function constructConfig(default_config) {
     data[key] = value;
     updateData();
     saveLocal();
+    sync();
   };
 
   /**
