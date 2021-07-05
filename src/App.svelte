@@ -1,6 +1,12 @@
 <script>
   import Config from './view/Config.svelte';
   import Search from './view/Search.svelte';
+  import {
+    /*configSyncIsSignedIn,*/
+    configSyncSaveState,
+    configSyncErrorMessage
+    /*configSyncSuccessMessage*/
+  } from './store/config-sync-state.js';
 
   // Super cheap hash routing
   let hash = document.location.hash;
@@ -18,13 +24,21 @@
   <Search />
 {/if}
 
+{#if $configSyncSaveState > 0}
+  <div class="config-sync-status">
+    {#if $configSyncSaveState == 3}
+      <p><b>Error:</b> {@html $configSyncErrorMessage}</p>
+    {/if}
+  </div>
+{/if}
+
 <!-- svelte:head>
   <script
     async
     defer
     src="https://apis.google.com/js/api.js"
     on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=">{}</script>
+    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script>
 </svelte:head -->
 <style>
   a {
