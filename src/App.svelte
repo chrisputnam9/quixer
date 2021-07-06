@@ -1,11 +1,11 @@
 <script>
+  import Alert from './view/Alert.svelte';
   import Config from './view/Config.svelte';
   import Search from './view/Search.svelte';
   import {
-    /*configSyncIsSignedIn,*/
     configSyncSaveState,
-    configSyncErrorMessage
-    /*configSyncSuccessMessage*/
+    configSyncMessageType,
+    configSyncMessage
   } from './store/config-sync-state.js';
 
   // Super cheap hash routing
@@ -25,11 +25,7 @@
 {/if}
 
 {#if $configSyncSaveState > 0}
-  <div class="config-sync-status">
-    {#if $configSyncSaveState == 3}
-      <p><b>Error:</b> {@html $configSyncErrorMessage}</p>
-    {/if}
-  </div>
+  <Alert type={$configSyncMessageType} message={$configSyncMessage} />
 {/if}
 
 <!-- svelte:head>
@@ -38,7 +34,7 @@
     defer
     src="https://apis.google.com/js/api.js"
     on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script>
+    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script>
 </svelte:head -->
 <style>
   a {

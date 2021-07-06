@@ -4,8 +4,8 @@ import { get } from 'svelte/store';
 import {
   configSyncIsSignedIn,
   configSyncSaveState,
-  configSyncErrorMessage
-  //configSyncSuccessMessage
+  configSyncMessageType,
+  configSyncMessage
 } from '../store/config-sync-state.js';
 
 // TODO Move everything from Config.svelte into this
@@ -14,7 +14,8 @@ export const google_drive = {
     console.log('sync', get(configSyncIsSignedIn));
     if (!get(configSyncIsSignedIn)) {
       configSyncSaveState.set(3);
-      configSyncErrorMessage.set(
+      configSyncMessageType.set('warning');
+      configSyncMessage.set(
         '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.'
       );
     }

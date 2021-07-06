@@ -77,6 +77,8 @@
 
 <h1>Config</h1>
 
+<button disabled="1">Log In - Sync to Google Drive</button>
+
 <button on:click={toggleImportExport}
   >{#if showImportExport}Hide{/if} Import/Export</button
 >

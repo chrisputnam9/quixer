@@ -13,5 +13,5 @@ export const configSyncIsSignedIn = writable(false);
 export const configSyncSaveState = writable(0);
 
 /** Messages **/
-export const configSyncErrorMessage = writable('');
-export const configSyncSuccessMessage = writable('');
+export const configSyncMessageType = writable('');
+export const configSyncMessage = writable('');
