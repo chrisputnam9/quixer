@@ -2,6 +2,7 @@
   import Alert from './view/Alert.svelte';
   import Config from './view/Config.svelte';
   import Search from './view/Search.svelte';
+  import { google_drive } from './inc/google-drive.js';
   import {
     configSyncSaveState,
     configSyncMessageType,
@@ -28,14 +29,15 @@
   <Alert type={$configSyncMessageType} message={$configSyncMessage} />
 {/if}
 
-<!-- svelte:head>
+<svelte:head>
   <script
     async
     defer
     src="https://apis.google.com/js/api.js"
-    on:load={handleClientLoad}
-    onreadystatechange="if (this.readyState === 'complete') this.onload()" ✂prettier:content✂="CiAg" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script>
-</svelte:head -->
+    on:load={google_drive.onLoad}
+    onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+</svelte:head>
+
 <style>
   a {
     float: right;

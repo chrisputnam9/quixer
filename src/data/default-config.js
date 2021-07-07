@@ -19,7 +19,8 @@ export const default_config = {
   sync: {
     google_drive: [
       {
-        id: 0
+        id: 0,
+        synced_at: 0
       }
     ]
   },
