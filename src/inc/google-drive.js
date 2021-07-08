@@ -34,11 +34,44 @@ export const google_drive = {
    * Initialize
    */
   initClient: function () {
-    console.log('init');
+    gapi.client
+      .init({
+        apiKey: GOOGLE_DRIVE_API_KEY,
+        clientId: GOOGLE_DRIVE_CLIENT_ID,
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        scope:
+          'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file'
+      })
+      .then(
+        function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        },
+        function (_error) {
+          configSyncSaveState.set(3);
+          configSyncMessageType.set('error');
+          configSyncMessage.set(JSON.stringify(_error, null, 2));
+        }
+      );
   },
 
   /**
-   * Log in to Google Drive
+   *  Called when the signed in status changes, to update the UI
+   *  appropriately. After a sign-in, the API is called.
+   */
+  updateSigninStatus: function (isSignedIn) {
+    configSyncIsSignedIn.set(isSignedIn);
+  },
+
+  /**
+   * Log in
+   */
+
+  /**
+   * Log out
    */
 
   /**
