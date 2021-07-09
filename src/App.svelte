@@ -4,6 +4,7 @@
   import Search from './view/Search.svelte';
   import { google_drive } from './inc/google-drive.js';
   import {
+    CONFIG_SYNC_SAVE_STATE,
     configSyncSaveState,
     configSyncMessageType,
     configSyncMessage
@@ -25,7 +26,7 @@
   <Search />
 {/if}
 
-{#if $configSyncSaveState > 0}
+{#if $configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
   <Alert type={$configSyncMessageType} message={$configSyncMessage} />
 {/if}
 

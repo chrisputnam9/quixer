@@ -2,8 +2,10 @@
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
 import {
-  configSyncIsSignedIn,
+  CONFIG_SYNC_SAVE_STATE,
   configSyncSaveState,
+  configSyncIsAvailableForSignIn,
+  configSyncIsSignedIn,
   configSyncMessageType,
   configSyncMessage
 } from '../store/config-sync-state.js';
@@ -44,6 +46,8 @@ export const google_drive = {
       })
       .then(
         function () {
+          configSyncIsAvailableForSignIn.set(true);
+
           // Listen for sign-in state changes.
           gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
 
@@ -51,7 +55,7 @@ export const google_drive = {
           google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         },
         function (_error) {
-          configSyncSaveState.set(3);
+          configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
           configSyncMessageType.set('error');
           configSyncMessage.set(JSON.stringify(_error, null, 2));
         }
@@ -80,9 +84,8 @@ export const google_drive = {
    *  - Return merged data
    */
   sync: function (data) {
-    console.log('sync', get(configSyncIsSignedIn));
     if (!get(configSyncIsSignedIn)) {
-      configSyncSaveState.set(3);
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       configSyncMessageType.set('warning');
       configSyncMessage.set(
         '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.'

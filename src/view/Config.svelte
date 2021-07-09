@@ -1,6 +1,12 @@
 <script>
   import { config } from '../store/config.js';
   import { slide } from 'svelte/transition';
+  import {
+    CONFIG_SYNC_SAVE_STATE,
+    configSyncSaveState,
+    configSyncIsAvailableForSignIn,
+    configSyncIsSignedIn
+  } from '../store/config-sync-state.js';
 
   let config_json = config.json;
   let config_json_altered = config_json;
@@ -77,7 +83,31 @@
 
 <h1>Config</h1>
 
-<button disabled="1">Log In - Sync to Google Drive</button>
+{#if $configSyncIsSignedIn}
+  <button disabled={$configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}>
+    {#if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}
+      Sync with Google Drive
+    {:else if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN}
+      Pending Login - This shouldn't show...
+    {:else if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.SAVING}
+      Syncing...
+    {:else if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.SUCCESS}
+      Sync Complete
+    {:else if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.ERROR}
+      Sync Failed
+    {:else}
+      Sync Save State Error
+    {/if}
+  </button>
+{:else}
+  <button disabled={!$configSyncIsAvailableForSignIn}>
+    {#if $configSyncIsAvailableForSignIn}
+      Log In - Sync to Google Drive
+    {:else}
+      Loading...
+    {/if}
+  </button>
+{/if}
 
 <button on:click={toggleImportExport}
   >{#if showImportExport}Hide{/if} Import/Export</button
