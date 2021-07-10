@@ -739,6 +739,15 @@ export const default_config = {
         url_no_search: 'https://www.youtube.com'
       },
       active: true
-    }
+    },
+    d70: {
+      id: 'd70',
+      alias: 'food52',
+      name: 'Food 52',
+      action: {
+        url: 'https://food52.com/recipes/search?q=%s',
+        url_no_search: 'https://food52.com/receipes'
+      },
+      active: true
   }
 };
