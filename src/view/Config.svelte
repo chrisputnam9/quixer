@@ -1,6 +1,7 @@
 <script>
   import { config } from '../store/config.js';
   import { slide } from 'svelte/transition';
+  import { google_drive } from '../inc/google-drive.js';
   import {
     CONFIG_SYNC_SAVE_STATE,
     configSyncSaveState,
@@ -84,7 +85,10 @@
 <h1>Config</h1>
 
 {#if $configSyncIsSignedIn}
-  <button disabled={$configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}>
+  <button
+    disabled={$configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
+    on:click={google_drive.sync}
+  >
     {#if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}
       Sync with Google Drive
     {:else if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN}
@@ -99,8 +103,9 @@
       Sync Save State Error
     {/if}
   </button>
+  <button on:click={google_drive.logOut}> Log Out of Google Drive </button>
 {:else}
-  <button disabled={!$configSyncIsAvailableForSignIn}>
+  <button disabled={!$configSyncIsAvailableForSignIn} on:click={google_drive.logIn}>
     {#if $configSyncIsAvailableForSignIn}
       Log In - Sync to Google Drive
     {:else}
@@ -109,6 +114,7 @@
   </button>
 {/if}
 
+<br />
 <button on:click={toggleImportExport}
   >{#if showImportExport}Hide{/if} Import/Export</button
 >

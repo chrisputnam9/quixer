@@ -68,15 +68,22 @@ export const google_drive = {
    */
   updateSigninStatus: function (isSignedIn) {
     configSyncIsSignedIn.set(isSignedIn);
+    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
   },
 
   /**
    * Log in
    */
+  logIn: function () {
+    gapi.auth2.getAuthInstance().signIn();
+  },
 
   /**
    * Log out
    */
+  logOut: function () {
+    gapi.auth2.getAuthInstance().signOut();
+  },
 
   /**
    * Sync Google Drive config data with passed data param
@@ -91,6 +98,20 @@ export const google_drive = {
         '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.'
       );
     }
+
+    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
+    configSyncMessageType.set('info');
+    configSyncMessage.set('Syncing config to Google Drive');
+
+    window.setTimeout(function () {
+      // Show success, wait a bit, then show pending again
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
+      configSyncMessageType.set('success');
+      configSyncMessage.set('Sync Successful!');
+      window.setTimeout(function () {
+        configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+      }, 1000);
+    }, 500);
 
     return data;
   }
