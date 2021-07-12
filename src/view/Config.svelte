@@ -87,7 +87,7 @@
 {#if $configSyncIsSignedIn}
   <button
     disabled={$configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
-    on:click={google_drive.sync}
+    on:click={config.sync}
   >
     {#if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}
       Sync with Google Drive

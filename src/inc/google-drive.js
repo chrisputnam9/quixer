@@ -103,6 +103,59 @@ export const google_drive = {
     configSyncMessageType.set('info');
     configSyncMessage.set('Syncing config to Google Drive');
 
+    const metadata = {
+      name: 'config.json',
+      mimeType: 'application/json'
+    };
+
+    // See if there is an existing config file
+    if (data.sync.google_drive.file_id == 0) {
+      // None saved locally - check drive by name
+
+      gapi.client.drive.files
+        .list({
+          spaces: 'appDataFolder',
+          q: 'name = "config.json"',
+          fields: 'nextPageToken, files(*)',
+          pageSize: 10
+        })
+        .then(
+          function (response) {
+            console.log(response);
+            if (response.result.files && response.result.files.length > 0) {
+              if (response.result.files.length > 1) {
+                console.err(
+                  'Multiple config files found - will use the first one - report error CS501 to https://github.com/chrisputnam9/quixer/issues along with any potentially helpful information'
+                );
+              }
+              configDriveId = response.result.files[0].id;
+              isConfigSaved = true;
+              error = 'Config found, ID: ' + configDriveId + ' - Loading...';
+
+              gapi.client
+                .request({
+                  path:
+                    'https://www.googleapis.com/drive/v3/files/' +
+                    encodeURIComponent(configDriveId) +
+                    '?alt=media',
+                  method: 'GET'
+                })
+                .then(function (response) {
+                  console.log(response);
+                  configDrive = response.result;
+                  error = 'Config loaded: ' + JSON.stringify(configDrive);
+                })
+                .catch(function (_error) {
+                  error = _error;
+                });
+            }
+          },
+          function (_error) {
+            error = JSON.stringify(_error);
+          }
+        );
+    }
+
     window.setTimeout(function () {
       // Show success, wait a bit, then show pending again
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);

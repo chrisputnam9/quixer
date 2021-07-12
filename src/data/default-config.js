@@ -17,12 +17,10 @@ export const default_config = {
    * Configuration for syncing to third-party services
    */
   sync: {
-    google_drive: [
-      {
-        id: 0,
-        synced_at: 0
-      }
-    ]
+    google_drive: {
+      file_id: 0,
+      synced_at: 0
+    }
   },
   /**
    * User preferences outside of services

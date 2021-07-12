@@ -45,7 +45,7 @@ function constructConfig(default_config) {
       return service;
     });
     loadLocal();
-    sync();
+    //sync();
     service_auto_id = Object.entries(data.services).reduce((highest_id, service) => {
       const _id = parseInt(service[1].id);
       if (typeof _id === 'number' && !isNaN(_id)) {
@@ -217,8 +217,8 @@ function constructConfig(default_config) {
   const setValue = function (key, value) {
     data[key] = value;
     updateData();
+    //sync();
     saveLocal();
-    sync();
   };
 
   /**
@@ -281,13 +281,14 @@ function constructConfig(default_config) {
   initialize();
 
   return {
-    subscribe,
-    setValue,
-    getValue,
-    toJson,
-    importJson,
     addNewService,
-    getSortedServices
+    getSortedServices,
+    getValue,
+    importJson,
+    setValue,
+    subscribe,
+    sync,
+    toJson
   };
 }
 

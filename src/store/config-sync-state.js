@@ -19,3 +19,7 @@ export const configSyncSaveState = writable(CONFIG_SYNC_SAVE_STATE.PENDING);
 /** Messages **/
 export const configSyncMessageType = writable('');
 export const configSyncMessage = writable('');
+export const configSyncAlert = function (message, type = 'info') {
+  configSyncMessageType.set(type);
+  configSyncMessage.set(message);
+};
