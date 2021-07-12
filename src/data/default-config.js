@@ -749,5 +749,15 @@ export const default_config = {
         url_no_search: 'https://food52.com/receipes'
       },
       active: true
-  }
+    },
+    d71: {
+      id: 'd71',
+      alias: 'ytm',
+      name: 'YouTube Music',
+      action: {
+        url: 'https://music.youtube.com/search?q=%s',
+        url_no_search: 'https://music.youtube.com'
+      },
+      active: true
+    },
 };
