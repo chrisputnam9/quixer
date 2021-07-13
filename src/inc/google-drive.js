@@ -3,11 +3,12 @@
 import { get } from 'svelte/store';
 import {
   CONFIG_SYNC_SAVE_STATE,
-  configSyncSaveState,
+  configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
+  configSyncMessage,
   configSyncMessageType,
-  configSyncMessage
+  configSyncSaveState
 } from '../store/config-sync-state.js';
 
 /**
@@ -56,8 +57,7 @@ export const google_drive = {
         },
         function (_error) {
           configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
-          configSyncMessageType.set('error');
-          configSyncMessage.set(JSON.stringify(_error, null, 2));
+          configSyncAlert(JSON.stringify(_error, null, 2), 'error');
         }
       );
   },
@@ -90,82 +90,101 @@ export const google_drive = {
    *  - Save merged data
    *  - Return merged data
    */
-  sync: function (data) {
+  sync: function (local_data) {
     if (!get(configSyncIsSignedIn)) {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
-      configSyncMessageType.set('warning');
-      configSyncMessage.set(
-        '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.'
+      configSyncAlert(
+        '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
+        'warning'
       );
+      return local_data;
     }
 
     configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
-    configSyncMessageType.set('info');
-    configSyncMessage.set('Syncing config to Google Drive');
+    configSyncAlert('Syncing config to Google Drive');
 
+    let drive_data = false;
     const metadata = {
       name: 'config.json',
       mimeType: 'application/json'
     };
 
     // See if there is an existing config file
-    if (data.sync.google_drive.file_id == 0) {
+    if (local_data.sync.google_drive.file_id == 0) {
       // None saved locally - check drive by name
-
-      gapi.client.drive.files
-        .list({
-          spaces: 'appDataFolder',
-          q: 'name = "config.json"',
-          fields: 'nextPageToken, files(*)',
-          pageSize: 10
-        })
-        .then(
-          function (response) {
-            console.log(response);
-            if (response.result.files && response.result.files.length > 0) {
-              if (response.result.files.length > 1) {
-                console.err(
-                  'Multiple config files found - will use the first one - report error CS501 to https://github.com/chrisputnam9/quixer/issues along with any potentially helpful information'
-                );
-              }
-              configDriveId = response.result.files[0].id;
-              isConfigSaved = true;
-              error = 'Config found, ID: ' + configDriveId + ' - Loading...';
-
-              gapi.client
-                .request({
-                  path:
-                    'https://www.googleapis.com/drive/v3/files/' +
-                    encodeURIComponent(configDriveId) +
-                    '?alt=media',
-                  method: 'GET'
-                })
-                .then(function (response) {
-                  console.log(response);
-                  configDrive = response.result;
-                  error = 'Config loaded: ' + JSON.stringify(configDrive);
-                })
-                .catch(function (_error) {
-                  error = _error;
-                });
-            }
-          },
-          function (_error) {
-            error = JSON.stringify(_error);
-          }
-        );
+      let local_data.sync.google_drive.file_id = google_drive.findConfig();
+      console.log(local_data.sync.google_drive.file_id);
     }
 
-    window.setTimeout(function () {
-      // Show success, wait a bit, then show pending again
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
-      configSyncMessageType.set('success');
-      configSyncMessage.set('Sync Successful!');
-      window.setTimeout(function () {
-        configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
-      }, 1000);
-    }, 500);
+    // If config file exists, read it in and sync the data
+    if (local_data.sync.google_drive.file_id != 0) {
+    }
+    
+    // Write the synced data to Google Drive
 
-    return data;
+    // Show success, wait a bit, then show pending again
+    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
+    configSyncAlert('Sync Successful!', 'success');
+    window.setTimeout(function () {
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+    }, 1000);
+
+    return local_data;
+  },
+
+  /**
+   * Find config file in Google Drive if it exists
+   */
+  findConfig: function () {
+    let drive_data = false;
+    gapi.client.drive.files
+      .list({
+        spaces: 'appDataFolder',
+        q: 'name = "config.json"',
+        fields: 'nextPageToken, files(*)',
+        pageSize: 10
+      })
+      .then(
+        function (response) {
+          console.log(response);
+          if (response.result.files && response.result.files.length > 0) {
+            if (response.result.files.length > 1) {
+              console.err(
+                'Multiple config files found - will use the first one - report error CS501 to https://github.com/chrisputnam9/quixer/issues along with any potentially helpful information'
+              );
+            }
+            local_data.sync.google_drive.file_id = response.result.files[0].id;
+            configSyncAlert(
+              "Config found, ID: ' + local_data.sync.google_drive.file_id + ' - Loading..."
+            );
+
+            gapi.client
+              .request({
+                path:
+                  'https://www.googleapis.com/drive/v3/files/' +
+                  encodeURIComponent(local_data.sync.google_drive.file_id) +
+                  '?alt=media',
+                method: 'GET'
+              })
+              .then(function (response) {
+                console.log(response);
+                drive_data = response.result;
+                error = 'Config loaded: ' + JSON.stringify(configDrive);
+              })
+              .catch(function (_error) {
+                error = _error;
+              });
+          }
+        },
+        function (_error) {
+          error = JSON.stringify(_error);
+        }
+      );
+  },
+
+  /**
+   * Read config file contents from Google Drive
+   */
+  readConfig: function (file_id) {
   }
 };

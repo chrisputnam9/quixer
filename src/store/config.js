@@ -45,7 +45,6 @@ function constructConfig(default_config) {
       return service;
     });
     loadLocal();
-    //sync();
     service_auto_id = Object.entries(data.services).reduce((highest_id, service) => {
       const _id = parseInt(service[1].id);
       if (typeof _id === 'number' && !isNaN(_id)) {
