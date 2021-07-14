@@ -1,13 +1,12 @@
 /* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
+import { sync } from 'sync-logic.js';
 import {
   CONFIG_SYNC_SAVE_STATE,
   configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
-  configSyncMessage,
-  configSyncMessageType,
   configSyncSaveState
 } from '../store/config-sync-state.js';
 
@@ -90,7 +89,7 @@ export const google_drive = {
    *  - Save merged data
    *  - Return merged data
    */
-  sync: function (local_data) {
+  sync: async function (local_data) {
     if (!get(configSyncIsSignedIn)) {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       configSyncAlert(
@@ -104,30 +103,41 @@ export const google_drive = {
     configSyncAlert('Syncing config to Google Drive');
 
     let drive_data = false;
-    const metadata = {
-      name: 'config.json',
-      mimeType: 'application/json'
-    };
+    let successful = true;
 
     // See if there is an existing config file
     if (local_data.sync.google_drive.file_id == 0) {
       // None saved locally - check drive by name
-      let local_data.sync.google_drive.file_id = google_drive.findConfig();
+      local_data.sync.google_drive.file_id = await google_drive.findConfig();
       console.log(local_data.sync.google_drive.file_id);
     }
 
     // If config file exists, read it in and sync the data
     if (local_data.sync.google_drive.file_id != 0) {
+      drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
+      if (drive_data) {
+        local_data = sync(local_data, drive_data);
+      } else {
+        successful = false;
+      }
     }
-    
-    // Write the synced data to Google Drive
 
-    // Show success, wait a bit, then show pending again
-    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
-    configSyncAlert('Sync Successful!', 'success');
-    window.setTimeout(function () {
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
-    }, 1000);
+    // Write the synced data to Google Drive
+    // - as long as we've been successful so far
+    if (successful) {
+      successful = await google_drive.writeConfig(local_data);
+    }
+
+    // As long as everything has worked out so far...
+    // - If there were issues along the way, errors or warnings would already be showing
+    if (successful) {
+      // Show success, wait a bit, then show pending again
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
+      configSyncAlert('Sync Successful!', 'success');
+      window.setTimeout(function () {
+        configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+      }, 1000);
+    }
 
     return local_data;
   },
@@ -135,56 +145,68 @@ export const google_drive = {
   /**
    * Find config file in Google Drive if it exists
    */
-  findConfig: function () {
-    let drive_data = false;
-    gapi.client.drive.files
+  findConfig: async function () {
+    let file_id = false;
+    await gapi.client.drive.files
       .list({
         spaces: 'appDataFolder',
         q: 'name = "config.json"',
         fields: 'nextPageToken, files(*)',
         pageSize: 10
       })
-      .then(
-        function (response) {
-          console.log(response);
-          if (response.result.files && response.result.files.length > 0) {
-            if (response.result.files.length > 1) {
-              console.err(
-                'Multiple config files found - will use the first one - report error CS501 to https://github.com/chrisputnam9/quixer/issues along with any potentially helpful information'
-              );
-            }
-            local_data.sync.google_drive.file_id = response.result.files[0].id;
+      .then(response => {
+        console.log(response);
+        if (response.result.files && response.result.files.length > 0) {
+          if (response.result.files.length > 1) {
             configSyncAlert(
-              "Config found, ID: ' + local_data.sync.google_drive.file_id + ' - Loading..."
+              'CS501 - Multiple config files found - will use the first one',
+              'warning'
             );
-
-            gapi.client
-              .request({
-                path:
-                  'https://www.googleapis.com/drive/v3/files/' +
-                  encodeURIComponent(local_data.sync.google_drive.file_id) +
-                  '?alt=media',
-                method: 'GET'
-              })
-              .then(function (response) {
-                console.log(response);
-                drive_data = response.result;
-                error = 'Config loaded: ' + JSON.stringify(configDrive);
-              })
-              .catch(function (_error) {
-                error = _error;
-              });
           }
-        },
-        function (_error) {
-          error = JSON.stringify(_error);
+          file_id = response.result.files[0].id;
+          configSyncAlert('Config found, ID: ' + file_id);
+        } else {
+          configSyncAlert('No existing config file found');
         }
-      );
+      })
+      .catch(error => {
+        configSyncAlert('CS502 - ' + JSON.stringify(error));
+      });
   },
 
   /**
    * Read config file contents from Google Drive
    */
-  readConfig: function (file_id) {
+  readConfig: async function (file_id) {
+    let drive_data = false;
+
+    await gapi.client
+      .request({
+        path:
+          'https://www.googleapis.com/drive/v3/files/' +
+          encodeURIComponent(file_id) +
+          '?alt=media',
+        method: 'GET'
+      })
+      .then(function (response) {
+        drive_data = response.result;
+        configSyncAlert('Config loaded from Google Drive');
+      })
+      .catch(function (error) {
+        configSyncAlert('CS503 - ' + JSON.stringify(error));
+      });
+
+    return drive_data;
+  },
+
+  /**
+   * Write config file contents to Google Drive
+   */
+  writeConfig: async function (contents, file_id = false) {
+    const metadata = {
+      name: 'config.json',
+      mimeType: 'application/json'
+    };
+    console.log(metadata, file_id, contents);
   }
 };
