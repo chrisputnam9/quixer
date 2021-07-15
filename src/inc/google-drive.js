@@ -1,7 +1,7 @@
 /* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
-import { sync } from 'sync-logic.js';
+import { syncData } from './sync-logic.js';
 import {
   CONFIG_SYNC_SAVE_STATE,
   configSyncAlert,
@@ -106,26 +106,34 @@ export const google_drive = {
     let successful = true;
 
     // See if there is an existing config file
-    if (local_data.sync.google_drive.file_id == 0) {
+    if (local_data.sync.google_drive.file_id === 0) {
       // None saved locally - check drive by name
       local_data.sync.google_drive.file_id = await google_drive.findConfig();
-      console.log(local_data.sync.google_drive.file_id);
     }
 
     // If config file exists, read it in and sync the data
-    if (local_data.sync.google_drive.file_id != 0) {
+    if (local_data.sync.google_drive.file_id !== 0) {
+      configSyncAlert('Existing config found - reading & syncing...');
       drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
       if (drive_data) {
-        local_data = sync(local_data, drive_data);
+        local_data = syncData(local_data, drive_data);
       } else {
         successful = false;
       }
+    } else {
+      configSyncAlert('No existing config file found - it will be created');
     }
 
     // Write the synced data to Google Drive
     // - as long as we've been successful so far
     if (successful) {
-      successful = await google_drive.writeConfig(local_data);
+      configSyncAlert('Writing to Google Drive...');
+      const file_id = await google_drive.writeConfig(JSON.stringify(local_data), file_id);
+      if (file_id === 0) {
+        successful = false;
+      } else {
+        local_data.sync.google_drive.file_id = file_id;
+      }
     }
 
     // As long as everything has worked out so far...
@@ -134,19 +142,22 @@ export const google_drive = {
       // Show success, wait a bit, then show pending again
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
       configSyncAlert('Sync Successful!', 'success');
-      window.setTimeout(function () {
-        configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
-      }, 1000);
     }
+
+    window.setTimeout(function () {
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+    }, 2000);
 
     return local_data;
   },
 
   /**
    * Find config file in Google Drive if it exists
+   *  - Return file id if exists, otherwise 0
    */
   findConfig: async function () {
-    let file_id = false;
+    let file_id = 0;
+
     await gapi.client.drive.files
       .list({
         spaces: 'appDataFolder',
@@ -155,7 +166,6 @@ export const google_drive = {
         pageSize: 10
       })
       .then(response => {
-        console.log(response);
         if (response.result.files && response.result.files.length > 0) {
           if (response.result.files.length > 1) {
             configSyncAlert(
@@ -163,19 +173,24 @@ export const google_drive = {
               'warning'
             );
           }
+
+          console.group();
+          console.log('findConfig - results:', response.result.files);
+          console.groupEnd();
+
           file_id = response.result.files[0].id;
-          configSyncAlert('Config found, ID: ' + file_id);
-        } else {
-          configSyncAlert('No existing config file found');
         }
       })
       .catch(error => {
         configSyncAlert('CS502 - ' + JSON.stringify(error));
       });
+
+    return file_id;
   },
 
   /**
    * Read config file contents from Google Drive
+   *  - Return file contents
    */
   readConfig: async function (file_id) {
     let drive_data = false;
@@ -189,8 +204,11 @@ export const google_drive = {
         method: 'GET'
       })
       .then(function (response) {
+        console.group();
+        console.log('readConfig - results:', response.result);
+        console.groupEnd();
+
         drive_data = response.result;
-        configSyncAlert('Config loaded from Google Drive');
       })
       .catch(function (error) {
         configSyncAlert('CS503 - ' + JSON.stringify(error));
@@ -201,12 +219,19 @@ export const google_drive = {
 
   /**
    * Write config file contents to Google Drive
+   *  - Return ID of file
    */
-  writeConfig: async function (contents, file_id = false) {
+  writeConfig: async function (contents, file_id = 0) {
     const metadata = {
       name: 'config.json',
       mimeType: 'application/json'
     };
-    console.log(metadata, file_id, contents);
+    console.group();
+    console.log('writeConfig - writing:', metadata, file_id, contents);
+    console.groupEnd();
+
+    configSyncAlert('Write not yet implemented', 'error');
+
+    return file_id;
   }
 };
