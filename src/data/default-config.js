@@ -759,5 +759,5 @@ export const default_config = {
         url_no_search: 'https://music.youtube.com'
       },
       active: true
-    },
+    }
 };
