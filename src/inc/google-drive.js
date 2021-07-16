@@ -117,6 +117,9 @@ export const google_drive = {
       drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
       if (drive_data) {
         local_data = syncData(local_data, drive_data);
+        //console.groupCollapsed();
+        //console.log('syncData', local_data);
+        //console.groupEnd();
       } else {
         successful = false;
       }
@@ -128,7 +131,10 @@ export const google_drive = {
     // - as long as we've been successful so far
     if (successful) {
       configSyncAlert('Writing to Google Drive...');
-      const file_id = await google_drive.writeConfig(JSON.stringify(local_data), file_id);
+      const file_id = await google_drive.writeConfig(
+        JSON.stringify(local_data),
+        local_data.sync.google_drive.file_id
+      );
       if (file_id === 0) {
         successful = false;
       } else {
@@ -147,6 +153,10 @@ export const google_drive = {
     window.setTimeout(function () {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }, 2000);
+
+    //console.groupCollapsed();
+    //console.log('return', local_data);
+    //console.groupEnd();
 
     return local_data;
   },
@@ -174,9 +184,9 @@ export const google_drive = {
             );
           }
 
-          console.group();
-          console.log('findConfig - results:', response.result.files);
-          console.groupEnd();
+          //console.groupCollapsed();
+          //console.log('findConfig - results:', response.result.files);
+          //console.groupEnd();
 
           file_id = response.result.files[0].id;
         }
@@ -204,9 +214,9 @@ export const google_drive = {
         method: 'GET'
       })
       .then(function (response) {
-        console.group();
-        console.log('readConfig - results:', response.result);
-        console.groupEnd();
+        //console.groupCollapsed();
+        //console.log('readConfig - results:', response.result);
+        //console.groupEnd();
 
         drive_data = response.result;
       })
@@ -226,7 +236,7 @@ export const google_drive = {
       name: 'config.json',
       mimeType: 'application/json'
     };
-    console.group();
+    console.groupCollapsed();
     console.log('writeConfig - writing:', metadata, file_id, contents);
     console.groupEnd();
 

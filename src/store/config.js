@@ -192,9 +192,9 @@ function constructConfig(default_config) {
   /**
    * Sync with third-party storage
    */
-  const sync = function () {
+  const sync = async function () {
     // Sync up with Google Drive
-    data = google_drive.sync(data);
+    data = await google_drive.sync(data);
     // Save synced data set to local storage
     saveLocal();
   };
