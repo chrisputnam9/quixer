@@ -760,4 +760,5 @@ export const default_config = {
       },
       active: true
     }
+  }
 };
