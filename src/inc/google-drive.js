@@ -9,6 +9,7 @@ import {
   configSyncIsSignedIn,
   configSyncSaveState
 } from '../store/config-sync-state.js';
+import MultiPartBuilder from './multipart.js';
 
 /**
  * Workflow:
@@ -44,21 +45,18 @@ export const google_drive = {
         scope:
           'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file'
       })
-      .then(
-        function () {
-          configSyncIsAvailableForSignIn.set(true);
+      .then(() => {
+        configSyncIsAvailableForSignIn.set(true);
 
-          // Listen for sign-in state changes.
-          gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
+        // Listen for sign-in state changes.
+        gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
 
-          // Handle the initial sign-in state.
-          google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        },
-        function (_error) {
-          configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
-          configSyncAlert(JSON.stringify(_error, null, 2), 'error');
-        }
-      );
+        // Handle the initial sign-in state.
+        google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+      })
+      .catch(error => {
+        configSyncAlert('CS501 - ' + JSON.stringify(error, null, 2), 'error');
+      });
   },
 
   /**
@@ -132,13 +130,14 @@ export const google_drive = {
     if (successful) {
       configSyncAlert('Writing to Google Drive...');
       const file_id = await google_drive.writeConfig(
-        JSON.stringify(local_data),
+        local_data,
         local_data.sync.google_drive.file_id
       );
       if (file_id === 0) {
         successful = false;
       } else {
         local_data.sync.google_drive.file_id = file_id;
+        local_data.sync.google_drive.synced_at = new Date().getTime();
       }
     }
 
@@ -179,7 +178,7 @@ export const google_drive = {
         if (response.result.files && response.result.files.length > 0) {
           if (response.result.files.length > 1) {
             configSyncAlert(
-              'CS501 - Multiple config files found - will use the first one',
+              'CS502 - Multiple config files found - will use the first one',
               'warning'
             );
           }
@@ -192,7 +191,7 @@ export const google_drive = {
         }
       })
       .catch(error => {
-        configSyncAlert('CS502 - ' + JSON.stringify(error));
+        configSyncAlert('CS503 - ' + JSON.stringify(error));
       });
 
     return file_id;
@@ -221,7 +220,7 @@ export const google_drive = {
         drive_data = response.result;
       })
       .catch(function (error) {
-        configSyncAlert('CS503 - ' + JSON.stringify(error));
+        configSyncAlert('CS504 - ' + JSON.stringify(error));
       });
 
     return drive_data;
@@ -231,16 +230,44 @@ export const google_drive = {
    * Write config file contents to Google Drive
    *  - Return ID of file
    */
-  writeConfig: async function (contents, file_id = 0) {
+  writeConfig: async function (data, file_id = 0) {
+    const jsonData = JSON.stringify(data);
     const metadata = {
       name: 'config.json',
       mimeType: 'application/json'
     };
-    console.groupCollapsed();
-    console.log('writeConfig - writing:', metadata, file_id, contents);
-    console.groupEnd();
 
-    configSyncAlert('Write not yet implemented', 'error');
+    if (!file_id) {
+      metadata.parents = ['appDataFolder'];
+    }
+
+    var multipart = new MultiPartBuilder()
+      .append('application/json', JSON.stringify(metadata))
+      .append(metadata.mimeType, jsonData)
+      .finish();
+
+    await gapi.client
+      .request({
+        path:
+          'https://content.googleapis.com/upload/drive/v3/files/' +
+          (file_id ? encodeURIComponent(file_id) : '') +
+          '?uploadType=multipart&fields=id',
+        method: file_id ? 'PATCH' : 'POST',
+        params: {
+          uploadType: 'multipart',
+          supportsTeamDrives: true,
+          fields: 'id'
+        },
+        headers: { 'Content-Type': multipart.type },
+        body: multipart.body
+      })
+      .then(response => {
+        file_id = response.result.id;
+        configSyncAlert('Config saved successfully (ID ' + file_id + ')');
+      })
+      .catch(error => {
+        configSyncAlert('CS505 - ' + JSON.stringify(error), 'error');
+      });
 
     return file_id;
   }

@@ -20,6 +20,10 @@ export const configSyncSaveState = writable(CONFIG_SYNC_SAVE_STATE.PENDING);
 export const configSyncMessageType = writable('');
 export const configSyncMessage = writable('');
 export const configSyncAlert = function (message, type = 'info') {
+  // Auto-set ERROR state
+  if (type == 'error') {
+    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
+  }
   configSyncMessageType.set(type);
   configSyncMessage.set(message);
 };
