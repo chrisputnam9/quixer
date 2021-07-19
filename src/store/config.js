@@ -112,6 +112,24 @@ function constructConfig(default_config) {
         const new_services = _data.services;
         delete _data.services;
 
+        // Load all other data as is, where allowed
+        for (const key in _data) {
+          // REFERENCE: Config_Data_Allowed_To_Change
+          switch (key) {
+            case 'preferences':
+            case 'sync':
+            case 'updated_at':
+              data[key] = _data[key];
+              break;
+            default:
+              console.warn(
+                `'${key}' found in config data is not allowed to override default data - this will be ignored and removed from stored data`
+              );
+              break;
+          }
+        }
+
+        // Look through services, load as needed
         for (const id in new_services) {
           const service = data.services[id];
           const new_service = new_services[id];
@@ -128,8 +146,7 @@ function constructConfig(default_config) {
                   break;
                 default:
                   console.warn(
-                    key +
-                      ' found in config data is not allowed to override default data - this will be ignored and removed from stored data'
+                    `'${key}' found in config data for service ${id} is not allowed to override default data - this will be ignored and removed from stored data`
                   );
                   break;
               }
@@ -150,6 +167,22 @@ function constructConfig(default_config) {
    */
   const prepToSave = function () {
     const toSave = util.objectClone(data);
+
+    // Remove data that shouldn't be saved
+    for (const key in toSave) {
+      // REFERENCE: Config_Data_Allowed_To_Change
+      switch (key) {
+        case 'preferences':
+        case 'sync':
+        case 'updated_at':
+          // OK to save
+          break;
+        default:
+          delete toSave[key];
+          break;
+      }
+    }
+
     toSave.services = {};
 
     // Filter services and save only custom & changed data

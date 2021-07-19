@@ -3,5 +3,6 @@
  */
 export const syncData = function (local_data, remote_data) {
   console.log(local_data, remote_data);
+
   return local_data;
 };
