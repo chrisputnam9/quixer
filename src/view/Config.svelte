@@ -36,9 +36,7 @@
   let servicesDisplay;
   function updateServices(fromDisplay = false) {
     if (fromDisplay && servicesDisplay) {
-      servicesDisplay.forEach(service => {
-        services[service.id] = service;
-      });
+      servicesDisplay.forEach(service => config.updateService(service));
     }
 
     config.setValue('services', services);

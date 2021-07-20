@@ -2,6 +2,7 @@
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
 import { syncData } from './sync-logic.js';
+import { util } from './util.js';
 import {
   CONFIG_SYNC_SAVE_STATE,
   configSyncAlert,
@@ -137,7 +138,7 @@ export const google_drive = {
         successful = false;
       } else {
         local_data.sync.google_drive.file_id = file_id;
-        local_data.sync.google_drive.synced_at = new Date().getTime();
+        local_data.sync.google_drive.synced_at = util.timestamp();
       }
     }
 

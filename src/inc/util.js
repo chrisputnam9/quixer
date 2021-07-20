@@ -58,5 +58,10 @@ export const util = {
     }
 
     return changes;
-  }
+  },
+
+  /**
+   * Get a timestamp
+   */
+  timestamp: () => new Date().getTime()
 };

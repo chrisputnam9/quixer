@@ -21,7 +21,7 @@ import { util } from '../inc/util.js';
  *  - ModifyService
  *  - DeleteService
  */
-function constructConfig(default_config) {
+const constructConfig = default_config => {
   let data = util.objectClone(default_config);
   let service_auto_id = 0;
 
@@ -33,7 +33,7 @@ function constructConfig(default_config) {
    *  - Load Local if any
    *  - Attempt Sync
    */
-  const initialize = function () {
+  const initialize = () => {
     const service_template = serviceTemplate();
     data.services = util.objectMap(data.services, service => {
       service = {
@@ -64,7 +64,7 @@ function constructConfig(default_config) {
    *  - Newest first - based on ID
    *  - Alphabetical from there
    */
-  const getSortedServices = function () {
+  const getSortedServices = () => {
     return Object.values(data.services).sort((service1, service2) => {
       /** Sort default service first **/
       if (service1.alias[0] == data.preferences.default_service_alias) {
@@ -97,7 +97,7 @@ function constructConfig(default_config) {
   /**
    * Load from local storage if any
    */
-  const loadLocal = function () {
+  const loadLocal = () => {
     const json = local_storage.get('config');
     if (json) {
       const _data = JSON.parse(json);
@@ -137,7 +137,7 @@ function constructConfig(default_config) {
           if (service && service.from_default_config) {
             for (const key in new_service) {
               switch (key) {
-                // REFERENCE: Service_Data_Allowed_To_Change
+                // REFERENCE: Default_Service_Data_Allowed_To_Change
                 case 'action':
                 case 'active':
                 case 'alias':
@@ -165,7 +165,7 @@ function constructConfig(default_config) {
    * Prep data to save
    *  - Compare default data against
    */
-  const prepToSave = function () {
+  const prepToSave = () => {
     const toSave = util.objectClone(data);
 
     // Remove data that shouldn't be saved
@@ -198,7 +198,7 @@ function constructConfig(default_config) {
       // Otherwise, this is a default service - check for any change to service data
       const default_service = default_config.services[id];
       let changed_data = {
-        // REFERENCE: Service_Data_Allowed_To_Change
+        // REFERENCE: Default_Service_Data_Allowed_To_Change
         action: service.action,
         alias: service.alias,
         active: service.active
@@ -218,14 +218,14 @@ function constructConfig(default_config) {
   /**
    * Save to local storage
    */
-  const saveLocal = function () {
+  const saveLocal = () => {
     local_storage.set('config', prepToSave());
   };
 
   /**
    * Sync with third-party storage
    */
-  const sync = async function () {
+  const sync = async () => {
     // Sync up with Google Drive
     data = await google_drive.sync(data);
     // Save synced data set to local storage
@@ -235,7 +235,7 @@ function constructConfig(default_config) {
   /**
    * Get key value on data object
    */
-  const getValue = function (key) {
+  const getValue = key => {
     if (key in data) {
       return data[key];
     }
@@ -246,7 +246,7 @@ function constructConfig(default_config) {
   /**
    * Set key value on data object
    */
-  const setValue = function (key, value) {
+  const setValue = (key, value) => {
     data[key] = value;
     updateData();
     //sync();
@@ -257,26 +257,41 @@ function constructConfig(default_config) {
    * Update data in store
    *  - Update the updated_at stamp unless "false"
    */
-  const updateData = function (update_date = true) {
+  const updateData = (update_date = true) => {
     if (update_date) {
-      data.updated_at = new Date().getTime();
+      data.updated_at = util.timestamp();
     }
     set(data);
   };
 
   /**
+   * Update a service
+   *  - Update the updated_at stamp if anything actually changed (unless "false")
+   */
+  const updateService = (service, update_date = true) => {
+
+    // Compare data, see if anything actually changed
+
+    if (update_date) {
+      service.updated_at = util.timestamp();
+    }
+    data.services[service.id] = service;
+  };
+
+  /**
    * Get a clone of the service template object
    */
-  const serviceTemplate = function () {
+  const serviceTemplate = () => {
     return JSON.parse(service_template_string);
   };
 
   /**
    * Create a new service from the service template
    */
-  const addNewService = function () {
+  const addNewService = () => {
     const service = serviceTemplate();
     service.id = ++service_auto_id;
+    service.updated_at = util.timestamp();
     data.services[service.id] = service;
     updateData();
     return data.services;
@@ -285,14 +300,14 @@ function constructConfig(default_config) {
   /**
    * Get data as JSON
    */
-  const toJson = function () {
+  const toJson = () => {
     return JSON.stringify(data, null, 2);
   };
 
   /**
    * Import data from JSON
    */
-  const importJson = function (json) {
+  const importJson = json => {
     if (json == toJson()) {
       alert('No changes to data, skipping import');
       return false;
@@ -320,8 +335,9 @@ function constructConfig(default_config) {
     setValue,
     subscribe,
     sync,
-    toJson
+    toJson,
+    updateService
   };
-}
+};
 
 export const config = constructConfig(default_config);
