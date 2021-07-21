@@ -65,7 +65,7 @@ const constructConfig = default_config => {
    *  - Alphabetical from there
    */
   const getSortedServices = () => {
-    return Object.values(data.services).sort((service1, service2) => {
+    return Object.values(util.objectClone(data.services)).sort((service1, service2) => {
       /** Sort default service first **/
       if (service1.alias[0] == data.preferences.default_service_alias) {
         return -1;
@@ -269,13 +269,24 @@ const constructConfig = default_config => {
    *  - Update the updated_at stamp if anything actually changed (unless "false")
    */
   const updateService = (service, update_date = true) => {
-
     // Compare data, see if anything actually changed
+    if (util.objectsSame(service, data.services[service.id])) {
+      if (service.id == 2) {
+        console.log(
+          service.id,
+          'Objects are the same',
+          service,
+          data.services[service.id]
+        );
+      }
+      return false;
+    }
 
     if (update_date) {
       service.updated_at = util.timestamp();
     }
     data.services[service.id] = service;
+    return true;
   };
 
   /**

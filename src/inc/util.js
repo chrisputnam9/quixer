@@ -31,7 +31,7 @@ export const util = {
    *  - return an object with only the differences
    *  - (where both objects have the key but the values differ)
    *  - recursively compare objects within values
-   *  - compare arrays as json, all or nothing to preserve array index order
+   *  - compare arrays as json, all or nothing (simpler & preserves indexes)
    */
   diffObjectRecursive: (object, otherObject) => {
     if (!util.isObject(object) || !util.isObject(otherObject)) {
@@ -59,6 +59,13 @@ export const util = {
 
     return changes;
   },
+
+  /**
+   * Compare two objects by converting to JSON
+   */
+  objectsSame: (object, otherObject) =>
+    JSON.stringify(object) === JSON.stringify(otherObject),
+  objectsDiffer: (object, otherObject) => !util.objectsSame(object, otherObject),
 
   /**
    * Get a timestamp
