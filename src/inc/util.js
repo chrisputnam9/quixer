@@ -70,5 +70,11 @@ export const util = {
   /**
    * Get a timestamp
    */
-  timestamp: () => new Date().getTime()
+  timestamp: () => new Date().getTime(),
+
+  /**
+   * Get a UUID
+   *  - I haven't done the math on this yet, but there should be a very low chance of ever having a duplicate :D
+   */
+  getUUID: () => util.timestamp().toString() + '-' + Math.random().toString().substring(2)
 };

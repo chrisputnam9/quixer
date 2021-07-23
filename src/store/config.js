@@ -23,7 +23,7 @@ import { util } from '../inc/util.js';
  */
 const constructConfig = default_config => {
   let data = util.objectClone(default_config);
-  let service_auto_id = 0;
+  let highest_service_index = 0;
 
   const service_template_string = JSON.stringify(data.service_template);
   const { subscribe, set } = writable(data);
@@ -45,15 +45,18 @@ const constructConfig = default_config => {
       return service;
     });
     loadLocal();
-    service_auto_id = Object.entries(data.services).reduce((highest_id, service) => {
-      const _id = parseInt(service[1].id);
-      if (typeof _id === 'number' && !isNaN(_id)) {
-        if (_id > highest_id) {
-          return _id;
+    highest_service_index = Object.entries(data.services).reduce(
+      (highest_id, service) => {
+        const _id = parseInt(service[1].id.replace(/^(\d+).*$/, '$1'));
+        if (typeof _id === 'number' && !isNaN(_id)) {
+          if (_id > highest_id) {
+            return _id;
+          }
         }
-      }
-      return highest_id;
-    }, service_auto_id);
+        return highest_id;
+      },
+      highest_service_index
+    );
   };
 
   /**
@@ -85,12 +88,12 @@ const constructConfig = default_config => {
       }
 
       /** Newest custom first **/
-      if (typeof service1.id == 'number' && typeof service2.id == 'number') {
-        return service1.id > service2.id ? -1 : 1;
+      if (!service1.from_default_config && !service2.from_default_config) {
+        return service1.id.localeCompare(service2.id);
       }
 
-      /** Alphabetical by alias after that **/
-      return service1.alias[0].localeCompare(service2.alias[0]);
+      /** Alphabetical by name after that **/
+      return service1.name.localeCompare(service2.name);
     });
   };
 
@@ -301,7 +304,7 @@ const constructConfig = default_config => {
    */
   const addNewService = () => {
     const service = serviceTemplate();
-    service.id = ++service_auto_id;
+    service.id = ++highest_service_index + '-' + util.getUUID();
     service.updated_at = util.timestamp();
     data.services[service.id] = service;
     updateData();
