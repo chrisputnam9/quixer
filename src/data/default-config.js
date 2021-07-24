@@ -762,5 +762,7 @@ export const default_config = {
       active: true
     }
   },
-  __trash: {}
+  __trash: {
+    services: {}
+  }
 };

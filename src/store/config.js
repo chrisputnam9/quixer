@@ -6,20 +6,6 @@ import { util } from '../inc/util.js';
 
 /**
  * Build a new config store interface
- *
- * Data sources:
- *  - Defaults - hard-coded
- *  - Local - cached in local storage
- *  - Sync - synced with third-party storage
- *
- * Methods:
- *  - Sync
- *    - Sync between local and third-party storage
- *
- *  Update Services - single method
- *  - AddService
- *  - ModifyService
- *  - DeleteService
  */
 const constructConfig = default_config => {
   let data = util.objectClone(default_config);
@@ -122,6 +108,7 @@ const constructConfig = default_config => {
             case 'preferences':
             case 'sync':
             case 'updated_at':
+            case '__trash':
               data[key] = _data[key];
               break;
             default:
@@ -178,6 +165,7 @@ const constructConfig = default_config => {
         case 'preferences':
         case 'sync':
         case 'updated_at':
+        case '__trash':
           // OK to save
           break;
         default:
@@ -268,6 +256,17 @@ const constructConfig = default_config => {
   };
 
   /**
+   * Delete a service
+   *  - Move it to the trash
+   */
+  const deleteService = id => {
+    // Move to trash
+    data.__trash.services[id] = data.services[id];
+    // Remove from services
+    delete data.services[id];
+  };
+
+  /**
    * Update a service
    *  - Update the updated_at stamp if anything actually changed (unless "false")
    */
@@ -350,6 +349,7 @@ const constructConfig = default_config => {
     subscribe,
     sync,
     toJson,
+    deleteService,
     updateService
   };
 };

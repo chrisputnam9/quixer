@@ -58,7 +58,7 @@
   }
 
   function deleteService(id) {
-    delete services[id];
+    config.deleteService(id);
     updateServices();
   }
 
