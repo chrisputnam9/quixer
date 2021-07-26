@@ -14,43 +14,33 @@
  *    - Compare updated_at - which was more recent, update in existing or update in __trash?
  */
 export const syncData = (local_data, remote_data) => {
-  console.log(local_data, remote_data);
-
   // Check top level updated_at - see if remote_data is newer
   //  - If so, replace local top level data with remote versions
   //  - If not, leave local top level data as is
+  if (remote_data.updated_at > local_data.updated_at) {
+    // REFERENCE: Top_Level_Config_Data
+    local_data.preferences = remote_data.preferences;
+    local_data.sync = remote_data.sync;
+    local_data.updated_at = remote_data.updated_at;
+  }
 
-  // REFERENCE: Top_Level_Config_Data
+  // Sync in remote services
+  for (const id in remote_data.services) {
+    syncService(
+      remote_data.services[id],
+      local_data.services,
+      local_data.__trash.services
+    );
+  }
 
-  // Loop through remote services
-  // Submethod?:
-  // - Exists in local?
-  //   - Remote newer?
-  //     - Copy in remote data
-  //   - Local same or newer?
-  //     - Leave local as is
-  // - Exists in local trash?
-  //   - Remote newer?
-  //     - Restored remotely - copy in remote and remove from local trash
-  //   - Local trash same or newer?
-  //     - Trashed locally - Leave local as is
-  // - Does not exist anywhere local?
-  //   - New Service - copy remote to local
-
-  // Loop through remote trash services
-  // Submethod?: Same logic, just different compate....?
-  // - Exists in local?
-  //   - Remote trash newer?
-  //     - Trashed remotely - remote local, copy remote trash to local trash
-  //   - Local same or newer?
-  //     - Restored locally - leave as is
-  // - Exists in local trash?
-  //   - Remote trash newer?
-  //     - Copy in remote trash
-  //   - Local trash same or newer?
-  //     - Leave local as is
-  // - Does not exist anywhere local?
-  //   - New trashed service - copy remote trash to local
+  // Sync in remote trash
+  for (const id in remote_data.__trash.services) {
+    syncService(
+      remote_data.__trash.services[id],
+      local_data.__trash.services,
+      local_data.services
+    );
+  }
 
   return local_data;
 };
@@ -60,8 +50,39 @@ export const syncData = (local_data, remote_data) => {
  *  - Local services
  *  - Local services with opposite status (trash vs. non-trash)
  */
-const syncService = (
-  remote_service,
-  local_services,
-  local_services_opposite_status
-) => {};
+const syncService = (remote_service, local_services, local_services_opposite_status) => {
+  const id = remote_service.id;
+
+  // Exists in local?
+  if (id in local_services) {
+    const local_service = local_services[id];
+
+    // Remote newer?
+    if (remote_service.updated_at > local_service.updated_at) {
+      // Copy in remote data
+      local_services[id] = remote_service;
+    }
+
+    // Otherwise, leave local as is
+  }
+
+  // Exists in local opposite status?
+  else if (id in local_services_opposite_status) {
+    const local_service = local_services_opposite_status[id];
+
+    // Remote newer?
+    if (remote_service.updated_at > local_service.updated_at) {
+      // Status changed remotely - copy in remote and remove from local opposite status
+      local_services[id] = remote_service;
+      delete local_services_opposite_status[id];
+    }
+
+    // Otherwise, status changed locally - leave local as is
+  }
+
+  // Does not exist anywhere local?
+  else {
+    // New Service - copy remote to local
+    local_services[id] = remote_service;
+  }
+};
