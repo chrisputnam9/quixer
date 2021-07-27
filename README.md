@@ -17,7 +17,7 @@ The hacker's bookmarks.
 *TO FILL IN*
 
 ## Full Local Development Setup
-This will not be needed for most contributors
+This will not be needed for most contributors (ie. not needed just to contribute a service - test that in config import instead)
  1. Install [Node](https://nodejs.org/en/)
  1. Install [Caddy](https://caddyserver.com/)
  1. Install [mkcert](https://github.com/FiloSottile/mkcert)
@@ -29,7 +29,7 @@ This will not be needed for most contributors
     - dev/ssl/quixer.dev.pem
     - dev/ssl/quixer.dev-key.pem
  1. Copy .env.sample to .env and fill in details as needed
-    - Create a new Google Drive API project for yourself to use in development - keep the API key secret, fill in details in .env file
+    - Create a new Google Drive API project for yourself - "Quixer DEV" to use in development - keep the API key secret, fill in details in .env file
  1. Run `npm install`
  1. Follow the dev workflow steps
 
