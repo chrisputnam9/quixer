@@ -77,6 +77,11 @@
     }
   }
 
+  async function sync() {
+    await config.sync();
+    updateServices();
+  }
+
   updateServices();
 </script>
 
@@ -85,7 +90,7 @@
 {#if $configSyncIsSignedIn}
   <button
     disabled={$configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
-    on:click={config.sync}
+    on:click={sync}
   >
     {#if $configSyncSaveState == CONFIG_SYNC_SAVE_STATE.PENDING}
       Sync with Google Drive
