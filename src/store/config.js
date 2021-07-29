@@ -262,6 +262,8 @@ const constructConfig = default_config => {
   const deleteService = id => {
     // Move to trash
     data.__trash.services[id] = data.services[id];
+    // Update date to signify modification
+    data.__trash.services[id].updated_at = util.timestamp();
     // Remove from services
     delete data.services[id];
   };

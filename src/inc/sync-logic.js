@@ -29,7 +29,10 @@ export const syncData = (local_data, remote_data) => {
     syncService(
       remote_data.services[id],
       local_data.services,
-      local_data.__trash.services
+      local_data.__trash.services,
+      true // Prefer remote if equal opposite status
+      // eg. If found in trash locally with same updated date, restore it
+      //  - very unlikely, but theoretically possible
     );
   }
 
@@ -50,7 +53,12 @@ export const syncData = (local_data, remote_data) => {
  *  - Local services
  *  - Local services with opposite status (trash vs. non-trash)
  */
-const syncService = (remote_service, local_services, local_services_opposite_status) => {
+const syncService = (
+  remote_service,
+  local_services,
+  local_services_opposite_status,
+  prefer_remote_if_equal_opposite_status = false
+) => {
   const id = remote_service.id;
 
   // Exists in local?
@@ -71,7 +79,11 @@ const syncService = (remote_service, local_services, local_services_opposite_sta
     const local_service = local_services_opposite_status[id];
 
     // Remote newer?
-    if (remote_service.updated_at > local_service.updated_at) {
+    if (
+      remote_service.updated_at > local_service.updated_at ||
+      (prefer_remote_if_equal_opposite_status &&
+        remote_service.updated_at === local_service.updated_at)
+    ) {
       // Status changed remotely - copy in remote and remove from local opposite status
       local_services[id] = remote_service;
       delete local_services_opposite_status[id];
