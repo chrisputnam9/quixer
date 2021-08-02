@@ -30,6 +30,7 @@ export const util = {
    * Compare two objects recursively
    *  - return an object with only the differences
    *  - (where both objects have the key but the values differ)
+   *  - (or object has the key and other object does not)
    *  - recursively compare objects within values
    *  - compare arrays as json, all or nothing (simpler & preserves indexes)
    */
@@ -54,6 +55,9 @@ export const util = {
         } else if (value !== otherValue) {
           changes[key] = value;
         }
+      } else {
+        // Doesn't exist in other object, counts as difference
+        changes[key] = object[key];
       }
     }
 

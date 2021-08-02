@@ -81,9 +81,9 @@
         category_alias = '';
 
       if (query_search_match) {
-        category_alias = query_search_match[1].toLowerCase();
+        category_alias = query_search_match[1];
         service_match = services.filter(service => {
-          return service.alias[0].toLowerCase() == category_alias;
+          return service.alias[0] == category_alias;
         });
       }
 

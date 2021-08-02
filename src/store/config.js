@@ -192,14 +192,18 @@ const constructConfig = default_config => {
         // REFERENCE: Default_Service_Data_Allowed_To_Change
         action: service.action,
         alias: service.alias,
-        active: service.active
-        // updated_at - add it below only if something else changed
+        active: service.active,
+        updated_at: service.updated_at // Must maintain this to allow reversions to sync
+        // - ie. maintaining that the data is as it should be, even if same as defaults
       };
 
       changed_data = util.diffObjectRecursive(changed_data, default_service);
 
+      if (changed_data.updated_at === 0) {
+        delete changed_data.updated_at;
+      }
+
       if (!util.isEmptyObject(changed_data)) {
-        changed_data.updated_at = service.updated_at;
         toSave.services[id] = changed_data;
       }
     }
