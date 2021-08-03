@@ -1,9 +1,10 @@
 <script>
   /* global ENV_IS_LIVE */
-  import { config } from '../store/config.js';
   import { onMount, tick } from 'svelte';
+  import { config } from '../store/config.js';
 
-  let search_category = '',
+  let searchCategoryEl,
+    search_category = '',
     search_category_default = config.getValue('preferences').default_service_alias,
     search_phrase = '';
 
@@ -71,6 +72,9 @@
   }
 
   onMount(async () => {
+    // Focus default field
+    searchCategoryEl.focus();
+
     // Quick and dirty query parse
     const query_pattern = /^\?q=([^&]+)(&|=|$)/;
     const query_match = document.location.search.match(query_pattern);
@@ -110,10 +114,11 @@
 <form on:submit|preventDefault={search}>
   <input
     class="search_category"
+    bind:this={searchCategoryEl}
     bind:value={search_category}
     on:keyup={filterResults}
     on:change={complete}
-    placeholder="ddg:"
+    placeholder="{search_category_default}:"
   />
   <input class="search_phrase" bind:value={search_phrase} />
   <button type="submit">Go</button>

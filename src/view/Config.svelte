@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from 'svelte';
   import { config } from '../store/config.js';
   import { slide } from 'svelte/transition';
   import { google_drive } from '../inc/google-drive.js';
@@ -62,12 +63,12 @@
     updateServices();
   }
 
-  let filterInput;
+  let filterInputEl;
   function sortAndMaybeFilter() {
     servicesDisplay = config.getSortedServices();
 
-    if (filterInput && filterInput.value) {
-      const pattern = new RegExp(filterInput.value, 'i');
+    if (filterInputEl && filterInputEl.value) {
+      const pattern = new RegExp(filterInputEl.value, 'i');
       servicesDisplay = servicesDisplay.filter(service => {
         const values = Object.values(service);
         return values.some(value => {
@@ -81,6 +82,11 @@
     await config.sync();
     updateServices();
   }
+
+  onMount(async () => {
+    // Focus default field
+    filterInputEl.focus();
+  });
 
   updateServices();
 </script>
@@ -149,7 +155,7 @@
   <div class="box" style="flex:1">
     <input
       on:keyup={sortAndMaybeFilter}
-      bind:this={filterInput}
+      bind:this={filterInputEl}
       placeholder="Filter services"
     />
   </div>
