@@ -148,7 +148,7 @@
 <h2>Custom Services</h2>
 
 <div class="boxes">
-  <div class="box" style="flex:3">
+  <div class="box" style="flex:2">
     <button on:click={addNewService}>Add New Service</button>
   </div>
 
@@ -157,6 +157,7 @@
       on:keyup={sortAndMaybeFilter}
       bind:this={filterInputEl}
       placeholder="Filter services"
+      class="filter_input"
     />
   </div>
 </div>
@@ -174,6 +175,7 @@
           bind:value={service.name}
           readonly={service.from_default_config}
           placeholder="Descriptive Name"
+          class="service_input"
         />
       </div>
 
@@ -183,6 +185,7 @@
           id="service_{service.id}_alias"
           bind:value={service.alias[0]}
           placeholder="Alias / abbreviation"
+          class="service_input"
         />
       </div>
 
@@ -192,8 +195,21 @@
           id="service_{service.id}_action_url"
           bind:value={service.action.url}
           placeholder="URL to open"
+          class="service_input"
         />
         <br /><small>Use "%s" as placeholder for search term </small>
+      </div>
+
+      <div class="service_field">
+        <label for="service_{service.id}_action_url_no_search"
+          >URL without search:
+        </label>
+        <input
+          id="service_{service.id}_action_url_no_search"
+          bind:value={service.action.url_no_search}
+          placeholder="Default - same as URL"
+          class="service_input"
+        />
       </div>
 
       <div class="service_field">
@@ -215,11 +231,19 @@
 </div>
 
 <style>
+  .service_field {
+    padding: 2px 0;
+  }
   label {
     font-size: 0.8em;
   }
   input {
     margin-bottom: 0;
+  }
+  input.service_input,
+  input.filter_input {
+    width: 100%;
+    max-width: 400px;
   }
   small {
     font-size: 0.6em;
@@ -230,8 +254,9 @@
     align-items: end;
   }
   .box {
-    flex: 1 auto;
+    flex: 1 1 0;
     padding: 10px;
+    min-width: 300px;
   }
   .hidden {
     display: none !important;
