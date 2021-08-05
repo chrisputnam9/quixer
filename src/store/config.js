@@ -128,11 +128,15 @@ const constructConfig = default_config => {
             for (const key in new_service) {
               switch (key) {
                 // REFERENCE: Default_Service_Data_Allowed_To_Change
-                case 'action':
                 case 'active':
                 case 'alias':
                 case 'updated_at':
                   service[key] = new_service[key];
+                  break;
+                case 'action':
+                  for (const _action in new_service.action) {
+                    service[_action] = new_service.action[_action];
+                  }
                   break;
                 default:
                   console.warn(
@@ -198,6 +202,15 @@ const constructConfig = default_config => {
       };
 
       changed_data = util.diffObjectRecursive(changed_data, default_service);
+
+      if (
+        !('url_no_search' in default_config.services[id].action) &&
+        'action' in changed_data &&
+        'url_no_search' in changed_data.action &&
+        changed_data.action.url_no_search.trim() === ''
+      ) {
+        delete changed_data.action.url_no_search;
+      }
 
       if (changed_data.updated_at === 0) {
         delete changed_data.updated_at;

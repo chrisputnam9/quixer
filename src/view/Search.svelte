@@ -44,7 +44,11 @@
 
   function search() {
     const action = defaultResult.action;
-    if (search_phrase == '' && 'url_no_search' in action) {
+    if (
+      search_phrase == '' &&
+      'url_no_search' in action &&
+      action.url_no_search.trim() !== ''
+    ) {
       let url = action.url_no_search;
       openUrl(url);
     } else if ('url' in action) {
