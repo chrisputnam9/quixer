@@ -18,6 +18,9 @@
   window.onhashchange = updateHash;
 </script>
 
+<a href="/about.html">About Quixer</a>
+<span class="a-divider"> &nbsp; | &nbsp; </span>
+
 {#if hash === '#config'}
   <a href="/#">Back to app</a>
   <Config />
@@ -40,7 +43,8 @@
 </svelte:head>
 
 <style>
-  a {
+  a,
+  .a-divider {
     float: right;
   }
 </style>
