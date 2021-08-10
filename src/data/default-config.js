@@ -67,7 +67,7 @@ export const default_config = {
         url: 'https://www.aliexpress.com/wholesale?SearchText=%s',
         url_no_search: 'https://www.aliexpress.com'
       },
-      active: true
+      active: false
     },
     d2: {
       id: 'd2',
@@ -97,7 +97,7 @@ export const default_config = {
         url: 'https://www.baidu.com/s?wd=%s',
         url_no_search: 'https://www.baidu.com'
       },
-      active: true
+      active: false
     },
     d5: {
       id: 'd5',
@@ -117,7 +117,7 @@ export const default_config = {
         url: 'https://search.bilibili.com/all?keyword=%s',
         url_no_search: 'https://www.bilibili.com/'
       },
-      active: true
+      active: false
     },
     d7: {
       id: 'd7',
@@ -341,7 +341,7 @@ export const default_config = {
         url: 'https://www.globo.com/busca/?q=%s',
         url_no_search: 'https://www.globo.com/'
       },
-      active: true
+      active: false
     },
     d30: {
       id: 'd30',
@@ -489,7 +489,7 @@ export const default_config = {
         url: 'https://go.mail.ru/search?q=%s',
         url_no_search: 'https://go.mail.ru'
       },
-      active: true
+      active: false
     },
     d45: {
       id: 'd45',
@@ -499,7 +499,7 @@ export const default_config = {
         url: 'https://search.naver.com/search.naver?query=%s',
         url_no_search: 'https://www.naver.com'
       },
-      active: true
+      active: false
     },
     d46: {
       id: 'd46',
@@ -559,7 +559,7 @@ export const default_config = {
         url: 'https://www.sogou.com/tx?query=%s',
         url_no_search: 'https://www.qq.com'
       },
-      active: true
+      active: false
     },
     d52: {
       id: 'd52',
@@ -569,7 +569,7 @@ export const default_config = {
         url: 'https://search.rakuten.co.jp/search/mall/%s',
         url_no_search: 'https://www.rakuten.co.jp/'
       },
-      active: true
+      active: false
     },
     d53: {
       id: 'd53',
@@ -629,7 +629,7 @@ export const default_config = {
         url: 'https://www.tiktok.com/search?q=%s',
         url_no_search: 'https://www.tiktok.com'
       },
-      active: true
+      active: false
     },
     d59: {
       id: 'd59',
@@ -649,7 +649,7 @@ export const default_config = {
         url: 'https://www.twitch.tv/search?term=%s',
         url_no_search: 'https://www.twitch.tv'
       },
-      active: true
+      active: false
     },
     d61: {
       id: 'd61',
@@ -669,7 +669,7 @@ export const default_config = {
         url: 'https://vk.com/search?c%5Bq%5D=%s',
         url_no_search: 'https://vk.com'
       },
-      active: true
+      active: false
     },
     d63: {
       id: 'd63',
@@ -719,7 +719,7 @@ export const default_config = {
         url: 'https://search.yahoo.com/search?p=%s',
         url_no_search: 'https://www.yahoo.com/'
       },
-      active: true
+      active: false
     },
     d68: {
       id: 'd68',
@@ -729,7 +729,7 @@ export const default_config = {
         url: 'https://www.yandex.ru/yandsearch?text=%s',
         url_no_search: 'https://www.yandex.ru'
       },
-      active: true
+      active: false
     },
     d69: {
       id: 'd69',
@@ -743,7 +743,7 @@ export const default_config = {
     },
     d70: {
       id: 'd70',
-      alias: 'food52',
+      alias: ['food52'],
       name: 'Food 52',
       action: {
         url: 'https://food52.com/recipes/search?q=%s',
@@ -753,11 +753,29 @@ export const default_config = {
     },
     d71: {
       id: 'd71',
-      alias: 'ytm',
+      alias: ['ytm'],
       name: 'YouTube Music',
       action: {
         url: 'https://music.youtube.com/search?q=%s',
         url_no_search: 'https://music.youtube.com'
+      },
+      active: true
+    },
+    d72: {
+      id: 'd72',
+      alias: ['qx'],
+      name: 'Quixer',
+      action: {
+        url: 'https://quixer.onl/'
+      },
+      active: true
+    },
+    d73: {
+      id: 'd73',
+      alias: ['qxc'],
+      name: 'Quixer Config',
+      action: {
+        url: 'https://quixer.onl/#config'
       },
       active: true
     }
