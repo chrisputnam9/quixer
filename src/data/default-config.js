@@ -127,7 +127,7 @@ export const default_config = {
         url: 'https://www.bing.com/search?q=%s',
         url_no_search: 'https://www.bing.com'
       },
-      active: true
+      active: false
     },
     d8: {
       id: 'd8',
