@@ -504,10 +504,11 @@ export const default_config = {
     d46: {
       id: 'd46',
       alias: ['nc'],
-      name: 'Namecheap Domain Search',
+      name: 'Namecheap Domain Search (supports the author)',
       action: {
-        url: 'https://www.namecheap.com/domains/registration/results/?domain=%s',
-        url_no_search: 'https://www.namecheap.com'
+        url:
+          'https://www.namecheap.com/domains/registration/results/?domain=%s&irgwc=1&utm_source=IR&utm_medium=Affiliate&utm_campaign=2955593&affnetwork=ir&ref=ir',
+        url_no_search: 'https://namecheap.pxf.io/quixer'
       },
       active: true
     },
@@ -776,6 +777,27 @@ export const default_config = {
       name: 'Quixer Config',
       action: {
         url: 'https://quixer.onl/#config'
+      },
+      active: true
+    },
+    d74: {
+      id: 'd74',
+      alias: ['use'],
+      name: 'Can I Use (Browser Support Check)',
+      action: {
+        url: 'http://caniuse.com/#search=%s',
+        url_no_search: 'http://caniuse.com'
+      },
+      active: true
+    },
+    d75: {
+      id: 'd75',
+      alias: ['translate'],
+      name: 'Google Translate',
+      action: {
+        url:
+          'https://translate.google.com/?source=osdd&sl=auto&tl=auto&text=%s&op=translate',
+        url_no_search: 'https://translate.google.com'
       },
       active: true
     }
