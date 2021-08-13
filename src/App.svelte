@@ -18,6 +18,9 @@
   window.onhashchange = updateHash;
 </script>
 
+<a href="https://github.com/sponsors/chrisputnam9" target="_blank">💚</a>
+<span class="a-divider"> &nbsp; | &nbsp; </span>
+
 <a href="/about.html">About Quixer</a>
 <span class="a-divider"> &nbsp; | &nbsp; </span>
 
