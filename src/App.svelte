@@ -18,10 +18,13 @@
   window.onhashchange = updateHash;
 </script>
 
-<a href="https://github.com/sponsors/chrisputnam9" target="_blank">💚</a>
-<span class="a-divider"> &nbsp; | &nbsp; </span>
+<a class="icon" href="/about.html#contribution" target="_blank">
+  &nbsp;
+  <span class="hover-off">💙</span>
+  <span class="hover-on">💚</span>
+</a>
 
-<a href="/about.html">About Quixer</a>
+<a href="/about.html" target="_blank">About Quixer</a>
 <span class="a-divider"> &nbsp; | &nbsp; </span>
 
 {#if hash === '#config'}
@@ -49,5 +52,22 @@
   a,
   .a-divider {
     float: right;
+  }
+
+  .a-divider {
+    color: #555;
+  }
+
+  a.icon:hover {
+    text-decoration: none;
+  }
+
+  a.icon .hover-on,
+  a.icon:hover .hover-off {
+    display: none;
+  }
+  a.icon .hover-off,
+  a.icon:hover .hover-on {
+    display: inline;
   }
 </style>
