@@ -115,27 +115,46 @@
   });
 </script>
 
-<form on:submit|preventDefault={search}>
-  <input
-    class="search_category"
-    bind:this={searchCategoryEl}
-    bind:value={search_category}
-    on:keyup={filterResults}
-    on:change={complete}
-    placeholder="{search_category_default}:"
-  />
-  <input class="search_phrase" bind:value={search_phrase} />
-  <button type="submit">Go</button>
-</form>
-<ul>
-  {#each results as result (result.id)}
-    <li class={result.id == defaultResult.id ? 'active' : ''}>
-      {result.alias[0]} ({result.name})
-    </li>
-  {/each}
-</ul>
+<div class="search-container">
+  <div class="search-box">
+    <form on:submit|preventDefault={search}>
+      <input
+        class="search_category"
+        bind:this={searchCategoryEl}
+        bind:value={search_category}
+        on:keyup={filterResults}
+        on:change={complete}
+        placeholder="{search_category_default}:"
+      />
+      <input class="search_phrase" bind:value={search_phrase} />
+      <button type="submit">Go</button>
+    </form>
+  </div>
+  <div class="search-results">
+    <ul>
+      {#each results as result (result.id)}
+        <li class={result.id == defaultResult.id ? 'active' : ''}>
+          {result.alias[0]} ({result.name})
+        </li>
+      {/each}
+    </ul>
+  </div>
+</div>
 
 <style>
+  .search-container {
+    /*margin-top: 100px;*/
+    /*width: 600px;*/
+    /*max-width: 100% !important;*/
+  }
+
+  .search-box {
+  }
+
+  .search-results {
+    height: 500px;
+  }
+
   li.active {
     font-weight: bold;
   }

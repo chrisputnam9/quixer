@@ -18,26 +18,38 @@
   window.onhashchange = updateHash;
 </script>
 
-<a class="icon" href="/about.html#contribution" target="_blank">
-  &nbsp;
-  <span class="hover-off">💙</span>
-  <span class="hover-on">💚</span>
-</a>
+<div class="container">
+  <nav>
+    {#if hash === '#config'}
+      <a href="/#">Back to app</a>
+    {:else}
+      <a href="/#config">Configure Options</a>
+    {/if}
 
-<a href="/about.html" target="_blank">About Quixer</a>
-<span class="a-divider"> &nbsp; | &nbsp; </span>
+    <span class="a-divider"> &nbsp; | &nbsp; </span>
 
-{#if hash === '#config'}
-  <a href="/#">Back to app</a>
-  <Config />
-{:else}
-  <a href="/#config">Configure Options</a>
-  <Search />
-{/if}
+    <a href="/about.html" target="_blank">About Quixer</a>
 
-{#if $configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
-  <Alert type={$configSyncMessageType} message={$configSyncMessage} />
-{/if}
+    <span class="a-divider"> &nbsp; | &nbsp; </span>
+
+    <a class="icon" href="/about.html#contribution" target="_blank">
+      <span class="hover-off">💙</span>
+      <span class="hover-on">💚</span>
+    </a>
+  </nav>
+
+  <main>
+    {#if hash === '#config'}
+      <Config />
+    {:else}
+      <Search />
+    {/if}
+  </main>
+
+  {#if $configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
+    <Alert type={$configSyncMessageType} message={$configSyncMessage} />
+  {/if}
+</div>
 
 <svelte:head>
   <script
@@ -49,9 +61,21 @@
 </svelte:head>
 
 <style>
-  a,
-  .a-divider {
-    float: right;
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container > * {
+    width: 100%;
+  }
+
+  nav {
+    text-align: right;
+    padding-bottom: 10px;
   }
 
   .a-divider {
