@@ -87,11 +87,13 @@
   }
 
   a.icon .hover-on,
-  a.icon:hover .hover-off {
+  a.icon:hover .hover-off,
+  a.icon:focus .hover-off {
     display: none;
   }
   a.icon .hover-off,
-  a.icon:hover .hover-on {
+  a.icon:hover .hover-on,
+  a.icon:focus .hover-on {
     display: inline;
   }
 </style>
