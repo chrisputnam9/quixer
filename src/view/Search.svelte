@@ -115,44 +115,83 @@
   });
 </script>
 
-<div class="search-container">
-  <div class="search-box">
-    <form on:submit|preventDefault={search}>
-      <input
-        class="search_category"
-        bind:this={searchCategoryEl}
-        bind:value={search_category}
-        on:keyup={filterResults}
-        on:change={complete}
-        placeholder="{search_category_default}:"
-      />
-      <input class="search_phrase" bind:value={search_phrase} />
-      <button type="submit">Go</button>
-    </form>
-  </div>
-  <div class="search-results">
-    <ul>
-      {#each results as result (result.id)}
-        <li class={result.id == defaultResult.id ? 'active' : ''}>
-          {result.alias[0]} ({result.name})
-        </li>
-      {/each}
-    </ul>
+<div class="container">
+  <div class="search-container">
+    <div class="search-box">
+      <form on:submit|preventDefault={search}>
+        <input
+          class="search_category"
+          bind:this={searchCategoryEl}
+          bind:value={search_category}
+          on:keyup={filterResults}
+          on:change={complete}
+          placeholder="{search_category_default}:"
+        />
+        <input class="search_phrase" bind:value={search_phrase} />
+        <button type="submit">Go</button>
+      </form>
+    </div>
+    <div class="search-results textarea">
+      <ol>
+        {#each results as result (result.id)}
+          <li class={result.id == defaultResult.id ? 'active' : ''}>
+            {result.alias[0]} ({result.name})
+          </li>
+        {/each}
+      </ol>
+    </div>
   </div>
 </div>
 
 <style>
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
   .search-container {
-    /*margin-top: 100px;*/
-    /*width: 600px;*/
-    /*max-width: 100% !important;*/
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
+    width: 500px;
+    padding: 20px;
+    max-width: 100% !important;
   }
 
   .search-box {
+    width: 100%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
   }
 
   .search-results {
-    height: 500px;
+    width: 100%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
+
+    height: 1000px;
+    max-height: 30vh;
+    overflow: hidden;
+  }
+
+  .search-results ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .search-results ol li {
+    margin: 0;
+    padding: 0;
   }
 
   li.active {
