@@ -29,7 +29,8 @@ label {
 input,
 button,
 select,
-textarea {
+textarea,
+.textarea {
   font-family: inherit;
   font-size: inherit;
   -webkit-padding: 0.4em 0;

@@ -117,22 +117,20 @@
 
 <div class="container">
   <div class="search-container">
-    <div class="search-box">
-      <form on:submit|preventDefault={search}>
-        <input
-          class="search_category"
-          bind:this={searchCategoryEl}
-          bind:value={search_category}
-          on:keyup={filterResults}
-          on:change={complete}
-          placeholder="{search_category_default}:"
-        />
-        <input class="search_phrase" bind:value={search_phrase} />
-        <button type="submit">Go</button>
-      </form>
-    </div>
-    <div class="search-results textarea">
-      <ol>
+    <form on:submit|preventDefault={search} class="search-box">
+      <input
+        class="search_category"
+        bind:this={searchCategoryEl}
+        bind:value={search_category}
+        on:keyup={filterResults}
+        on:change={complete}
+        placeholder="{search_category_default}:"
+      />
+      <input class="search_phrase" bind:value={search_phrase} />
+      <button type="submit">Go</button>
+    </form>
+    <div class="search-results">
+      <ol class="textarea">
         {#each results as result (result.id)}
           <li class={result.id == defaultResult.id ? 'active' : ''}>
             {result.alias[0]} ({result.name})
@@ -163,12 +161,19 @@
     max-width: 100% !important;
   }
 
-  .search-box {
+  form.search-box {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-content: center;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  form.search-box > *,
+  .search-results > * {
+    flex: 1 auto;
+    margin: 2px;
   }
 
   .search-results {
@@ -177,16 +182,15 @@
     align-content: center;
     justify-content: center;
     align-items: flex-start;
-
-    height: 1000px;
-    max-height: 30vh;
-    overflow: hidden;
   }
 
   .search-results ol {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    padding: 8px;
+
+    height: auto;
+    max-height: 30vh;
+    overflow: auto;
   }
 
   .search-results ol li {
