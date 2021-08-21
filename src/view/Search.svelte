@@ -157,7 +157,6 @@
     justify-content: center;
     align-items: flex-start;
     width: 500px;
-    padding: 20px;
     max-width: 100% !important;
   }
 
@@ -177,11 +176,14 @@
   }
 
   .search-results {
+    position: relative;
     width: 100%;
     display: flex;
     align-content: center;
     justify-content: center;
     align-items: flex-start;
+    height: 50vh;
+    overflow: hidden;
   }
 
   .search-results ol {
@@ -189,8 +191,18 @@
     padding: 8px;
 
     height: auto;
-    max-height: 30vh;
-    overflow: auto;
+    max-height: 50vh;
+    overflow: hidden;
+  }
+
+  .search-results::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 40%;
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(transparent, #111);
   }
 
   .search-results ol li {
