@@ -507,7 +507,7 @@ export const default_config = {
       name: 'Namecheap Domain Search (supports the author)',
       action: {
         url:
-          'https://www.namecheap.com/domains/registration/results/?domain=%s&irgwc=1&utm_source=IR&utm_medium=Affiliate&utm_campaign=2955593&affnetwork=ir&ref=ir',
+          'https://namecheap.pxf.io/quixer?u=https%3A%2F%2Fwww.namecheap.com%2Fdomains%2Fregistration%2Fresults%2F%3Fdomain%3D%s',
         url_no_search: 'https://namecheap.pxf.io/quixer'
       },
       active: true
