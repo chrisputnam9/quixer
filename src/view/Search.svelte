@@ -1,7 +1,7 @@
 <script>
-  /* global ENV_IS_LIVE */
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
   import { config } from '../store/config.js';
+  import { search_logic } from '../inc/search-logic.js';
 
   let searchCategoryEl,
     search_category = '',
@@ -35,13 +35,6 @@
     }
   }
 
-  function filterResults() {
-    results = services.filter(service => {
-      const regex = new RegExp(search_category, 'i');
-      return regex.test(service.alias[0]) || regex.test(service.name);
-    });
-  }
-
   function search() {
     const action = defaultResult.action;
     if (
@@ -50,11 +43,11 @@
       action.url_no_search.trim() !== ''
     ) {
       let url = action.url_no_search;
-      openUrl(url);
+      search_logic.openUrl(url);
     } else if ('url' in action) {
       let url = action.url;
       url = url.replace('%s', search_phrase);
-      openUrl(url);
+      search_logic.openUrl(url);
     } else {
       alert('Action for ' + defaultResult.name + ' not yet supported');
     }
