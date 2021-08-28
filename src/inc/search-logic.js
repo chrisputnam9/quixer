@@ -1,4 +1,5 @@
-import { config } from './store/config.js';
+import { config } from '../store/config.js';
+import { writable, get } from 'svelte/store';
 
 /**
  * Search logic
@@ -10,18 +11,38 @@ import { config } from './store/config.js';
 
 export const search_logic = {
   query_pattern: /^\?q=([^&]+)(&|=|$)/,
+
   services: [],
-  results: [],
-  search_category: '',
-  search_phrase: '',
+
+  // Stores
+  search_category: null,
+  search_phrase: null,
+  service_results: [],
+
+  first_service_result: [],
+  default_service_alias: '',
+
   initialized: false,
 
   /**
    * Initialize data
    */
   init: function () {
+    // Init stores
+    search_logic.search_category = writable('');
+    search_logic.search_phrase = writable('');
+    search_logic.service_results = writable(search_logic.services);
+
+    // TODO - subscribe on changes to category and run filter
+    // TODO - modify service_results to act as store
+
     search_logic.services = config.getSortedServices();
-    search_logic.results = services;
+
+    search_logic.first_service_result = search_logic.services[0];
+    search_logic.default_service_alias = config.getValue(
+      'preferences'
+    ).default_service_alias;
+
     search_logic.initialized = true;
   },
 
@@ -40,11 +61,49 @@ export const search_logic = {
     }
   },
 
-  filterResults: function () {
-    search_logic.results = search_logic.services.filter(service => {
-      const regex = new RegExp(search_logic.search_category, 'i');
+  executeServiceAction: function () {
+    const action = search_logic.first_service_result.action,
+      search_phrase = get(search_logic.search_phrase);
+
+    if (
+      search_phrase == '' &&
+      'url_no_search' in action &&
+      action.url_no_search.trim() !== ''
+    ) {
+      let url = action.url_no_search;
+      search_logic.openUrl(url);
+    } else if ('url' in action) {
+      let url = action.url;
+      url = url.replace('%s', search_phrase);
+      search_logic.openUrl(url);
+    } else {
+      alert(
+        'Action for ' + search_logic.first_service_result.name + ' not yet supported'
+      );
+    }
+  },
+
+  filterServiceResults: function () {
+    const search_category = get(search_logic.search_category);
+    search_logic.service_results = search_logic.services.filter(service => {
+      const regex = new RegExp(search_category, 'i');
       return regex.test(service.alias[0]) || regex.test(service.name);
     });
+
+    let _search_category = search_category;
+
+    if (_search_category == '') {
+      _search_category = search_logic.default_service_alias;
+    }
+
+    const exact = search_logic.service_results.filter(service => {
+      return service.alias[0] == _search_category;
+    });
+    if (exact.length) {
+      search_logic.first_service_result = exact[0];
+    } else {
+      search_logic.first_service_result = search_logic.service_results[0];
+    }
   },
 
   checkForQuery: function () {
@@ -69,18 +128,17 @@ export const search_logic = {
 
     // Got a service alias match? Hit it!
     if (service_match.length > 0) {
-      search_logic.search_category = category_alias;
-      search_logic.search_phrase = query_search_match[3];
-      search_logic.filterResults();
+      search_logic.search_category.set(category_alias);
+      search_logic.search_phrase.set(query_search_match[3]);
 
       // See if it starts with "!" - if so, send to DDG
     } else if (query_search.match(/^!.*$/)) {
       search_logic.openUrl('https://next.duckduckgo.com/?q=' + query_search);
     } else {
-      search_logic.search_phrase = query_search;
+      search_logic.search_phrase.set(query_search);
     }
 
-    search();
+    search_logic.executeServiceAction();
     return true;
   }
 };

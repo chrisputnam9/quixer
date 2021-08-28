@@ -1,58 +1,13 @@
 <script>
   import { onMount } from 'svelte';
-  import { config } from '../store/config.js';
   import { search_logic } from '../inc/search-logic.js';
 
-  let searchCategoryEl,
-    search_category = '',
-    search_category_default = config.getValue('preferences').default_service_alias,
-    search_phrase = '';
+  // Stores for nice reactivity
+  let search_category = search_logic.search_category,
+    search_phrase = search_logic.search_phrase,
+    service_results = search_logic.service_results;
 
-  const services = config.getSortedServices();
-  let results = services;
-  let defaultResult = results[0];
-
-  $: {
-    let _search_category = search_category;
-    if (_search_category == '') {
-      _search_category = search_category_default;
-    }
-    const exact = results.filter(service => {
-      return service.alias[0] == _search_category;
-    });
-    if (exact.length) defaultResult = exact[0];
-    else defaultResult = results[0];
-  }
-
-  function complete() {
-    const exact = results.filter(service => {
-      return service.alias[0] == this.value;
-    });
-    if (exact.length) {
-      this.value = exact[0].alias[0];
-    } else {
-      this.value = defaultResult.alias[0];
-    }
-  }
-
-  function search() {
-    const action = defaultResult.action;
-    if (
-      search_phrase == '' &&
-      'url_no_search' in action &&
-      action.url_no_search.trim() !== ''
-    ) {
-      let url = action.url_no_search;
-      search_logic.openUrl(url);
-    } else if ('url' in action) {
-      let url = action.url;
-      url = url.replace('%s', search_phrase);
-      search_logic.openUrl(url);
-    } else {
-      alert('Action for ' + defaultResult.name + ' not yet supported');
-    }
-  }
-
+  let searchCategoryEl;
   onMount(async () => {
     // Focus default field
     searchCategoryEl.focus();
@@ -61,22 +16,20 @@
 
 <div class="container">
   <div class="search-container">
-    <form on:submit|preventDefault={search} class="search-box">
+    <form on:submit|preventDefault={search_logic.executeServiceAction} class="search-box">
       <input
         class="search_category"
         bind:this={searchCategoryEl}
-        bind:value={search_category}
-        on:keyup={filterResults}
-        on:change={complete}
-        placeholder="{search_category_default}:"
+        bind:value={$search_category}
+        placeholder="{search_logic.search_category_default}:"
       />
-      <input class="search_phrase" bind:value={search_phrase} />
+      <input class="search_phrase" bind:value={$search_phrase} />
       <button type="submit">Go</button>
     </form>
     <div class="search-results">
       <ol class="textarea">
-        {#each results as result (result.id)}
-          <li class={result.id == defaultResult.id ? 'active' : ''}>
+        {#each $service_results as result (result.id)}
+          <li class={result.id == search_logic.first_service_result.id ? 'active' : ''}>
             {result.alias[0]} ({result.name})
           </li>
         {/each}
