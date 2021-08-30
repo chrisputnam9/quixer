@@ -17,7 +17,8 @@ export const search_logic = {
   // Stores
   search_category: null,
   search_phrase: null,
-  service_results: [],
+  service_results: null,
+  subscriptions: [],
 
   first_service_result: [],
   default_service_alias: '',
@@ -28,15 +29,17 @@ export const search_logic = {
    * Initialize data
    */
   init: function () {
+    search_logic.services = config.getSortedServices();
+
     // Init stores
     search_logic.search_category = writable('');
     search_logic.search_phrase = writable('');
     search_logic.service_results = writable(search_logic.services);
 
-    // TODO - subscribe on changes to category and run filter
-    // TODO - modify service_results to act as store
-
-    search_logic.services = config.getSortedServices();
+    // When search_category changes, filter service results accordingly
+    search_logic.subscriptions.push(
+      search_logic.search_category.subscribe(search_logic.filterServiceResults)
+    );
 
     search_logic.first_service_result = search_logic.services[0];
     search_logic.default_service_alias = config.getValue(
@@ -44,6 +47,17 @@ export const search_logic = {
     ).default_service_alias;
 
     search_logic.initialized = true;
+  },
+
+  /**
+   * Close down subscriptions when no longer needed
+   *  - TODO - figure out when to run this...
+   *  - Not a major issue if we leave them hanging for now...
+   */
+  close: function () {
+    for (const unsubscribe in search_logic.subscriptions) {
+      unsubscribe();
+    }
   },
 
   /**
@@ -83,27 +97,34 @@ export const search_logic = {
     }
   },
 
-  filterServiceResults: function () {
-    const search_category = get(search_logic.search_category);
-    search_logic.service_results = search_logic.services.filter(service => {
+  filterServiceResults: function (search_category) {
+    console.log('filtering', search_category);
+
+    // Filter results based on search category
+    const service_results = search_logic.services.filter(service => {
       const regex = new RegExp(search_category, 'i');
       return regex.test(service.alias[0]) || regex.test(service.name);
     });
 
+    // Look for an exact match to highlight
     let _search_category = search_category;
 
+    // If no search category, we highlight the default alias
     if (_search_category == '') {
       _search_category = search_logic.default_service_alias;
     }
 
-    const exact = search_logic.service_results.filter(service => {
+    // Look for an exact match to highlight
+    const exact = service_results.filter(service => {
       return service.alias[0] == _search_category;
     });
     if (exact.length) {
       search_logic.first_service_result = exact[0];
     } else {
-      search_logic.first_service_result = search_logic.service_results[0];
+      search_logic.first_service_result = service_results[0];
     }
+
+    search_logic.service_results.set(service_results);
   },
 
   checkForQuery: function () {
