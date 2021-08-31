@@ -1,138 +1,43 @@
 <script>
-  /* global ENV_IS_LIVE */
-  import { onMount, tick } from 'svelte';
-  import { config } from '../store/config.js';
+  import { onDestroy, onMount } from 'svelte';
+  import { search_logic } from '../inc/search-logic.js';
 
-  let searchCategoryEl,
-    search_category = '',
-    search_category_default = config.getValue('preferences').default_service_alias,
-    search_phrase = '';
+  // Initialize search logic
+  search_logic.init();
 
-  const services = config.getSortedServices();
-  let results = services;
-  let defaultResult = results[0];
+  // Stores for nice reactivity
+  let search_category = search_logic.search_category,
+    search_phrase = search_logic.search_phrase,
+    service_results = search_logic.service_results;
 
-  $: {
-    let _search_category = search_category;
-    if (_search_category == '') {
-      _search_category = search_category_default;
-    }
-    const exact = results.filter(service => {
-      return service.alias[0] == _search_category;
-    });
-    if (exact.length) defaultResult = exact[0];
-    else defaultResult = results[0];
-  }
-
-  function complete() {
-    const exact = results.filter(service => {
-      return service.alias[0] == this.value;
-    });
-    if (exact.length) {
-      this.value = exact[0].alias[0];
-    } else {
-      this.value = defaultResult.alias[0];
-    }
-  }
-
-  function filterResults() {
-    results = services.filter(service => {
-      const regex = new RegExp(search_category, 'i');
-      return regex.test(service.alias[0]) || regex.test(service.name);
-    });
-  }
-
-  function search() {
-    const action = defaultResult.action;
-    if (
-      search_phrase == '' &&
-      'url_no_search' in action &&
-      action.url_no_search.trim() !== ''
-    ) {
-      let url = action.url_no_search;
-      openUrl(url);
-    } else if ('url' in action) {
-      let url = action.url;
-      url = url.replace('%s', search_phrase);
-      openUrl(url);
-    } else {
-      alert('Action for ' + defaultResult.name + ' not yet supported');
-    }
-  }
-
-  /**
-   * Open a URL in browser
-   */
-  function openUrl(url) {
-    const is_live = parseInt(ENV_IS_LIVE);
-    if (is_live) {
-      window.location.href = url;
-    } else {
-      const newWindow = window.open(url, '_blank');
-      if (!newWindow) {
-        alert('Something went wrong, maybe popup blocked?');
-      }
-    }
-  }
-
+  let searchCategoryEl;
   onMount(async () => {
     // Focus default field
     searchCategoryEl.focus();
-
-    // Quick and dirty query parse
-    const query_pattern = /^\?q=([^&]+)(&|=|$)/;
-    const query_match = document.location.search.match(query_pattern);
-    if (query_match) {
-      const query_search = decodeURIComponent(query_match[1]);
-      const query_search_match = query_search.match(/(^[^ :+]+)( |:|\+|$)(.*)$/);
-      let service_match = false,
-        category_alias = '';
-
-      if (query_search_match) {
-        category_alias = query_search_match[1];
-        service_match = services.filter(service => {
-          return service.alias[0] == category_alias;
-        });
-      }
-
-      // Got a service alias match? Hit it!
-      if (service_match.length > 0) {
-        search_category = category_alias;
-        search_phrase = query_search_match[3];
-        filterResults();
-
-        // See if it starts with "!" - if so, send to DDG
-      } else if (query_search.match(/^!.*$/)) {
-        openUrl('https://next.duckduckgo.com/?q=' + query_search);
-        return true;
-      } else {
-        search_phrase = query_search;
-      }
-
-      await tick();
-      search();
-    }
+  });
+  onDestroy(async () => {
+    // Focus default field
+    searchCategoryEl.focus();
+    search_logic.deinit();
   });
 </script>
 
 <div class="container">
   <div class="search-container">
-    <form on:submit|preventDefault={search} class="search-box">
+    <form on:submit|preventDefault={search_logic.executeServiceAction} class="search-box">
       <input
         class="search_category"
         bind:this={searchCategoryEl}
-        bind:value={search_category}
-        on:keyup={filterResults}
-        on:change={complete}
-        placeholder="{search_category_default}:"
+        bind:value={$search_category}
+        placeholder="{search_logic.default_service_alias}:"
       />
-      <input class="search_phrase" bind:value={search_phrase} />
+      <input class="search_phrase" bind:value={$search_phrase} />
       <button type="submit">Go</button>
     </form>
     <div class="search-results">
       <ol class="textarea">
-        {#each results as result (result.id)}
-          <li class={result.id == defaultResult.id ? 'active' : ''}>
+        {#each $service_results as result (result.id)}
+          <li class={result.id == search_logic.first_service_result.id ? 'active' : ''}>
             {result.alias[0]} ({result.name})
           </li>
         {/each}
