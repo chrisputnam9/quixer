@@ -29,6 +29,8 @@ export const search_logic = {
    * Initialize data
    */
   init: function () {
+    if (search_logic.initialized) return;
+
     search_logic.services = config.getSortedServices();
 
     // Init stores
@@ -51,13 +53,14 @@ export const search_logic = {
 
   /**
    * Close down subscriptions when no longer needed
-   *  - TODO - figure out when to run this...
-   *  - Not a major issue if we leave them hanging for now...
    */
-  close: function () {
-    for (const unsubscribe in search_logic.subscriptions) {
+  deinit: function () {
+    if (!search_logic.initialized) return;
+
+    for (const unsubscribe of search_logic.subscriptions) {
       unsubscribe();
     }
+    search_logic.initialized = false;
   },
 
   /**
@@ -128,8 +131,6 @@ export const search_logic = {
   },
 
   checkForQuery: function () {
-    this.init();
-
     // Check for query string first, before loading App
     const query_match = document.location.search.match(search_logic.query_pattern);
     if (!query_match) return false;

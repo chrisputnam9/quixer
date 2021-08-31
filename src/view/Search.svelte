@@ -1,26 +1,24 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { search_logic } from '../inc/search-logic.js';
 
   // Initialize search logic
   search_logic.init();
-  // todo close on destroy
 
   // Stores for nice reactivity
   let search_category = search_logic.search_category,
     search_phrase = search_logic.search_phrase,
     service_results = search_logic.service_results;
 
-  $: {
-    if ($service_results) {
-      console.log('Reults changed:', $service_results);
-    }
-  }
-
   let searchCategoryEl;
   onMount(async () => {
     // Focus default field
     searchCategoryEl.focus();
+  });
+  onDestroy(async () => {
+    // Focus default field
+    searchCategoryEl.focus();
+    search_logic.deinit();
   });
 </script>
 
