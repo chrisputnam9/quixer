@@ -116,9 +116,6 @@ export const google_drive = {
       drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
       if (drive_data) {
         local_data = syncData(local_data, drive_data);
-        //console.groupCollapsed();
-        //console.log('syncData', local_data);
-        //console.groupEnd();
       } else {
         successful = false;
       }
@@ -154,10 +151,6 @@ export const google_drive = {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }, 2000);
 
-    //console.groupCollapsed();
-    //console.log('return', local_data);
-    //console.groupEnd();
-
     return local_data;
   },
 
@@ -183,10 +176,6 @@ export const google_drive = {
               'warning'
             );
           }
-
-          //console.groupCollapsed();
-          //console.log('findConfig - results:', response.result.files);
-          //console.groupEnd();
 
           file_id = response.result.files[0].id;
         }
@@ -214,10 +203,6 @@ export const google_drive = {
         method: 'GET'
       })
       .then(function (response) {
-        //console.groupCollapsed();
-        //console.log('readConfig - results:', response.result);
-        //console.groupEnd();
-
         drive_data = response.result;
       })
       .catch(function (error) {

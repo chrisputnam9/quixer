@@ -292,14 +292,6 @@ const constructConfig = default_config => {
   const updateService = (service, update_date = true) => {
     // Compare data, see if anything actually changed
     if (util.objectsSame(service, data.services[service.id])) {
-      if (service.id == 2) {
-        console.log(
-          service.id,
-          'Objects are the same',
-          service,
-          data.services[service.id]
-        );
-      }
       return false;
     }
 

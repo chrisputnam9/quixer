@@ -101,8 +101,6 @@ export const search_logic = {
   },
 
   filterServiceResults: function (search_category) {
-    console.log('filtering', search_category);
-
     // Filter results based on search category
     const service_results = search_logic.services.filter(service => {
       const regex = new RegExp(search_category, 'i');
