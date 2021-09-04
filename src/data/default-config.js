@@ -800,6 +800,17 @@ export const default_config = {
         url_no_search: 'https://translate.google.com'
       },
       active: true
+    },
+    d76: {
+      id: 'd76',
+      alias: ['psi'],
+      name: 'Google Page Speed Insights',
+      action: {
+        url:
+          'https://developers.google.com/speed/pagespeed/insights/?url=%s',
+        url_no_search: 'https://developers.google.com/speed/pagespeed/insights/'
+      },
+      active: true
     }
   },
   __trash: {
