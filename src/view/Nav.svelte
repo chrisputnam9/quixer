@@ -1,5 +1,8 @@
 <script>
+  /* global CURRENT_DATE_STAMP */
   export let hash = '';
+
+  const current_date_stamp = CURRENT_DATE_STAMP;
 </script>
 
 <nav>
@@ -19,6 +22,10 @@
     <span class="hover-off">💙</span>
     <span class="hover-on">💚</span>
   </a>
+
+  <span class="publish-date align-right" title="Quixer current version publish date"
+    >{current_date_stamp}</span
+  >
 </nav>
 
 <style>
@@ -45,5 +52,10 @@
   a.icon:hover .hover-on,
   a.icon:focus .hover-on {
     display: inline;
+  }
+
+  .align-right {
+    text-align: right;
+    float: right;
   }
 </style>

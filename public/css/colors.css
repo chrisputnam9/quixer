@@ -51,3 +51,7 @@ a:focus {
   outline: none;
   color: #7cb342;
 }
+
+.publish-date {
+  color: #222;
+}

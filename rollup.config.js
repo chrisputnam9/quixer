@@ -39,6 +39,8 @@ function serve() {
   };
 }
 
+const now = new Date();
+
 export default {
   input: 'src/main.js',
   output: {
@@ -52,7 +54,8 @@ export default {
       values: {
         ENV_IS_LIVE: JSON.stringify(process.env.ENV_IS_LIVE),
         GOOGLE_DRIVE_API_KEY: JSON.stringify(process.env.GOOGLE_DRIVE_API_KEY),
-        GOOGLE_DRIVE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_DRIVE_CLIENT_ID)
+        GOOGLE_DRIVE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_DRIVE_CLIENT_ID),
+        CURRENT_DATE_STAMP: JSON.stringify(now.toLocaleString())
       },
       preventAssignment: true
     }),
