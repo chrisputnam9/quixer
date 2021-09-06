@@ -12,7 +12,8 @@ export const CONFIG_SYNC_SAVE_STATE = {
   PENDING: 1,
   SAVING: 2,
   SUCCESS: 3,
-  ERROR: 4
+  WARNING: 4,
+  ERROR: 5
 };
 export const configSyncSaveState = writable(CONFIG_SYNC_SAVE_STATE.PENDING);
 
@@ -27,3 +28,6 @@ export const configSyncAlert = function (message, type = 'info') {
   configSyncMessageType.set(type);
   configSyncMessage.set(message);
 };
+
+/** Updated Date of Local Data **/
+export const configUpdatedDate = writable('');

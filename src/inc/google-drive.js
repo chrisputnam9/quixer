@@ -8,7 +8,8 @@ import {
   configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
-  configSyncSaveState
+  configSyncSaveState,
+  configUpdatedDate
 } from '../store/config-sync-state.js';
 import MultiPartBuilder from './multipart.js';
 
@@ -32,6 +33,9 @@ export const google_drive = {
    */
   onLoad: function () {
     gapi.load('client:auth2', google_drive.initClient);
+
+    // Listen for sign-in
+    configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
   },
 
   /**
@@ -66,7 +70,26 @@ export const google_drive = {
    */
   updateSigninStatus: function (isSignedIn) {
     configSyncIsSignedIn.set(isSignedIn);
-    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+  },
+
+  /**
+   * If signed in, check sync and change dates, maybe alert
+   * - Listens for sign-in status to change
+   * - TODO Listens for updated date to change
+   */
+  checkSyncAndChangeDates: function (changed) {
+    let updated_date = get(configUpdatedDate);
+    if (typeof changed === 'string') {
+      updated_date = changed;
+      changed = true;
+    }
+    if (changed) {
+      console.log('setting state & alerting');
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.WARNING);
+      configSyncAlert('Local changes made since last sync - ' + updated_date, 'warning');
+    } else {
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+    }
   },
 
   /**
