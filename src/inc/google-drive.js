@@ -78,15 +78,21 @@ export const google_drive = {
    * - TODO Listens for updated date to change
    */
   checkSyncAndChangeDates: function (changed) {
-    let updated_date = get(configUpdatedDate);
+    // Date of last local change
+    let local_updated_date = get(configUpdatedDate);
     if (typeof changed === 'string') {
-      updated_date = changed;
+      local_updated_date = changed;
       changed = true;
     }
+
+    // Date of last sync
+
+    console.log('local_updated_date', local_updated_date);
+
     if (changed) {
       console.log('setting state & alerting');
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.WARNING);
-      configSyncAlert('Local changes made since last sync - ' + updated_date, 'warning');
+      configSyncAlert('Local changes made since last sync', 'warning');
     } else {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }

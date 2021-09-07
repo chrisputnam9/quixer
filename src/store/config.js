@@ -3,6 +3,7 @@ import { default_config } from '../data/default-config.js';
 import { google_drive } from '../inc/google-drive.js';
 import { local_storage } from '../inc/local-storage.js';
 import { util } from '../inc/util.js';
+import { configUpdatedDate } from './config-sync-state.js';
 
 /**
  * Build a new config store interface
@@ -43,6 +44,8 @@ const constructConfig = default_config => {
       },
       highest_service_index
     );
+
+    configUpdatedDate.set(data.updated_at);
   };
 
   /**
@@ -268,6 +271,7 @@ const constructConfig = default_config => {
   const updateData = (update_date = true) => {
     if (update_date) {
       data.updated_at = util.timestamp();
+      configUpdatedDate.set(data.updated_at);
     }
     set(data);
   };
@@ -279,10 +283,15 @@ const constructConfig = default_config => {
   const deleteService = id => {
     // Move to trash
     data.__trash.services[id] = data.services[id];
+
     // Update date to signify modification
     data.__trash.services[id].updated_at = util.timestamp();
+
     // Remove from services
     delete data.services[id];
+
+    // Update Data - date & store
+    updateData();
   };
 
   /**
@@ -299,6 +308,10 @@ const constructConfig = default_config => {
       service.updated_at = util.timestamp();
     }
     data.services[service.id] = service;
+
+    // Update Data - date & store
+    updateData();
+
     return true;
   };
 
@@ -317,7 +330,10 @@ const constructConfig = default_config => {
     service.id = ++highest_service_index + '-' + util.getUUID();
     service.updated_at = util.timestamp();
     data.services[service.id] = service;
+
+    // Update Data - date & store
     updateData();
+
     return data.services;
   };
 

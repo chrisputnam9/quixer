@@ -31,3 +31,6 @@ export const configSyncAlert = function (message, type = 'info') {
 
 /** Updated Date of Local Data **/
 export const configUpdatedDate = writable('');
+
+/** Last Sync Time **/
+export const configSyncData = writable({});
