@@ -8,8 +8,7 @@ import {
   configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
-  configSyncSaveState,
-  configUpdatedDate
+  configSyncSaveState
 } from '../store/config-sync-state.js';
 import MultiPartBuilder from './multipart.js';
 
@@ -28,6 +27,13 @@ import MultiPartBuilder from './multipart.js';
  */
 
 export const google_drive = {
+  /**
+   * Time at which remote data was updated
+   * - Set after syncing, and based on remote at page load (effectively)
+   * - Checked to see if sync might be needed
+   */
+  remote_updated_at: null,
+
   /**
    * Handle API Load
    */
@@ -75,24 +81,34 @@ export const google_drive = {
   /**
    * If signed in, check sync and change dates, maybe alert
    * - Listens for sign-in status to change
-   * - TODO Listens for updated date to change
+   * - Listens for config data to change
    */
-  checkSyncAndChangeDates: function (changed) {
-    // Date of last local change
-    let local_updated_date = get(configUpdatedDate);
-    if (typeof changed === 'string') {
-      local_updated_date = changed;
-      changed = true;
-    }
+  checkSyncAndChangeDates: function (changed_data) {
+    console.log('changed_data', changed_data);
 
-    // Date of last sync
+    let local_newer = false;
+    let remote_newer = false;
 
-    console.log('local_updated_date', local_updated_date);
+    // Local updated_at
+    let local_updated_at = 0;
 
-    if (changed) {
+    // Local synced_at
+    let local_synced_at = 0;
+
+    // Remote updated_at
+    let remote_updated_at = 0;
+
+    console.log('local_updated_at', local_updated_at);
+    console.log('local_synced_at', local_synced_at);
+    console.log('remote_updated_at', remote_updated_at);
+
+    if (local_newer || remote_newer) {
       console.log('setting state & alerting');
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.WARNING);
-      configSyncAlert('Local changes made since last sync', 'warning');
+      configSyncAlert(
+        (local_newer ? 'Local' : 'Remote') + ' changes made since last sync',
+        'warning'
+      );
     } else {
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }

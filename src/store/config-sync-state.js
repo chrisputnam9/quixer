@@ -28,9 +28,3 @@ export const configSyncAlert = function (message, type = 'info') {
   configSyncMessageType.set(type);
   configSyncMessage.set(message);
 };
-
-/** Updated Date of Local Data **/
-export const configUpdatedDate = writable('');
-
-/** Last Sync Time **/
-export const configSyncData = writable({});
