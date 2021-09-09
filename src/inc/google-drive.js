@@ -8,8 +8,9 @@ import {
   configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
-  configSyncSaveState
-} from '../store/config-sync-state.js';
+  configSyncSaveState,
+  configData
+} from '../store/config-stores.js';
 import MultiPartBuilder from './multipart.js';
 
 /**
@@ -42,6 +43,7 @@ export const google_drive = {
 
     // Listen for sign-in
     configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
+    configData.subscribe(google_drive.checkSyncAndChangeDates);
   },
 
   /**

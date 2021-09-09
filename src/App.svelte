@@ -9,7 +9,7 @@
     configSyncSaveState,
     configSyncMessageType,
     configSyncMessage
-  } from './store/config-sync-state.js';
+  } from './store/config-stores.js';
 
   // Super cheap hash routing
   let hash = document.location.hash;

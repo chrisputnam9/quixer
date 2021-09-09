@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { config } from '../store/config.js';
+  import { config } from '../inc/config.js';
   import { slide } from 'svelte/transition';
   import { google_drive } from '../inc/google-drive.js';
   import {
@@ -8,7 +8,7 @@
     configSyncSaveState,
     configSyncIsAvailableForSignIn,
     configSyncIsSignedIn
-  } from '../store/config-sync-state.js';
+  } from '../store/config-stores.js';
 
   let config_json = config.json;
   let config_json_altered = config_json;

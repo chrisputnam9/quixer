@@ -28,3 +28,6 @@ export const configSyncAlert = function (message, type = 'info') {
   configSyncMessageType.set(type);
   configSyncMessage.set(message);
 };
+
+/** Config Data **/
+export const configData = writable({});
