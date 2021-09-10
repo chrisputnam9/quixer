@@ -85,11 +85,9 @@ export const google_drive = {
    * - Listens for sign-in status to change
    * - Listens for config data to change
    */
-  checkSyncAndChangeDates: function (changed_data) {
-    console.log('changed_data', changed_data);
-
-    let local_newer = false;
-    let remote_newer = false;
+  checkSyncAndChangeDates: async function (changed_data) {
+    let local_updated_after_sync = false;
+    let remote_updated_after_sync = false;
 
     // Local updated_at
     let local_updated_at = 0;
@@ -100,15 +98,41 @@ export const google_drive = {
     // Remote updated_at
     let remote_updated_at = 0;
 
-    console.log('local_updated_at', local_updated_at);
-    console.log('local_synced_at', local_synced_at);
-    console.log('remote_updated_at', remote_updated_at);
+    // If changed data is an object, it should be our local config data
+    let config_data;
+    if (util.isObject(changed_data)) {
+      config_data = changed_data;
+    } else {
+      // otherwise, get the local config data
+      // TODO get config data
+    }
 
-    if (local_newer || remote_newer) {
+    //  - try grabbing local_updated_at
+    if ('updated_at' in config_data) {
+      local_updated_at = config_data.updated_at;
+    }
+    //  - try grabbing local_synced_at
+    if (
+      'sync' in config_data &&
+      'google_drive' in config_data.sync &&
+      'synced_at' in config_data.sync.google_drive
+    ) {
+      local_synced_at = config_data.sync.google_drive.synced_at;
+    }
+
+    local_updated_after_sync = local_updated_at > local_synced_at;
+
+    // If no new local changes, check remote updated date
+    if (!local_updated_after_sync) {
+      remote_updated_at = await google_drive.getRemoteUpdatedAt();
+      remote_updated_after_sync = remote_updated_at > local_synced_at;
+    }
+
+    if (local_updated_after_sync || remote_updated_after_sync) {
       console.log('setting state & alerting');
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.WARNING);
       configSyncAlert(
-        (local_newer ? 'Local' : 'Remote') + ' changes made since last sync',
+        (local_updated_after_sync ? 'Local' : 'Remote') + ' changes made since last sync',
         'warning'
       );
     } else {
@@ -232,6 +256,17 @@ export const google_drive = {
       });
 
     return file_id;
+  },
+
+  /**
+   * Get Remote updated date
+   * - Only fetch once and cache in property to avoid lots of calls
+   * - Used to determine whether sync might be needed
+   */
+  getRemoteUpdatedAt: async function () {
+    // TODO make sure we have the file id
+    // TODO make sure we are logged in
+    let drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
   },
 
   /**

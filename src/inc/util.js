@@ -21,8 +21,7 @@ export const util = {
   objectClone: object => JSON.parse(JSON.stringify(object)),
 
   // Check if object is empty
-  isEmptyObject: object =>
-    object && Object.keys(object).length === 0 && object.constructor === Object,
+  isEmptyObject: object => util.isObject(object) && Object.keys(object).length === 0,
 
   isObject: thing => thing && typeof thing === 'object' && thing.constructor === Object,
 
