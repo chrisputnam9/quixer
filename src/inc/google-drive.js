@@ -9,6 +9,7 @@ import {
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
   configSyncSaveState,
+  configSyncMessageShow,
   configData
 } from '../store/config-stores.js';
 import MultiPartBuilder from './multipart.js';
@@ -104,7 +105,7 @@ export const google_drive = {
       config_data = changed_data;
     } else {
       // otherwise, get the local config data
-      // TODO get config data
+      config_data = get(configData);
     }
 
     //  - try grabbing local_updated_at
@@ -128,15 +129,17 @@ export const google_drive = {
       remote_updated_after_sync = remote_updated_at > local_synced_at;
     }
 
+    console.group('Checking sync status');
+    console.log('local_updated_at', local_updated_at);
+    console.log('remote_updated_at', remote_updated_at);
+    console.log('local_synced_at', local_synced_at);
+    console.groupEnd();
+
     if (local_updated_after_sync || remote_updated_after_sync) {
-      console.log('setting state & alerting');
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.WARNING);
       configSyncAlert(
-        (local_updated_after_sync ? 'Local' : 'Remote') + ' changes made since last sync',
-        'warning'
+        (local_updated_after_sync ? 'Local' : 'Remote') +
+          ' changes made since last sync.  You may wish to sync now.'
       );
-    } else {
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }
   },
 
@@ -161,11 +164,11 @@ export const google_drive = {
    */
   sync: async function (local_data) {
     if (!get(configSyncIsSignedIn)) {
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       configSyncAlert(
         '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
         'warning'
       );
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       return local_data;
     }
 
@@ -214,11 +217,11 @@ export const google_drive = {
     // - If there were issues along the way, errors or warnings would already be showing
     if (successful) {
       // Show success, wait a bit, then show pending again
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
       configSyncAlert('Sync Successful!', 'success');
     }
 
     window.setTimeout(function () {
+      configSyncMessageShow.set(false);
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }, 2000);
 

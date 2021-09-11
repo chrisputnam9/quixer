@@ -12,19 +12,28 @@ export const CONFIG_SYNC_SAVE_STATE = {
   PENDING: 1,
   SAVING: 2,
   SUCCESS: 3,
-  WARNING: 4,
-  ERROR: 5
+  ERROR: 4
 };
 export const configSyncSaveState = writable(CONFIG_SYNC_SAVE_STATE.PENDING);
 
 /** Messages **/
+// TODO generalize this to alerts for anything, not just config sync
+// Whether to show the alert message
+export const configSyncMessageShow = writable(false);
+// See Alert.svelte - CSS classes for types
 export const configSyncMessageType = writable('');
 export const configSyncMessage = writable('');
 export const configSyncAlert = function (message, type = 'info') {
-  // Auto-set ERROR state
-  if (type == 'error') {
-    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
+  // Auto-set certain states
+  switch (type) {
+    case 'error':
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.ERROR);
+      break;
+    case 'success':
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
+      break;
   }
+  configSyncMessageShow.set(true);
   configSyncMessageType.set(type);
   configSyncMessage.set(message);
 };

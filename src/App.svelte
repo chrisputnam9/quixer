@@ -7,6 +7,7 @@
   import {
     CONFIG_SYNC_SAVE_STATE,
     configSyncSaveState,
+    configSyncMessageShow,
     configSyncMessageType,
     configSyncMessage
   } from './store/config-stores.js';
@@ -32,7 +33,7 @@
     <Nav {hash} />
   {/if}
 
-  {#if $configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
+  {#if $configSyncMessageShow}
     <Alert type={$configSyncMessageType} message={$configSyncMessage} />
   {/if}
 </div>
