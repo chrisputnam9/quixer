@@ -130,9 +130,9 @@ export const google_drive = {
     }
 
     console.group('Checking sync status');
-    console.log('local_updated_at', local_updated_at);
-    console.log('remote_updated_at', remote_updated_at);
-    console.log('local_synced_at', local_synced_at);
+    console.log('local_updated_at', new Date(local_updated_at).toLocaleString());
+    console.log('remote_updated_at', new Date(remote_updated_at).toLocaleString());
+    console.log('local_synced_at', new Date(local_synced_at).toLocaleString());
     console.groupEnd();
 
     if (local_updated_after_sync || remote_updated_after_sync) {
