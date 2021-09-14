@@ -10,10 +10,17 @@
     configSyncIsSignedIn
   } from '../store/config-stores.js';
 
+  /**
+   * JSON Import/Export
+   */
+  let btnConfigSaveDisabled = true;
   let config_json = config.json;
   let config_json_altered = config_json;
-  let btnConfigSaveDisabled = true;
+  let showImportExport = false;
   let txtConfigJson;
+  function toggleImportExport() {
+    showImportExport = !showImportExport;
+  }
   function txtConfigJsonKeyUp() {
     config_json_altered = txtConfigJson.value;
     btnConfigSaveDisabled = config_json_altered == config_json;
@@ -28,19 +35,16 @@
     }
   }
 
-  let showImportExport = false;
-  function toggleImportExport() {
-    showImportExport = !showImportExport;
-  }
-
   let services = config.getValue('services');
   let servicesDisplay;
   function updateServices(fromDisplay = false) {
     if (fromDisplay && servicesDisplay) {
+      console.log('Updating services from display');
+
+      // Only updates updated date if service actually changed
       servicesDisplay.forEach(service => config.updateService(service));
     }
 
-    config.setValue('services', services);
     sortAndMaybeFilter();
 
     config_json = config.toJson();

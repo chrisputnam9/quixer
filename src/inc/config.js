@@ -256,9 +256,9 @@ const constructConfig = default_config => {
   /**
    * Set key value on data object
    */
-  const setValue = (key, value) => {
+  const setValue = (key, value, update_date = true) => {
     data[key] = value;
-    updateData();
+    updateData(update_date);
     //sync();
     saveLocal();
   };

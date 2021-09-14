@@ -267,9 +267,28 @@ export const google_drive = {
    * - Used to determine whether sync might be needed
    */
   getRemoteUpdatedAt: async function () {
-    // TODO make sure we have the file id
-    // TODO make sure we are logged in
-    let drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
+    if (google_drive.remote_updated == null) {
+      const signed_in = get(configSyncIsSignedIn);
+      if (!signed_in) {
+        return 0;
+      }
+
+      const local_data = get(configData);
+
+      if (
+        'sync' in local_data &&
+        'google_drive' in local_data.sync &&
+        'file_id' in local_data.sync.google_drive
+      ) {
+        const drive_data = await google_drive.readConfig(
+          local_data.sync.google_drive.file_id
+        );
+
+        console.log(drive_data);
+      }
+    }
+
+    return remote_updated_at;
   },
 
   /**
