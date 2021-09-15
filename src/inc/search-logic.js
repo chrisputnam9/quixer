@@ -1,4 +1,4 @@
-import { config } from '../store/config.js';
+import { config } from './config.js';
 import { writable, get } from 'svelte/store';
 
 /**

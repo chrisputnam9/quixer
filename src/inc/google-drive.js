@@ -8,8 +8,10 @@ import {
   configSyncAlert,
   configSyncIsAvailableForSignIn,
   configSyncIsSignedIn,
-  configSyncSaveState
-} from '../store/config-sync-state.js';
+  configSyncSaveState,
+  configSyncMessageShow,
+  configData
+} from '../store/config-stores.js';
 import MultiPartBuilder from './multipart.js';
 
 /**
@@ -28,10 +30,21 @@ import MultiPartBuilder from './multipart.js';
 
 export const google_drive = {
   /**
+   * Time at which remote data was updated
+   * - Set after syncing, and based on remote at page load (effectively)
+   * - Checked to see if sync might be needed
+   */
+  remote_updated_at: null,
+
+  /**
    * Handle API Load
    */
   onLoad: function () {
     gapi.load('client:auth2', google_drive.initClient);
+
+    // Listen for sign-in
+    configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
+    configData.subscribe(google_drive.checkSyncAndChangeDates);
   },
 
   /**
@@ -66,7 +79,68 @@ export const google_drive = {
    */
   updateSigninStatus: function (isSignedIn) {
     configSyncIsSignedIn.set(isSignedIn);
-    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+  },
+
+  /**
+   * If signed in, check sync and change dates, maybe alert
+   * - Listens for sign-in status to change
+   * - Listens for config data to change
+   */
+  checkSyncAndChangeDates: async function (changed_data) {
+    let local_updated_after_sync = false;
+    let remote_updated_after_sync = false;
+
+    // Local updated_at
+    let local_updated_at = 0;
+
+    // Local synced_at
+    let local_synced_at = 0;
+
+    // Remote updated_at
+    let remote_updated_at = 0;
+
+    // If changed data is an object, it should be our local config data
+    let config_data;
+    if (util.isObject(changed_data)) {
+      config_data = changed_data;
+    } else {
+      // otherwise, get the local config data
+      config_data = get(configData);
+    }
+
+    //  - try grabbing local_updated_at
+    if ('updated_at' in config_data) {
+      local_updated_at = config_data.updated_at;
+    }
+    //  - try grabbing local_synced_at
+    if (
+      'sync' in config_data &&
+      'google_drive' in config_data.sync &&
+      'synced_at' in config_data.sync.google_drive
+    ) {
+      local_synced_at = config_data.sync.google_drive.synced_at;
+    }
+
+    local_updated_after_sync = local_updated_at > local_synced_at;
+
+    // If no new local changes, check remote updated date
+    if (!local_updated_after_sync) {
+      remote_updated_at = await google_drive.getRemoteUpdatedAt();
+      remote_updated_after_sync = remote_updated_at > local_synced_at;
+    }
+
+    console.group('Checking sync status');
+    console.log('local_updated_at', new Date(local_updated_at).toLocaleString());
+    console.log('remote_updated_at', new Date(remote_updated_at).toLocaleString());
+    console.log('local_synced_at', new Date(local_synced_at).toLocaleString());
+    console.groupEnd();
+
+    if (local_updated_after_sync || remote_updated_after_sync) {
+      configSyncAlert(
+        (local_updated_after_sync ? 'Local' : 'Remote') +
+          ' changes made since last sync.  You may wish to sync now.'
+      );
+    }
   },
 
   /**
@@ -90,11 +164,11 @@ export const google_drive = {
    */
   sync: async function (local_data) {
     if (!get(configSyncIsSignedIn)) {
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       configSyncAlert(
         '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
         'warning'
       );
+      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
       return local_data;
     }
 
@@ -143,11 +217,11 @@ export const google_drive = {
     // - If there were issues along the way, errors or warnings would already be showing
     if (successful) {
       // Show success, wait a bit, then show pending again
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SUCCESS);
       configSyncAlert('Sync Successful!', 'success');
     }
 
     window.setTimeout(function () {
+      configSyncMessageShow.set(false);
       configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
     }, 2000);
 
@@ -185,6 +259,38 @@ export const google_drive = {
       });
 
     return file_id;
+  },
+
+  /**
+   * Get Remote updated date
+   * - Only fetch once and cache in property to avoid lots of calls
+   * - Used to determine whether sync might be needed
+   */
+  getRemoteUpdatedAt: async function () {
+    if (google_drive.remote_updated == null) {
+      const signed_in = get(configSyncIsSignedIn);
+      if (!signed_in) {
+        return 0;
+      }
+
+      const local_data = get(configData);
+
+      if (
+        'sync' in local_data &&
+        'google_drive' in local_data.sync &&
+        'file_id' in local_data.sync.google_drive
+      ) {
+        const drive_data = await google_drive.readConfig(
+          local_data.sync.google_drive.file_id
+        );
+
+        if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+          google_drive.remote_updated_at = drive_data.updated_at;
+        }
+      }
+    }
+
+    return google_drive.remote_updated_at;
   },
 
   /**

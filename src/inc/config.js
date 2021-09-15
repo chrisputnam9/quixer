@@ -1,18 +1,20 @@
-import { writable } from 'svelte/store';
+import { get } from 'svelte/store';
 import { default_config } from '../data/default-config.js';
 import { google_drive } from '../inc/google-drive.js';
 import { local_storage } from '../inc/local-storage.js';
 import { util } from '../inc/util.js';
+import { configData } from '../store/config-stores.js';
 
 /**
  * Build a new config store interface
  */
 const constructConfig = default_config => {
-  let data = util.objectClone(default_config);
+  configData.set(util.objectClone(default_config));
+
+  let data = get(configData);
   let highest_service_index = 0;
 
   const service_template_string = JSON.stringify(data.service_template);
-  const { subscribe, set } = writable(data);
 
   /**
    * Initialize the config instance
@@ -254,9 +256,9 @@ const constructConfig = default_config => {
   /**
    * Set key value on data object
    */
-  const setValue = (key, value) => {
+  const setValue = (key, value, update_date = true) => {
     data[key] = value;
-    updateData();
+    updateData(update_date);
     //sync();
     saveLocal();
   };
@@ -269,7 +271,7 @@ const constructConfig = default_config => {
     if (update_date) {
       data.updated_at = util.timestamp();
     }
-    set(data);
+    configData.set(data);
   };
 
   /**
@@ -279,10 +281,15 @@ const constructConfig = default_config => {
   const deleteService = id => {
     // Move to trash
     data.__trash.services[id] = data.services[id];
+
     // Update date to signify modification
     data.__trash.services[id].updated_at = util.timestamp();
+
     // Remove from services
     delete data.services[id];
+
+    // Update Data - date & store
+    updateData();
   };
 
   /**
@@ -299,6 +306,10 @@ const constructConfig = default_config => {
       service.updated_at = util.timestamp();
     }
     data.services[service.id] = service;
+
+    // Update Data - date & store
+    updateData();
+
     return true;
   };
 
@@ -317,7 +328,10 @@ const constructConfig = default_config => {
     service.id = ++highest_service_index + '-' + util.getUUID();
     service.updated_at = util.timestamp();
     data.services[service.id] = service;
+
+    // Update Data - date & store
     updateData();
+
     return data.services;
   };
 
@@ -357,7 +371,6 @@ const constructConfig = default_config => {
     getValue,
     importJson,
     setValue,
-    subscribe,
     sync,
     toJson,
     deleteService,

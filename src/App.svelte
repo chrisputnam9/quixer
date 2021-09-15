@@ -7,9 +7,10 @@
   import {
     CONFIG_SYNC_SAVE_STATE,
     configSyncSaveState,
+    configSyncMessageShow,
     configSyncMessageType,
     configSyncMessage
-  } from './store/config-sync-state.js';
+  } from './store/config-stores.js';
 
   // Super cheap hash routing
   let hash = document.location.hash;
@@ -32,7 +33,7 @@
     <Nav {hash} />
   {/if}
 
-  {#if $configSyncSaveState != CONFIG_SYNC_SAVE_STATE.PENDING}
+  {#if $configSyncMessageShow}
     <Alert type={$configSyncMessageType} message={$configSyncMessage} />
   {/if}
 </div>
