@@ -284,11 +284,13 @@ export const google_drive = {
           local_data.sync.google_drive.file_id
         );
 
-        console.log(drive_data);
+        if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+          google_drive.remote_updated_at = drive_data.updated_at;
+        }
       }
     }
 
-    return remote_updated_at;
+    return google_drive.remote_updated_at;
   },
 
   /**
