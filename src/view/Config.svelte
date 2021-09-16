@@ -14,7 +14,7 @@
    * JSON Import/Export
    */
   let btnConfigSaveDisabled = true;
-  let config_json = config.json;
+  let config_json = config.prepToExport();
   let config_json_altered = config_json;
   let showImportExport = false;
   let txtConfigJson;
@@ -29,7 +29,7 @@
     if (config.importJson(config_json_altered)) {
       services = config.getValue('services');
       updateServices();
-      config_json = config.toJson();
+      config_json = config.prepToExport();
       config_json_altered = config_json;
       btnConfigSaveDisabled = true;
     }
@@ -47,7 +47,7 @@
 
     sortAndMaybeFilter();
 
-    config_json = config.toJson();
+    config_json = config.prepToExport();
     config_json_altered = config_json;
     btnConfigSaveDisabled = true;
   }

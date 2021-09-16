@@ -161,8 +161,8 @@ const constructConfig = default_config => {
    * Prep data to save
    *  - Compare default data against
    */
-  const prepToSave = () => {
-    const toSave = util.objectClone(data);
+  const prepToSave = (json = true) => {
+    let toSave = util.objectClone(data);
 
     // Remove data that shouldn't be saved
     for (const key in toSave) {
@@ -222,7 +222,27 @@ const constructConfig = default_config => {
         toSave.services[id] = changed_data;
       }
     }
-    return JSON.stringify(toSave);
+
+    if (json) {
+      return JSON.stringify(toSave, null, 2);
+    } else {
+      return toSave;
+    }
+  };
+
+  /**
+   * Prep data for export
+   */
+  const prepToExport = (json = true) => {
+    const toExport = prepToSave(false);
+    delete toExport.updated_at;
+    delete toExport.sync;
+
+    if (json) {
+      return JSON.stringify(toExport, null, 2);
+    } else {
+      return toExport;
+    }
   };
 
   /**
@@ -336,24 +356,19 @@ const constructConfig = default_config => {
   };
 
   /**
-   * Get data as JSON
-   */
-  const toJson = () => {
-    return JSON.stringify(data, null, 2);
-  };
-
-  /**
    * Import data from JSON
    */
   const importJson = json => {
-    if (json == toJson()) {
+    if (json == prepToExport()) {
       alert('No changes to data, skipping import');
       return false;
     }
 
     try {
       const _data = JSON.parse(json);
-      data = _data;
+      for (const key in _data) {
+        data[key] = _data[key];
+      }
       updateData();
     } catch (error) {
       alert('Issue with import:\n\n' + error);
@@ -370,9 +385,9 @@ const constructConfig = default_config => {
     getSortedServices,
     getValue,
     importJson,
+    prepToExport,
     setValue,
     sync,
-    toJson,
     deleteService,
     updateService
   };
