@@ -57,11 +57,22 @@ const constructConfig = default_config => {
    */
   const getSortedServices = () => {
     return Object.values(util.objectClone(data.services)).sort((service1, service2) => {
+      let alias1 = null;
+      let alias2 = null;
+
+      if ('alias' in service1 && 0 in service1.alias) {
+        alias1 = service1.alias[0];
+      }
+
+      if ('alias' in service2 && 0 in service2.alias) {
+        alias2 = service2.alias[0];
+      }
+
       /** Sort default service first **/
-      if (service1.alias[0] == data.preferences.default_service_alias) {
+      if (alias1 == data.preferences.default_service_alias) {
         return -1;
       }
-      if (service2.alias[0] == data.preferences.default_service_alias) {
+      if (alias2 == data.preferences.default_service_alias) {
         return 1;
       }
 
@@ -194,14 +205,22 @@ const constructConfig = default_config => {
 
       // Otherwise, this is a default service - check for any change to service data
       const default_service = default_config.services[id];
-      let changed_data = {
-        // REFERENCE: Default_Service_Data_Allowed_To_Change
-        action: service.action,
-        alias: service.alias,
-        active: service.active,
-        updated_at: service.updated_at // Must maintain this to allow reversions to sync
+      let changed_data = {};
+      // REFERENCE: Default_Service_Data_Allowed_To_Change
+      if ('action' in service) {
+        changed_data.action = service.action;
+      }
+      if ('alias' in service) {
+        changed_data.alias = service.alias;
+      }
+      if ('active' in service) {
+        changed_data.active = service.active;
+      }
+      if ('updated_at' in service) {
+        // Must maintain this to allow reversions to sync
+        changed_data.updated_at = service.updated_at;
         // - ie. maintaining that the data is as it should be, even if same as defaults
-      };
+      }
 
       changed_data = util.diffObjectRecursive(changed_data, default_service);
 
@@ -370,8 +389,10 @@ const constructConfig = default_config => {
         data[key] = _data[key];
       }
       updateData();
+      saveLocal();
     } catch (error) {
-      alert('Issue with import:\n\n' + error);
+      console.error(error);
+      alert('Issue with import, see console for more detail:\n\n' + error);
       return false;
     }
 
