@@ -90,6 +90,18 @@ export const google_drive = {
     let local_updated_after_sync = false;
     let remote_updated_after_sync = false;
 
+    // Whether signed into Google Drive
+    let is_signed_in;
+    if (typeof changed_data == 'boolean') {
+      is_signed_in = changed_data;
+    } else {
+      is_signed_in = get(google_drive.configSyncIsSignedIn);
+    }
+
+    if (!is_signed_in) {
+      return;
+    }
+
     // Local updated_at
     let local_updated_at = 0;
 
