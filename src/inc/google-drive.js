@@ -98,10 +98,6 @@ export const google_drive = {
       is_signed_in = get(google_drive.configSyncIsSignedIn);
     }
 
-    if (!is_signed_in) {
-      return;
-    }
-
     // Local updated_at
     let local_updated_at = 0;
 
@@ -124,6 +120,7 @@ export const google_drive = {
     if ('updated_at' in config_data) {
       local_updated_at = config_data.updated_at;
     }
+
     //  - try grabbing local_synced_at
     if (
       'sync' in config_data &&
@@ -131,6 +128,11 @@ export const google_drive = {
       'synced_at' in config_data.sync.google_drive
     ) {
       local_synced_at = config_data.sync.google_drive.synced_at;
+    }
+
+    // If not currently signed in and never synced before, don't show any warnings
+    if (!is_signed_in && !local_synced_at) {
+      return;
     }
 
     local_updated_after_sync = local_updated_at > local_synced_at;
@@ -141,11 +143,11 @@ export const google_drive = {
       remote_updated_after_sync = remote_updated_at > local_synced_at;
     }
 
-    console.group('Checking sync status');
-    console.log('local_updated_at', new Date(local_updated_at).toLocaleString());
-    console.log('remote_updated_at', new Date(remote_updated_at).toLocaleString());
-    console.log('local_synced_at', new Date(local_synced_at).toLocaleString());
-    console.groupEnd();
+    //console.group('Checking sync status');
+    //console.log('local_updated_at', new Date(local_updated_at).toLocaleString());
+    //console.log('remote_updated_at', new Date(remote_updated_at).toLocaleString());
+    //console.log('local_synced_at', new Date(local_synced_at).toLocaleString());
+    //console.groupEnd();
 
     if (local_updated_after_sync || remote_updated_after_sync) {
       configSyncAlert(

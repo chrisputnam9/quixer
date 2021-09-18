@@ -1,0 +1,5 @@
+--langdef=svelte
+--langmap=svelte:.svelte
+--recurse
+--exclude=./.*
+--exclude=node_modules
