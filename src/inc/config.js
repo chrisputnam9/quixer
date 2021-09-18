@@ -1,4 +1,3 @@
-import { get } from 'svelte/store';
 import { default_config } from '../data/default-config.js';
 import { google_drive } from '../inc/google-drive.js';
 import { local_storage } from '../inc/local-storage.js';
@@ -9,12 +8,10 @@ import { configData } from '../store/config-stores.js';
  * Build a new config store interface
  */
 const constructConfig = default_config => {
-  configData.set(util.objectClone(default_config));
-
-  let data = get(configData);
+  let data = {};
   let highest_service_index = 0;
 
-  const service_template_string = JSON.stringify(data.service_template);
+  const service_template_string = JSON.stringify(default_config.service_template);
 
   /**
    * Initialize the config instance
@@ -22,6 +19,8 @@ const constructConfig = default_config => {
    *  - Attempt Sync
    */
   const initialize = () => {
+    data = util.objectClone(default_config);
+
     const service_template = serviceTemplate();
     data.services = util.objectMap(data.services, service => {
       service = {
@@ -43,8 +42,10 @@ const constructConfig = default_config => {
         }
         return highest_id;
       },
-      highest_service_index
+      0
     );
+
+    updateData(false);
   };
 
   /**
@@ -383,13 +384,12 @@ const constructConfig = default_config => {
       return false;
     }
 
+    // We'll trust the data (and trust our load function) - save directly to local storage
+    local_storage.set('config', json);
+
     try {
-      const _data = JSON.parse(json);
-      for (const key in _data) {
-        data[key] = _data[key];
-      }
-      updateData();
-      saveLocal();
+      // Reinitilize - which will load from local storage
+      initialize();
     } catch (error) {
       console.error(error);
       alert('Issue with import, see console for more detail:\n\n' + error);
