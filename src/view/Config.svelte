@@ -39,8 +39,6 @@
   let servicesDisplay;
   function updateServices(fromDisplay = false) {
     if (fromDisplay && servicesDisplay) {
-      console.log('Updating services from display');
-
       // Only updates updated date if service actually changed
       servicesDisplay.forEach(service => config.updateService(service));
     }
@@ -255,7 +253,7 @@
   .boxes {
     display: flex;
     flex-wrap: wrap;
-    align-items: end;
+    align-items: start;
   }
   .box {
     flex: 1 1 0;

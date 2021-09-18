@@ -60,11 +60,9 @@ const constructConfig = default_config => {
     return Object.values(util.objectClone(data.services)).sort((service1, service2) => {
       let alias1 = null;
       let alias2 = null;
-
       if ('alias' in service1 && 0 in service1.alias) {
         alias1 = service1.alias[0];
       }
-
       if ('alias' in service2 && 0 in service2.alias) {
         alias2 = service2.alias[0];
       }
@@ -77,7 +75,7 @@ const constructConfig = default_config => {
         return 1;
       }
 
-      /** Active at end **/
+      /** Inactive at end of list **/
       if (service1.active !== service2.active) {
         return service1.active ? -1 : 1;
       }
@@ -89,7 +87,12 @@ const constructConfig = default_config => {
 
       /** Newest custom first **/
       if (!service1.from_default_config && !service2.from_default_config) {
-        return service1.id.localeCompare(service2.id);
+        // Parse out created timestamp from ID
+        let created1 = service1.id.split('-')[1];
+        let created2 = service2.id.split('-')[1];
+
+        // Most recent first
+        return created2.localeCompare(created1);
       }
 
       /** Alphabetical by name after that **/
@@ -299,19 +302,19 @@ const constructConfig = default_config => {
   const setValue = (key, value, update_date = true) => {
     data[key] = value;
     updateData(update_date);
-    //sync();
-    saveLocal();
   };
 
   /**
    * Update data in store
    *  - Update the updated_at stamp unless "false"
+   *  - Save to local data
    */
   const updateData = (update_date = true) => {
     if (update_date) {
       data.updated_at = util.timestamp();
     }
     configData.set(data);
+    saveLocal();
   };
 
   /**
@@ -329,7 +332,7 @@ const constructConfig = default_config => {
     delete data.services[id];
 
     // Update Data - date & store
-    updateData();
+    updateData(true);
   };
 
   /**
@@ -348,7 +351,7 @@ const constructConfig = default_config => {
     data.services[service.id] = service;
 
     // Update Data - date & store
-    updateData();
+    updateData(update_date);
 
     return true;
   };
@@ -370,7 +373,7 @@ const constructConfig = default_config => {
     data.services[service.id] = service;
 
     // Update Data - date & store
-    updateData();
+    updateData(true);
 
     return data.services;
   };
