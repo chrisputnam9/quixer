@@ -292,7 +292,8 @@ export const google_drive = {
       if (
         'sync' in local_data &&
         'google_drive' in local_data.sync &&
-        'file_id' in local_data.sync.google_drive
+        'file_id' in local_data.sync.google_drive &&
+        local_data.sync.google_drive.file_id !== 0
       ) {
         const drive_data = await google_drive.readConfig(
           local_data.sync.google_drive.file_id

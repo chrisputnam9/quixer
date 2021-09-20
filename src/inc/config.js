@@ -258,6 +258,8 @@ const constructConfig = default_config => {
    */
   const prepToExport = (json = true) => {
     const toExport = prepToSave(false);
+
+    // Remove items that should not be imported to avoid issues
     delete toExport.updated_at;
     delete toExport.sync;
 
@@ -387,12 +389,26 @@ const constructConfig = default_config => {
       return false;
     }
 
-    // We'll trust the data (and trust our load function) - save directly to local storage
-    local_storage.set('config', json);
-
     try {
-      // Reinitilize - which will load from local storage
+      // Get current data prepped for save - eg. changes only
+      const to_save = prepToSave(false);
+
+      // Get data being imported - should also be prepped for save - eg. changes only
+      const _data = JSON.parse(json);
+
+      // Merge in data
+      for (const key in _data) {
+        to_save[key] = _data[key];
+      }
+
+      // Save to local storage to prep for reinitialize
+      local_storage.set('config', JSON.stringify(to_save, null, 2));
+
+      // Reinitilize - which will re-load from local storage
       initialize();
+
+      // Update data - eg. date
+      updateData(true);
     } catch (error) {
       console.error(error);
       alert('Issue with import, see console for more detail:\n\n' + error);
