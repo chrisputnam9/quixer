@@ -338,12 +338,6 @@ export const google_drive = {
    *  - Return ID of file
    */
   writeConfig: async function (data, file_id = 0) {
-    // TODO remove sync key?
-    // - file id not useful - have to fetch anyway to get it
-    // - updated_at - not accurate - updating *after* sync currently
-    // - think a bit, maybe there's a use for updated_at if we set it before upload
-    // - then, could revert if upload fails
-
     const jsonData = JSON.stringify(data);
     const metadata = {
       name: 'config.json',

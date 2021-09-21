@@ -44,7 +44,7 @@ MultiPartBuilder.prototype.finish = function () {
   if (this.body === null) {
     this.parts.push('\r\n--', this.boundary, '--');
     this.body = this.parts.join('');
-    // TODO - switch to blob once gapi.client.request allows it
+    // Could switch to blob once gapi.client.request allows it
     // this.body = new Blob(this.parts, {type: this.mimeType});
   }
   return {

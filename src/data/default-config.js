@@ -34,7 +34,8 @@ export const default_config = {
    *
    * - id: A unique identifier.  Defaults should have "d" prepended to keep them unique & separate from custom additions.
    * - alias: Array of shortcut aliases for use in the app
-   *   - TODO App currently only uses the first one, but the array is in place to support multiple aliases in the future, while hopefully keeping data structure consistent
+   *   - App currently only uses the first one, but the array is in place to support multiple aliases in the future, while hopefully keeping data structure consistent
+   *   - (https://github.com/chrisputnam9/quixer/issues/94)
    * - name: Descriptive name
    * - action: Action that the service uses, one of:
    *    - url: Open a URL, replacing "%s" with the search term entered (if any)
@@ -806,8 +807,7 @@ export const default_config = {
       alias: ['psi'],
       name: 'Google Page Speed Insights',
       action: {
-        url:
-          'https://developers.google.com/speed/pagespeed/insights/?url=%s',
+        url: 'https://developers.google.com/speed/pagespeed/insights/?url=%s',
         url_no_search: 'https://developers.google.com/speed/pagespeed/insights/'
       },
       active: true
