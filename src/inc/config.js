@@ -411,7 +411,7 @@ const constructConfig = default_config => {
       updateData(true);
     } catch (error) {
       console.error(error);
-      alert('Issue with import, see console for more detail:\n\n' + error);
+      alert('Issue with import, see console for more detail');
       return false;
     }
 
