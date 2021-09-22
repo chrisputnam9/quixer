@@ -1,7 +1,7 @@
 /** Dark Mode **/
 body {
   background: #111;
-  color: #555;
+  color: #999;
 }
 h1,
 h2,
@@ -17,20 +17,20 @@ select,
 textarea,
 .textarea {
   background: #333;
-  color: #777;
+  color: #bbb;
   border-color: #222;
   outline: none;
 }
 input,
 textarea {
   background: #444;
-  color: #888;
+  color: #ccc;
 }
 input:disabled,
 input:read-only,
 button:disabled {
   background: #222;
-  color: #444;
+  color: #888;
 }
 input:active,
 input:focus,
@@ -38,7 +38,7 @@ button:not(:disabled):active,
 button:focus {
   background-color: #555;
   border-color: #ddd;
-  color: #bbb;
+  color: #ddd;
 }
 a {
   color: #2a96f3;
