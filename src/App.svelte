@@ -5,8 +5,6 @@
   import Nav from './view/Nav.svelte';
   import { google_drive } from './inc/google-drive.js';
   import {
-    CONFIG_SYNC_SAVE_STATE,
-    configSyncSaveState,
     configSyncMessageShow,
     configSyncMessageType,
     configSyncMessage

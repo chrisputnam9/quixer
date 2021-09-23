@@ -30,7 +30,7 @@ input:disabled,
 input:read-only,
 button:disabled {
   background: #222;
-  color: #888;
+  color: #999;
 }
 input:active,
 input:focus,
@@ -53,5 +53,29 @@ a:focus {
 }
 
 .publish-date {
-  color: #222;
+  color: #888;
+}
+
+.alert {
+  background: #ddd;
+  color: #333;
+}
+
+.alert.info,
+.alert.information,
+.alert.informational {
+  background: #8db5ff;
+}
+
+.alert.success {
+  background: #99ff8d;
+}
+
+.alert.error {
+  background: #ff8d8d;
+}
+
+.alert.warning,
+.alert.warn {
+  background: #ffd18d;
 }

@@ -93,7 +93,7 @@
   updateServices();
 </script>
 
-<h1>Config</h1>
+<h1>Quixer - Configuration</h1>
 
 {#if $configSyncIsSignedIn}
   <button
@@ -137,6 +137,7 @@
       <br />To import, edit or paste in valid JSON and click Save.
     </p>
     <textarea
+      aria-label="Import / Export Data Field"
       style="width:100%;height:400px"
       bind:this={txtConfigJson}
       on:keyup={txtConfigJsonKeyUp}

@@ -26,16 +26,21 @@
   <div class="search-container">
     <form on:submit|preventDefault={search_logic.executeServiceAction} class="search-box">
       <input
+        aria-label="Search category - service alias"
         class="search_category"
         bind:this={searchCategoryEl}
         bind:value={$search_category}
         placeholder="{search_logic.default_service_alias}:"
       />
-      <input class="search_phrase" bind:value={$search_phrase} />
+      <input
+        aria-label="Search phrase"
+        class="search_phrase"
+        bind:value={$search_phrase}
+      />
       <button type="submit">Go</button>
     </form>
-    <div class="search-results">
-      <ol class="textarea">
+    <div class="search-results textarea">
+      <ol>
         {#each $service_results as result (result.id)}
           <li class={result.id == search_logic.first_service_result.id ? 'active' : ''}>
             {result.alias[0]} ({result.name})
@@ -46,7 +51,15 @@
   </div>
 </div>
 
+<h1>Quixer - Search</h1>
+
 <style>
+  h1 {
+    font-size: 1em;
+    text-align: right;
+    opacity: 0.5;
+  }
+
   .container {
     display: flex;
     flex-wrap: wrap;
@@ -89,6 +102,7 @@
     align-items: flex-start;
     height: 50vh;
     overflow: hidden;
+    margin: 2px;
   }
 
   .search-results ol {
