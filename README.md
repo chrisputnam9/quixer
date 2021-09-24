@@ -1,17 +1,17 @@
 # Quixer
 
-The hacker's bookmarks.
+The Quicker Search Tool
 
-[Current POC](http://quixer.cmp.onl/)
+[Application](https://quixer.onl/)
 
-## Inspiration
+[About Page](https://quixer.onl/about.html)
+
+
+## Inspiration / Motivation
  - Save clicks, searching, loading, go directly to the info you want
  - Quicksilver or Alfred for the web
  - Custom Search Engines with useful defaults and syncing
  - DuckDuckGo Bangs with better discovery, usability, and customization
-
-## Vision for 1.0 Milestone
-[See Github Milestone](https://github.com/chrisputnam9/quixer/milestone/4)
 
 ## Contributing Default Services
 New default service suggestions are welcome via [issue](https://github.com/chrisputnam9/quixer/issues/new) or pull request of [default-config.js](https://github.com/chrisputnam9/quixer/blob/master/src/data/default-config.js).

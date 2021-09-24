@@ -39,7 +39,7 @@
       />
       <button type="submit">Go</button>
     </form>
-    <div class="search-results textarea">
+    <div class="search-results textarea" tabindex="0">
       <ol>
         {#each $service_results as result (result.id)}
           <li class={result.id == search_logic.first_service_result.id ? 'active' : ''}>
@@ -57,7 +57,7 @@
   h1 {
     font-size: 1em;
     text-align: right;
-    opacity: 0.5;
+    opacity: 0.7;
   }
 
   .container {
@@ -101,7 +101,7 @@
     justify-content: center;
     align-items: flex-start;
     height: 50vh;
-    overflow: hidden;
+    overflow: auto;
     margin: 2px;
   }
 
@@ -110,8 +110,6 @@
     padding: 8px;
 
     height: auto;
-    max-height: 50vh;
-    overflow: hidden;
   }
 
   .search-results::before {
@@ -121,7 +119,6 @@
     height: 40%;
     position: absolute;
     bottom: 0;
-    background: linear-gradient(transparent, #111);
   }
 
   .search-results ol li {

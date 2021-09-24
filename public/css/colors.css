@@ -35,7 +35,10 @@ button:disabled {
 input:active,
 input:focus,
 button:not(:disabled):active,
-button:focus {
+button:focus,
+.textarea:focus,
+textarea:focus,
+select:focus {
   background-color: #555;
   border-color: #ddd;
   color: #ddd;
