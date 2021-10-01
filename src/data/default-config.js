@@ -749,7 +749,7 @@ export const default_config = {
       name: 'Food 52',
       action: {
         url: 'https://food52.com/recipes/search?q=%s',
-        url_no_search: 'https://food52.com/receipes'
+        url_no_search: 'https://food52.com/recipes'
       },
       active: true
     },
