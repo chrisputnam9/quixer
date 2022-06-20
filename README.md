@@ -33,19 +33,20 @@ This will not be needed for most contributors (ie. not needed just to contribute
  1. Add line to hosts file
     `127.0.0.1 quixer.dev`
  1. Run `mkcert -install` to set up local CA
- 1. Run `mkcert quixer.dev localhost`
- 1. Move the newly created files to:
-    - dev/ssl/quixer.dev.pem
-    - dev/ssl/quixer.dev-key.pem
+ 1. Go to dev/ssl - eg. `cd dev/ssl`
+ 1. Run `mkcert -cert-file quixer.dev.pem -key-file quixer.dev-key.pem quixer.dev localhost`
  1. Copy .env.sample to .env and fill in details as needed
+    - Go to [Google Dev Console](https://console.cloud.google.com/apis/credentials)
     - Create a new Google Drive API project for yourself - "Quixer DEV" to use in development - keep the API key secret, fill in details in .env file
  1. Run `npm install`
- 1. Follow the dev workflow steps
+ 1. Follow the Development Workflow steps below
 
 ### Optional
  1. Set up your text editor. [Steps for vim](https://codechips.me/vim-setup-for-svelte-development/)
 
 ## Development Workflow
+Note: alternatively, use start.sh
+
  1. `npm run dev` in one terminal tab or screen buffer
  1. `caddy run` in another terminal tab or screen buffer
  1. Visit https://quixer.dev in browser
