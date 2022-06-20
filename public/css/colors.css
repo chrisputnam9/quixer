@@ -1,7 +1,10 @@
 /** Dark Mode **/
 body {
-  background: #111;
-  color: #999;
+	background: #222;
+	color: #999;
+}
+main {
+	background: #111;
 }
 h1,
 h2,
@@ -9,28 +12,28 @@ h3,
 h4,
 h5,
 h6 {
-  color: #ddd;
+	color: #ddd;
 }
 input,
 button,
 select,
 textarea,
 .textarea {
-  background: #333;
-  color: #bbb;
-  border-color: #222;
-  outline: none;
+	background: #333;
+	color: #bbb;
+	border-color: #222;
+	outline: none;
 }
 input,
 textarea {
-  background: #444;
-  color: #ccc;
+	background: #444;
+	color: #ccc;
 }
 input:disabled,
 input:read-only,
 button:disabled {
-  background: #222;
-  color: #999;
+	background: #222;
+	color: #999;
 }
 input:active,
 input:focus,
@@ -39,46 +42,46 @@ button:focus,
 .textarea:focus,
 textarea:focus,
 select:focus {
-  background-color: #555;
-  border-color: #ddd;
-  color: #ddd;
+	background-color: #555;
+	border-color: #ddd;
+	color: #ddd;
 }
 a {
-  color: #2a96f3;
+	color: #2a96f3;
 }
 a:visited {
-  color: #2a96f3;
+	color: #2a96f3;
 }
 a:hover,
 a:focus {
-  outline: none;
-  color: #7cb342;
+	outline: none;
+	color: #7cb342;
 }
 
 .publish-date {
-  color: #888;
+	color: #888;
 }
 
 .alert {
-  background: #ddd;
-  color: #333;
+	background: #ddd;
+	color: #333;
 }
 
 .alert.info,
 .alert.information,
 .alert.informational {
-  background: #8db5ff;
+	background: #8db5ff;
 }
 
 .alert.success {
-  background: #99ff8d;
+	background: #99ff8d;
 }
 
 .alert.error {
-  background: #ff8d8d;
+	background: #ff8d8d;
 }
 
 .alert.warning,
 .alert.warn {
-  background: #ffd18d;
+	background: #ffd18d;
 }
