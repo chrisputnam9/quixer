@@ -43,9 +43,9 @@ clear
 echo "Starting Caddy..."
 
 # Check if already running, stop if so in case of different project
-caddy stop 2>/dev/null || true # Ignore if there's an error - might not be running
+sudo caddy stop 2>/dev/null || true # Ignore if there's an error - might not be running
 
-caddy start
+sudo caddy start
 
 clear
 echo "Starting NPM dev..."
