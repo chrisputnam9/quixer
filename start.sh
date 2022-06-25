@@ -58,7 +58,7 @@ npm run dev
 # Stop Caddy
 clear
 echo "Stopping Caddy..."
-caddy stop
+sudo caddy stop 2>/dev/null || true # Ignore if there's an error
 
 # Automatically restart Apache if it was running before
 if $apache_was_running; then
@@ -70,3 +70,6 @@ if $apache_was_running; then
 		systemctl start apache2
 	fi
 fi
+
+clear
+echo "Teardown complete"
