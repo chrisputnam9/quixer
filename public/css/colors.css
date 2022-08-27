@@ -18,7 +18,10 @@ input,
 button,
 select,
 textarea,
-.textarea {
+.textarea,
+th,
+td,
+table {
 	background: #333;
 	color: #bbb;
 	border-color: #222;
