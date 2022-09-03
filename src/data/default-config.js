@@ -273,7 +273,7 @@ export const default_config = {
 			alias: ['gdD'],
 			name: 'Google Drive - New Doc',
 			action: {
-				url: 'https://docs.google.com/document/u/0/create'
+				url: 'https://docs.google.com/document/u/0/create?title=%s'
 			},
 			active: true
 		},
@@ -282,7 +282,7 @@ export const default_config = {
 			alias: ['gdF'],
 			name: 'Google Drive - New Form',
 			action: {
-				url: 'https://docs.google.com/forms/u/0/create'
+				url: 'https://docs.google.com/forms/u/0/create?title=%s'
 			},
 			active: true
 		},
@@ -301,7 +301,7 @@ export const default_config = {
 			alias: ['gdP'],
 			name: 'Google Drive - New Presentation / Slides',
 			action: {
-				url: 'https://docs.google.com/presentation/u/0/create'
+				url: 'https://docs.google.com/presentation/u/0/create?title=%s'
 			},
 			active: true
 		},
@@ -310,7 +310,7 @@ export const default_config = {
 			alias: ['gdS'],
 			name: 'Google Drive - New Sheet',
 			action: {
-				url: 'https://docs.google.com/spreadsheets/u/0/create'
+				url: 'https://docs.google.com/spreadsheets/u/0/create?title=%s'
 			},
 			active: true
 		},
@@ -827,6 +827,15 @@ export const default_config = {
 			name: 'Directions from work',
 			action: {
 				url: 'https://www.google.com/maps/dir/work/%s'
+			},
+			active: true
+		},
+		d79: {
+			id: 'd79',
+			alias: ['event'],
+			name: 'New Google Calendar Event',
+			action: {
+				url: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=%s'
 			},
 			active: true
 		}

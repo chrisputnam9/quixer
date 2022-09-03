@@ -10,6 +10,11 @@
     <priority>1.0</priority>
   </url>
   <url>
+		<loc>https://quixer.onl/tips/custom-search-engine-hacks.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
 		<loc>https://quixer.onl/tips/what-is-a-custom-search-engine.html</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
