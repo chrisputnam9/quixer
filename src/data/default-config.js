@@ -477,7 +477,7 @@ export const default_config = {
 			alias: ['mdn'],
 			name: 'Mozilla Developer Network',
 			action: {
-				url: 'https://developer.mozilla.org/en-US/search?q=',
+				url: 'https://developer.mozilla.org/en-US/search?q=%s',
 				url_no_search: 'https://developer.mozilla.org'
 			},
 			active: true
