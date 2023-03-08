@@ -16,5 +16,7 @@
 		}
 	],
 	"ignorePatterns": ["public/build/*"],
-	"rules": {}
+	"rules": {
+		"no-warning-comments": "warn"
+	}
 }
