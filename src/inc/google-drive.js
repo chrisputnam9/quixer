@@ -1,16 +1,16 @@
-/* global gapi GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
+/* global gapi google GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
 import { syncData } from './sync-logic.js';
 import { util } from './util.js';
 import {
-  CONFIG_SYNC_SAVE_STATE,
-  configSyncAlert,
-  configSyncIsAvailableForSignIn,
-  configSyncIsSignedIn,
-  configSyncSaveState,
-  configSyncMessageShow,
-  configData
+	CONFIG_SYNC_SAVE_STATE,
+	configSyncAlert,
+	configSyncIsAvailableForSignIn,
+	configSyncIsSignedIn,
+	configSyncSaveState,
+	configSyncMessageShow,
+	configData
 } from '../store/config-stores.js';
 import MultiPartBuilder from './multipart.js';
 
@@ -29,347 +29,396 @@ import MultiPartBuilder from './multipart.js';
  */
 
 export const google_drive = {
-  /**
-   * Time at which remote data was updated
-   * - Set after syncing, and based on remote at page load (effectively)
-   * - Checked to see if sync might be needed
-   */
-  remote_updated_at: null,
+	/**
+	 * Time at which remote data was updated
+	 * - Set after syncing, and based on remote at page load (effectively)
+	 * - Checked to see if sync might be needed
+	 */
+	remote_updated_at: null,
 
-  /**
-   * Handle API Load
-   */
-  onLoad: function () {
-    gapi.load('client:auth2', google_drive.initClient);
+	gapiLoad: null,
+	gapiError: null,
+	gisLoad: null,
+	gisError: null,
 
-    // Listen for sign-in
-    configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
-    configData.subscribe(google_drive.checkSyncAndChangeDates);
-  },
+	tokenClient: null,
 
-  /**
-   * Initialize
-   */
-  initClient: function () {
-    gapi.client
-      .init({
-        apiKey: GOOGLE_DRIVE_API_KEY,
-        clientId: GOOGLE_DRIVE_CLIENT_ID,
-        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-        scope:
-          'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file'
-      })
-      .then(() => {
-        configSyncIsAvailableForSignIn.set(true);
+	/**
+	 * Initialize GAPI and GIS
+	 */
+	init: async function () {
+		const self = this;
 
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
+		const gapiLoadPromise = new Promise((resolve, reject) => {
+			self.gapiLoad = resolve;
+			self.gapiError = reject;
+		});
+		const gisLoadPromise = new Promise((resolve, reject) => {
+			self.gisLoad = resolve;
+			self.gisError = reject;
+		});
 
-        // Handle the initial sign-in state.
-        google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-      })
-      .catch(error => {
-        configSyncAlert('CS501 - ' + JSON.stringify(error, null, 2), 'error');
-      });
-  },
+		// Load and initialize gapi.client
+		await gapiLoadPromise;
+		await new Promise((resolve, reject) => {
+			gapi.load('client', { callback: resolve, onerror: reject });
+		});
+		await gapi.client.init({}).then(function () {
+			gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');
+		});
 
-  /**
-   *  Called when the signed in status changes, to update the UI
-   *  appropriately. After a sign-in, the API is called.
-   */
-  updateSigninStatus: function (isSignedIn) {
-    configSyncIsSignedIn.set(isSignedIn);
-  },
+		// Load the GIS client
+		await gisLoadPromise;
+		await new Promise((resolve, reject) => {
+			try {
+				self.tokenClient = google.accounts.oauth2.initTokenClient({
+					client_id: GOOGLE_DRIVE_CLIENT_ID,
+					scope:
+						'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file',
+					prompt: 'consent',
+					callback: '' // defined at request time in await/promise scope.
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	},
 
-  /**
-   * If signed in, check sync and change dates, maybe alert
-   * - Listens for sign-in status to change
-   * - Listens for config data to change
-   */
-  checkSyncAndChangeDates: async function (changed_data) {
-    let local_updated_after_sync = false;
-    let remote_updated_after_sync = false;
+	/**
+	 * Handle API Load
+	 */
+	onLoad: function () {
+		gapi.load('client:auth2', google_drive.initClient);
 
-    // Whether signed into Google Drive
-    let is_signed_in;
-    if (typeof changed_data == 'boolean') {
-      is_signed_in = changed_data;
-    } else {
-      is_signed_in = get(google_drive.configSyncIsSignedIn);
-    }
+		// Listen for sign-in
+		configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
+		configData.subscribe(google_drive.checkSyncAndChangeDates);
+	},
 
-    // Local updated_at
-    let local_updated_at = 0;
+	/**
+	 * Initialize
+	 */
+	initClient: function () {
+		gapi.client
+			.init({
+				apiKey: GOOGLE_DRIVE_API_KEY,
+				clientId: GOOGLE_DRIVE_CLIENT_ID,
+				discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+				scope:
+					'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file'
+			})
+			.then(() => {
+				configSyncIsAvailableForSignIn.set(true);
 
-    // Local synced_at
-    let local_synced_at = 0;
+				// Listen for sign-in state changes.
+				gapi.auth2.getAuthInstance().isSignedIn.listen(google_drive.updateSigninStatus);
 
-    // Remote updated_at
-    let remote_updated_at = 0;
+				// Handle the initial sign-in state.
+				google_drive.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+			})
+			.catch(error => {
+				configSyncAlert('CS501 - ' + JSON.stringify(error, null, 2), 'error');
+			});
+	},
 
-    // If changed data is an object, it should be our local config data
-    let config_data;
-    if (util.isObject(changed_data)) {
-      config_data = changed_data;
-    } else {
-      // otherwise, get the local config data
-      config_data = get(configData);
-    }
+	/**
+	 *  Called when the signed in status changes, to update the UI
+	 *  appropriately. After a sign-in, the API is called.
+	 */
+	updateSigninStatus: function (isSignedIn) {
+		configSyncIsSignedIn.set(isSignedIn);
+	},
 
-    //  - try grabbing local_updated_at
-    if ('updated_at' in config_data) {
-      local_updated_at = config_data.updated_at;
-    }
+	/**
+	 * If signed in, check sync and change dates, maybe alert
+	 * - Listens for sign-in status to change
+	 * - Listens for config data to change
+	 */
+	checkSyncAndChangeDates: async function (changed_data) {
+		let local_updated_after_sync = false;
+		let remote_updated_after_sync = false;
 
-    //  - try grabbing local_synced_at
-    if (
-      'sync' in config_data &&
-      'google_drive' in config_data.sync &&
-      'synced_at' in config_data.sync.google_drive
-    ) {
-      local_synced_at = config_data.sync.google_drive.synced_at;
-    }
+		// Whether signed into Google Drive
+		let is_signed_in;
+		if (typeof changed_data == 'boolean') {
+			is_signed_in = changed_data;
+		} else {
+			is_signed_in = get(google_drive.configSyncIsSignedIn);
+		}
 
-    // If not currently signed in and never synced before, don't show any warnings
-    if (!is_signed_in && !local_synced_at) {
-      return;
-    }
+		// Local updated_at
+		let local_updated_at = 0;
 
-    local_updated_after_sync = local_updated_at > local_synced_at;
+		// Local synced_at
+		let local_synced_at = 0;
 
-    // If no new local changes, check remote updated date
-    if (!local_updated_after_sync) {
-      remote_updated_at = await google_drive.getRemoteUpdatedAt();
-      remote_updated_after_sync = remote_updated_at > local_synced_at;
-    }
+		// Remote updated_at
+		let remote_updated_at = 0;
 
-    if (local_updated_after_sync || remote_updated_after_sync) {
-      configSyncAlert(
-        (local_updated_after_sync ? 'Local' : 'Remote') +
-          ' changes made since last sync.  You may wish to sync now.'
-      );
-    }
-  },
+		// If changed data is an object, it should be our local config data
+		let config_data;
+		if (util.isObject(changed_data)) {
+			config_data = changed_data;
+		} else {
+			// otherwise, get the local config data
+			config_data = get(configData);
+		}
 
-  /**
-   * Log in
-   */
-  logIn: function () {
-    gapi.auth2.getAuthInstance().signIn();
-  },
+		//  - try grabbing local_updated_at
+		if ('updated_at' in config_data) {
+			local_updated_at = config_data.updated_at;
+		}
 
-  /**
-   * Log out
-   */
-  logOut: function () {
-    gapi.auth2.getAuthInstance().signOut();
-  },
+		//  - try grabbing local_synced_at
+		if (
+			'sync' in config_data &&
+			'google_drive' in config_data.sync &&
+			'synced_at' in config_data.sync.google_drive
+		) {
+			local_synced_at = config_data.sync.google_drive.synced_at;
+		}
 
-  /**
-   * Sync Google Drive config data with passed data param
-   *  - Save merged data
-   *  - Return merged data
-   */
-  sync: async function (local_data) {
-    if (!get(configSyncIsSignedIn)) {
-      configSyncAlert(
-        '<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
-        'warning'
-      );
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
-      return local_data;
-    }
+		// If not currently signed in and never synced before, don't show any warnings
+		if (!is_signed_in && !local_synced_at) {
+			return;
+		}
 
-    configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
-    configSyncAlert('Syncing config to Google Drive');
+		local_updated_after_sync = local_updated_at > local_synced_at;
 
-    let drive_data = false;
-    let successful = true;
+		// If no new local changes, check remote updated date
+		if (!local_updated_after_sync) {
+			remote_updated_at = await google_drive.getRemoteUpdatedAt();
+			remote_updated_after_sync = remote_updated_at > local_synced_at;
+		}
 
-    // See if there is an existing config file
-    if (local_data.sync.google_drive.file_id === 0) {
-      // None saved locally - check drive by name
-      local_data.sync.google_drive.file_id = await google_drive.findConfig();
-    }
+		if (local_updated_after_sync || remote_updated_after_sync) {
+			configSyncAlert(
+				(local_updated_after_sync ? 'Local' : 'Remote') +
+					' changes made since last sync.  You may wish to sync now.'
+			);
+		}
+	},
 
-    // If config file exists, read it in and sync the data
-    if (local_data.sync.google_drive.file_id !== 0) {
-      configSyncAlert('Existing config found - reading & syncing...');
-      drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
-      if (drive_data) {
-        local_data = syncData(local_data, drive_data);
-      } else {
-        successful = false;
-      }
-    } else {
-      configSyncAlert('No existing config file found - it will be created');
-    }
+	/**
+	 * Log in
+	 */
+	logIn: function () {
+		gapi.auth2.getAuthInstance().signIn();
+	},
 
-    // Write the synced data to Google Drive
-    // - as long as we've been successful so far
-    if (successful) {
-      configSyncAlert('Writing to Google Drive...');
-      const file_id = await google_drive.writeConfig(
-        local_data,
-        local_data.sync.google_drive.file_id
-      );
-      if (file_id === 0) {
-        successful = false;
-      } else {
-        local_data.sync.google_drive.file_id = file_id;
-        local_data.sync.google_drive.synced_at = util.timestamp();
-      }
-    }
+	/**
+	 * Log out
+	 */
+	logOut: function () {
+		gapi.auth2.getAuthInstance().signOut();
+	},
 
-    // As long as everything has worked out so far...
-    // - If there were issues along the way, errors or warnings would already be showing
-    if (successful) {
-      // Show success, wait a bit, then show pending again
-      configSyncAlert('Sync Successful!', 'success');
-    }
+	/**
+	 * Sync Google Drive config data with passed data param
+	 *  - Save merged data
+	 *  - Return merged data
+	 */
+	sync: async function (local_data) {
+		if (!get(configSyncIsSignedIn)) {
+			configSyncAlert(
+				'<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
+				'warning'
+			);
+			configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
+			return local_data;
+		}
 
-    window.setTimeout(function () {
-      configSyncMessageShow.set(false);
-      configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
-    }, 2000);
+		configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
+		configSyncAlert('Syncing config to Google Drive');
 
-    return local_data;
-  },
+		let drive_data = false;
+		let successful = true;
 
-  /**
-   * Find config file in Google Drive if it exists
-   *  - Return file id if exists, otherwise 0
-   */
-  findConfig: async function () {
-    let file_id = 0;
+		// See if there is an existing config file
+		if (local_data.sync.google_drive.file_id === 0) {
+			// None saved locally - check drive by name
+			local_data.sync.google_drive.file_id = await google_drive.findConfig();
+		}
 
-    await gapi.client.drive.files
-      .list({
-        spaces: 'appDataFolder',
-        q: 'name = "config.json"',
-        fields: 'nextPageToken, files(*)',
-        pageSize: 10
-      })
-      .then(response => {
-        if (response.result.files && response.result.files.length > 0) {
-          if (response.result.files.length > 1) {
-            configSyncAlert(
-              'CS502 - Multiple config files found - will use the first one',
-              'warning'
-            );
-          }
+		// If config file exists, read it in and sync the data
+		if (local_data.sync.google_drive.file_id !== 0) {
+			configSyncAlert('Existing config found - reading & syncing...');
+			drive_data = await google_drive.readConfig(local_data.sync.google_drive.file_id);
+			if (drive_data) {
+				local_data = syncData(local_data, drive_data);
+			} else {
+				successful = false;
+			}
+		} else {
+			configSyncAlert('No existing config file found - it will be created');
+		}
 
-          file_id = response.result.files[0].id;
-        }
-      })
-      .catch(error => {
-        configSyncAlert('CS503 - ' + JSON.stringify(error));
-      });
+		// Write the synced data to Google Drive
+		// - as long as we've been successful so far
+		if (successful) {
+			configSyncAlert('Writing to Google Drive...');
+			const file_id = await google_drive.writeConfig(
+				local_data,
+				local_data.sync.google_drive.file_id
+			);
+			if (file_id === 0) {
+				successful = false;
+			} else {
+				local_data.sync.google_drive.file_id = file_id;
+				local_data.sync.google_drive.synced_at = util.timestamp();
+			}
+		}
 
-    return file_id;
-  },
+		// As long as everything has worked out so far...
+		// - If there were issues along the way, errors or warnings would already be showing
+		if (successful) {
+			// Show success, wait a bit, then show pending again
+			configSyncAlert('Sync Successful!', 'success');
+		}
 
-  /**
-   * Get Remote updated date
-   * - Only fetch once and cache in property to avoid lots of calls
-   * - Used to determine whether sync might be needed
-   */
-  getRemoteUpdatedAt: async function () {
-    if (google_drive.remote_updated == null) {
-      const signed_in = get(configSyncIsSignedIn);
-      if (!signed_in) {
-        return 0;
-      }
+		window.setTimeout(function () {
+			configSyncMessageShow.set(false);
+			configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+		}, 2000);
 
-      const local_data = get(configData);
+		return local_data;
+	},
 
-      if (
-        'sync' in local_data &&
-        'google_drive' in local_data.sync &&
-        'file_id' in local_data.sync.google_drive &&
-        local_data.sync.google_drive.file_id !== 0
-      ) {
-        const drive_data = await google_drive.readConfig(
-          local_data.sync.google_drive.file_id
-        );
+	/**
+	 * Find config file in Google Drive if it exists
+	 *  - Return file id if exists, otherwise 0
+	 */
+	findConfig: async function () {
+		let file_id = 0;
 
-        if (util.isObject(drive_data) && 'updated_at' in drive_data) {
-          google_drive.remote_updated_at = drive_data.updated_at;
-        }
-      }
-    }
+		await gapi.client.drive.files
+			.list({
+				spaces: 'appDataFolder',
+				q: 'name = "config.json"',
+				fields: 'nextPageToken, files(*)',
+				pageSize: 10
+			})
+			.then(response => {
+				if (response.result.files && response.result.files.length > 0) {
+					if (response.result.files.length > 1) {
+						configSyncAlert(
+							'CS502 - Multiple config files found - will use the first one',
+							'warning'
+						);
+					}
 
-    return google_drive.remote_updated_at;
-  },
+					file_id = response.result.files[0].id;
+				}
+			})
+			.catch(error => {
+				configSyncAlert('CS503 - ' + JSON.stringify(error));
+			});
 
-  /**
-   * Read config file contents from Google Drive
-   *  - Return file contents
-   */
-  readConfig: async function (file_id) {
-    let drive_data = false;
+		return file_id;
+	},
 
-    await gapi.client
-      .request({
-        path:
-          'https://www.googleapis.com/drive/v3/files/' +
-          encodeURIComponent(file_id) +
-          '?alt=media',
-        method: 'GET'
-      })
-      .then(function (response) {
-        drive_data = response.result;
-      })
-      .catch(function (error) {
-        configSyncAlert('CS504 - ' + JSON.stringify(error));
-      });
+	/**
+	 * Get Remote updated date
+	 * - Only fetch once and cache in property to avoid lots of calls
+	 * - Used to determine whether sync might be needed
+	 */
+	getRemoteUpdatedAt: async function () {
+		if (google_drive.remote_updated == null) {
+			const signed_in = get(configSyncIsSignedIn);
+			if (!signed_in) {
+				return 0;
+			}
 
-    return drive_data;
-  },
+			const local_data = get(configData);
 
-  /**
-   * Write config file contents to Google Drive
-   *  - Return ID of file
-   */
-  writeConfig: async function (data, file_id = 0) {
-    const jsonData = JSON.stringify(data);
-    const metadata = {
-      name: 'config.json',
-      mimeType: 'application/json'
-    };
+			if (
+				'sync' in local_data &&
+				'google_drive' in local_data.sync &&
+				'file_id' in local_data.sync.google_drive &&
+				local_data.sync.google_drive.file_id !== 0
+			) {
+				const drive_data = await google_drive.readConfig(
+					local_data.sync.google_drive.file_id
+				);
 
-    if (!file_id) {
-      metadata.parents = ['appDataFolder'];
-    }
+				if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+					google_drive.remote_updated_at = drive_data.updated_at;
+				}
+			}
+		}
 
-    var multipart = new MultiPartBuilder()
-      .append('application/json', JSON.stringify(metadata))
-      .append(metadata.mimeType, jsonData)
-      .finish();
+		return google_drive.remote_updated_at;
+	},
 
-    await gapi.client
-      .request({
-        path:
-          'https://content.googleapis.com/upload/drive/v3/files/' +
-          (file_id ? encodeURIComponent(file_id) : '') +
-          '?uploadType=multipart&fields=id',
-        method: file_id ? 'PATCH' : 'POST',
-        params: {
-          uploadType: 'multipart',
-          supportsTeamDrives: true,
-          fields: 'id'
-        },
-        headers: { 'Content-Type': multipart.type },
-        body: multipart.body
-      })
-      .then(response => {
-        file_id = response.result.id;
-        configSyncAlert('Config saved successfully (ID ' + file_id + ')');
-      })
-      .catch(error => {
-        configSyncAlert('CS505 - ' + JSON.stringify(error), 'error');
-      });
+	/**
+	 * Read config file contents from Google Drive
+	 *  - Return file contents
+	 */
+	readConfig: async function (file_id) {
+		let drive_data = false;
 
-    return file_id;
-  }
+		await gapi.client
+			.request({
+				path:
+					'https://www.googleapis.com/drive/v3/files/' +
+					encodeURIComponent(file_id) +
+					'?alt=media',
+				method: 'GET'
+			})
+			.then(function (response) {
+				drive_data = response.result;
+			})
+			.catch(function (error) {
+				configSyncAlert('CS504 - ' + JSON.stringify(error));
+			});
+
+		return drive_data;
+	},
+
+	/**
+	 * Write config file contents to Google Drive
+	 *  - Return ID of file
+	 */
+	writeConfig: async function (data, file_id = 0) {
+		const jsonData = JSON.stringify(data);
+		const metadata = {
+			name: 'config.json',
+			mimeType: 'application/json'
+		};
+
+		if (!file_id) {
+			metadata.parents = ['appDataFolder'];
+		}
+
+		var multipart = new MultiPartBuilder()
+			.append('application/json', JSON.stringify(metadata))
+			.append(metadata.mimeType, jsonData)
+			.finish();
+
+		await gapi.client
+			.request({
+				path:
+					'https://content.googleapis.com/upload/drive/v3/files/' +
+					(file_id ? encodeURIComponent(file_id) : '') +
+					'?uploadType=multipart&fields=id',
+				method: file_id ? 'PATCH' : 'POST',
+				params: {
+					uploadType: 'multipart',
+					supportsTeamDrives: true,
+					fields: 'id'
+				},
+				headers: { 'Content-Type': multipart.type },
+				body: multipart.body
+			})
+			.then(response => {
+				file_id = response.result.id;
+				configSyncAlert('Config saved successfully (ID ' + file_id + ')');
+			})
+			.catch(error => {
+				configSyncAlert('CS505 - ' + JSON.stringify(error), 'error');
+			});
+
+		return file_id;
+	}
 };
