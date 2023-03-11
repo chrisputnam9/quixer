@@ -36,8 +36,6 @@ export const google_drive = {
 	 */
 	remote_updated_at: null,
 
-	gapiLoad: null,
-	gapiError: null,
 	gisLoad: null,
 	gisError: null,
 
@@ -49,17 +47,8 @@ export const google_drive = {
 	init: async function () {
 		const self = this;
 
-		const gapiLoadPromise = new Promise((resolve, reject) => {
-			self.gapiLoad = resolve;
-			self.gapiError = reject;
-		});
-		const gisLoadPromise = new Promise((resolve, reject) => {
-			self.gisLoad = resolve;
-			self.gisError = reject;
-		});
-
 		// Load and initialize gapi.client
-		await gapiLoadPromise;
+		const gapi = await util.newWindowVarPromise('gapi');
 		await new Promise((resolve, reject) => {
 			gapi.load('client', { callback: resolve, onerror: reject });
 		});
@@ -68,7 +57,7 @@ export const google_drive = {
 		});
 
 		// Load the GIS client
-		await gisLoadPromise;
+		const google = await util.newWindowVarPromise('google');
 		await new Promise((resolve, reject) => {
 			try {
 				self.tokenClient = google.accounts.oauth2.initTokenClient({
