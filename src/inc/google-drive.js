@@ -1,4 +1,4 @@
-/* global gapi google GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
+/* global GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
 import { syncData } from './sync-logic.js';
@@ -36,32 +36,32 @@ export const google_drive = {
 	 */
 	remote_updated_at: null,
 
-	gisLoad: null,
-	gisError: null,
-
+	gapi: null,
+	google: null,
 	tokenClient: null,
 
 	/**
 	 * Initialize GAPI and GIS
 	 */
 	init: async function () {
-		const self = this;
-
 		// Load and initialize gapi.client
-		const gapi = await util.newWindowVarPromise('gapi');
+		google_drive.gapi = await util.newWindowVarPromise('gapi');
 		await new Promise((resolve, reject) => {
-			gapi.load('client', { callback: resolve, onerror: reject });
+			google_drive.gapi.load('client', { callback: resolve, onerror: reject });
 		});
-		await gapi.client.init({}).then(function () {
-			gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');
+		await google_drive.gapi.client.init({}).then(function () {
+			google_drive.gapi.client.load(
+				'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+			);
 		});
 
 		// Load the GIS client
-		const google = await util.newWindowVarPromise('google');
+		google_drive.google = await util.newWindowVarPromise('google');
 		await new Promise((resolve, reject) => {
 			try {
-				self.tokenClient = google.accounts.oauth2.initTokenClient({
+				google_drive.tokenClient = google_drive.google.accounts.oauth2.initTokenClient({
 					client_id: GOOGLE_DRIVE_CLIENT_ID,
+					api_key: GOOGLE_DRIVE_API_KEY,
 					scope:
 						'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file',
 					prompt: 'consent',
@@ -72,6 +72,9 @@ export const google_drive = {
 				reject(err);
 			}
 		});
+
+		// Test it out - try and find config
+		google_drive.findConfig();
 	},
 
 	/**
@@ -281,7 +284,7 @@ export const google_drive = {
 	findConfig: async function () {
 		let file_id = 0;
 
-		await gapi.client.drive.files
+		google_drive.gapi.client.drive.files
 			.list({
 				spaces: 'appDataFolder',
 				q: 'name = "config.json"',
@@ -289,6 +292,7 @@ export const google_drive = {
 				pageSize: 10
 			})
 			.then(response => {
+				console.log(response);
 				if (response.result.files && response.result.files.length > 0) {
 					if (response.result.files.length > 1) {
 						configSyncAlert(
@@ -301,6 +305,7 @@ export const google_drive = {
 				}
 			})
 			.catch(error => {
+				console.log('ERROR');
 				configSyncAlert('CS503 - ' + JSON.stringify(error));
 			});
 

@@ -1,5 +1,4 @@
 <script>
-	/* TODO MAYBE REMOVE API.JS ? */
 	import Alert from './view/Alert.svelte';
 	import Config from './view/Config.svelte';
 	import Search from './view/Search.svelte';
