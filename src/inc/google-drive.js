@@ -49,11 +49,15 @@ export const google_drive = {
 		await new Promise((resolve, reject) => {
 			google_drive.gapi.load('client', { callback: resolve, onerror: reject });
 		});
-		await google_drive.gapi.client.init({}).then(function () {
-			google_drive.gapi.client.load(
-				'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
-			);
-		});
+		await google_drive.gapi.client
+			.init({
+				// api_key: GOOGLE_DRIVE_API_KEY
+			})
+			.then(function () {
+				google_drive.gapi.client.load(
+					'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+				);
+			});
 
 		// Load the GIS client
 		google_drive.google = await util.newWindowVarPromise('google');
@@ -61,7 +65,6 @@ export const google_drive = {
 			try {
 				google_drive.tokenClient = google_drive.google.accounts.oauth2.initTokenClient({
 					client_id: GOOGLE_DRIVE_CLIENT_ID,
-					api_key: GOOGLE_DRIVE_API_KEY,
 					scope:
 						'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file',
 					prompt: 'consent',
@@ -77,11 +80,42 @@ export const google_drive = {
 		google_drive.findConfig();
 	},
 
+	getToken: async function (error) {
+		if (
+			error.result.error.code == 401 ||
+			(error.result.error.code == 403 && error.result.error.status == 'PERMISSION_DENIED')
+		) {
+			// The access token is missing, invalid, or expired, prompt for user consent to obtain one.
+			await new Promise((resolve, reject) => {
+				try {
+					// Settle this promise in the response callback for requestAccessToken()
+					google_drive.tokenClient.callback = resp => {
+						if (resp.error !== undefined) {
+							reject(resp);
+						}
+						// GIS has automatically updated gapi.client with the newly issued access token.
+						console.log(
+							'gapi.client access token: ' +
+								JSON.stringify(google_drive.gapi.client.getToken())
+						);
+						resolve(resp);
+					};
+					google_drive.tokenClient.requestAccessToken();
+				} catch (error) {
+					console.err(error);
+				}
+			});
+		} else {
+			// Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
+			throw new Error(error);
+		}
+	},
+
 	/**
 	 * Handle API Load
 	 */
 	onLoad: function () {
-		gapi.load('client:auth2', google_drive.initClient);
+		// gapi.load('client:auth2', google_drive.initClient);
 
 		// Listen for sign-in
 		configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
@@ -284,13 +318,8 @@ export const google_drive = {
 	findConfig: async function () {
 		let file_id = 0;
 
-		google_drive.gapi.client.drive.files
-			.list({
-				spaces: 'appDataFolder',
-				q: 'name = "config.json"',
-				fields: 'nextPageToken, files(*)',
-				pageSize: 10
-			})
+		google_drive
+			._findConfig()
 			.then(response => {
 				console.log(response);
 				if (response.result.files && response.result.files.length > 0) {
@@ -304,12 +333,20 @@ export const google_drive = {
 					file_id = response.result.files[0].id;
 				}
 			})
-			.catch(error => {
-				console.log('ERROR');
-				configSyncAlert('CS503 - ' + JSON.stringify(error));
-			});
+			.catch(error => google_drive.getToken(error))
+			.then(google_drive._findConfig)
+			.catch(console.err);
 
 		return file_id;
+	},
+
+	_findConfig: async function () {
+		return await google_drive.gapi.client.drive.files.list({
+			spaces: 'appDataFolder',
+			q: 'name = "config.json"',
+			fields: 'nextPageToken, files(*)',
+			pageSize: 10
+		});
 	},
 
 	/**
