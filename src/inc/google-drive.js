@@ -51,7 +51,7 @@ export const google_drive = {
 		});
 		await google_drive.gapi.client
 			.init({
-				// api_key: GOOGLE_DRIVE_API_KEY
+				apiKey: GOOGLE_DRIVE_API_KEY
 			})
 			.then(function () {
 				google_drive.gapi.client.load(
@@ -100,14 +100,14 @@ export const google_drive = {
 						);
 						resolve(resp);
 					};
-					google_drive.tokenClient.requestAccessToken();
+					google_drive.tokenClient.requestAccessToken({ prompt: '' });
 				} catch (error) {
 					console.err(error);
 				}
 			});
 		} else {
 			// Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
-			throw new Error(error);
+			throw new Error(error.body);
 		}
 	},
 
