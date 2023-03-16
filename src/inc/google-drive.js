@@ -67,7 +67,6 @@ export const google_drive = {
 					client_id: GOOGLE_DRIVE_CLIENT_ID,
 					scope:
 						'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file',
-					prompt: 'consent',
 					callback: '' // defined at request time in await/promise scope.
 				});
 				resolve();
@@ -77,7 +76,12 @@ export const google_drive = {
 		});
 
 		// Test it out - try and find config
-		google_drive.findConfig();
+		google_drive.tokenClient.callback = google_drive.findConfig;
+		if (google_drive.gapi.client.getToken() === null) {
+			google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
+		} else {
+			google_drive.tokenClient.requestAccessToken({ prompt: '' });
+		}
 	},
 
 	getToken: async function (error) {
@@ -100,7 +104,7 @@ export const google_drive = {
 						);
 						resolve(resp);
 					};
-					google_drive.tokenClient.requestAccessToken({ prompt: '' });
+					google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
 				} catch (error) {
 					console.err(error);
 				}
@@ -343,8 +347,8 @@ export const google_drive = {
 	_findConfig: async function () {
 		return await google_drive.gapi.client.drive.files.list({
 			spaces: 'appDataFolder',
-			q: 'name = "config.json"',
-			fields: 'nextPageToken, files(*)',
+			q: 'name="config.json"',
+			fields: 'nextPageToken,files(*)',
 			pageSize: 10
 		});
 	},
