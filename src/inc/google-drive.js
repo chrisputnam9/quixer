@@ -76,12 +76,15 @@ export const google_drive = {
 		});
 
 		// Test it out - try and find config
-		google_drive.tokenClient.callback = google_drive.findConfig;
-		if (google_drive.gapi.client.getToken() === null) {
-			google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
-		} else {
-			google_drive.tokenClient.requestAccessToken({ prompt: '' });
-		}
+		google_drive.tokenClient.callback = function () {
+			console.log(google_drive.gapi.client.getToken());
+			google_drive.findConfig();
+		};
+		// if (google_drive.gapi.client.getToken() === null) {
+		// google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
+		// } else {
+		google_drive.tokenClient.requestAccessToken({ prompt: '' });
+		// }
 	},
 
 	getToken: async function (error) {
