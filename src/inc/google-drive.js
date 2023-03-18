@@ -3,6 +3,7 @@
 import { get } from 'svelte/store';
 import { syncData } from './sync-logic.js';
 import { util } from './util.js';
+import { local_storage } from './local-storage.js';
 import {
 	CONFIG_SYNC_SAVE_STATE,
 	configSyncAlert,
@@ -75,16 +76,28 @@ export const google_drive = {
 			}
 		});
 
-		// Test it out - try and find config
+		// See if we have a token saved in local storage
+		try {
+			const tokenJson = local_storage.get('google_drive_gapi_client_token');
+			if (tokenJson) {
+				const token = JSON.parse(tokenJson);
+				google_drive.gapi.client.setToken(token);
+				google_drive.findConfig();
+				return;
+			}
+		} catch (error) {
+			console.error(
+				'Invalid token stored in local storage or unable to retreive token',
+				'Fresh token will be fetched instead'
+			);
+		}
+
+		// No token, so we need to get one
+		google_drive.getToken().then(google_drive.findConfig);
 		google_drive.tokenClient.callback = function () {
-			console.log(google_drive.gapi.client.getToken());
 			google_drive.findConfig();
 		};
-		// if (google_drive.gapi.client.getToken() === null) {
-		// google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
-		// } else {
 		google_drive.tokenClient.requestAccessToken({ prompt: '' });
-		// }
 	},
 
 	getToken: async function (error) {
@@ -101,15 +114,14 @@ export const google_drive = {
 							reject(resp);
 						}
 						// GIS has automatically updated gapi.client with the newly issued access token.
-						console.log(
-							'gapi.client access token: ' +
-								JSON.stringify(google_drive.gapi.client.getToken())
-						);
+						const token = google_drive.gapi.client.getToken();
+						// We save it into local storage for next time
+						local_storage.set('google_drive_gapi_client_token', JSON.stringify(token));
 						resolve(resp);
 					};
 					google_drive.tokenClient.requestAccessToken({ prompt: 'consent' });
 				} catch (error) {
-					console.err(error);
+					console.error(error);
 				}
 			});
 		} else {
@@ -342,7 +354,7 @@ export const google_drive = {
 			})
 			.catch(error => google_drive.getToken(error))
 			.then(google_drive._findConfig)
-			.catch(console.err);
+			.catch(console.error);
 
 		return file_id;
 	},
