@@ -78,28 +78,47 @@ export const google_drive = {
 			}
 		});
 
+		configSyncIsAvailableForSignIn.set(true);
+
 		// See if we have a token saved in local storage
 		try {
 			const tokenJson = local_storage.get('google_drive_gapi_client_token');
 			if (tokenJson) {
 				const token = JSON.parse(tokenJson);
 				google_drive.gapi.client.setToken(token);
-				google_drive.findConfig();
+				configSyncIsSignedIn.set(true);
 				return;
 			}
 		} catch (error) {
-			console.error(
+			console.warn(
 				'Invalid token stored in local storage or unable to retreive token',
 				'Fresh token will be fetched instead'
 			);
 		}
 
+		configSyncIsSignedIn.set(false);
+
+		/*
 		// No token, so we need to get one
-		google_drive.getToken().then(google_drive.findConfig);
 		google_drive.tokenClient.callback = function () {
-			google_drive.findConfig();
+			google_drive.checkSyncAndChangeDates();
 		};
 		google_drive.tokenClient.requestAccessToken({ prompt: '' });
+		*/
+	},
+
+	/**
+	 * Get a fresh valid token
+	 */
+	logIn: function () {},
+
+	/**
+	 * Invalidate the current token/session
+	 */
+	logOut: function () {
+		google_drive.gapi.client.setToken(null);
+		configSyncIsSignedIn.set(false);
+		local_storage.set('google_drive_gapi_client_token', null);
 	},
 
 	getToken: async function (error) {
