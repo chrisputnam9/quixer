@@ -83,17 +83,14 @@ export const google_drive = {
 		// See if we have a token saved in local storage
 		try {
 			const tokenJson = local_storage.get('google_drive_gapi_client_token');
-			if (tokenJson) {
-				const token = JSON.parse(tokenJson);
-				google_drive.gapi.client.setToken(token);
-				configSyncIsSignedIn.set(true);
-				return;
-			}
+			if (!tokenJson) throw new Error('No Google account token saved in local storage');
+			const token = JSON.parse(tokenJson);
+			if (!token) throw new Error('Invalid JSON saved for Google account token');
+			google_drive.gapi.client.setToken(token);
+			configSyncIsSignedIn.set(true);
+			return;
 		} catch (error) {
-			console.warn(
-				'Invalid token stored in local storage or unable to retreive token',
-				'Fresh token will be fetched instead'
-			);
+			console.warn('NOT logged in due to invalid local Google account token\n', error);
 		}
 
 		configSyncIsSignedIn.set(false);
@@ -110,19 +107,22 @@ export const google_drive = {
 	/**
 	 * Get a fresh valid token
 	 */
-	logIn: function () {},
+	logIn: function () {
+		google_drive.getToken();
+	},
 
 	/**
 	 * Invalidate the current token/session
 	 */
 	logOut: function () {
 		google_drive.gapi.client.setToken(null);
+		local_storage.remove('google_drive_gapi_client_token');
 		configSyncIsSignedIn.set(false);
-		local_storage.set('google_drive_gapi_client_token', null);
 	},
 
 	getToken: async function (error) {
 		if (
+			typeof error === 'undefined' ||
 			error.result.error.code == 401 ||
 			(error.result.error.code == 403 && error.result.error.status == 'PERMISSION_DENIED')
 		) {
@@ -138,6 +138,7 @@ export const google_drive = {
 						const token = google_drive.gapi.client.getToken();
 						// We save it into local storage for next time
 						local_storage.set('google_drive_gapi_client_token', JSON.stringify(token));
+						configSyncIsSignedIn.set(true);
 						resolve(resp);
 					};
 					google_drive.tokenClient.requestAccessToken({ prompt: '' });

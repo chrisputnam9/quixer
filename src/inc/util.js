@@ -90,7 +90,7 @@ export const util = {
 	newWindowVarPromise: function (varname, maxSecondsToWait = 300) {
 		return new Promise(function (resolve, reject) {
 			const maxMillisecondsToWait = maxSecondsToWait * 1000;
-			const millisecondsPerInterval = 500;
+			const millisecondsPerInterval = 100;
 			let millisecondsWaited = 0;
 
 			const interval = window.setInterval(function () {
