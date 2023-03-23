@@ -47,6 +47,10 @@ export const google_drive = {
 	 * Initialize GAPI and GIS
 	 */
 	init: async function () {
+		// Listen for sign in or data change and check for possible sync needed
+		configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
+		configData.subscribe(google_drive.checkSyncAndChangeDates);
+
 		// Load and initialize gapi.client
 		google_drive.gapi = await util.newWindowVarPromise('gapi');
 		await new Promise((resolve, reject) => {
@@ -80,7 +84,7 @@ export const google_drive = {
 
 		configSyncIsAvailableForSignIn.set(true);
 
-		// See if we have a token saved in local storage
+		// See if we have a token saved in local storage already
 		try {
 			const tokenJson = local_storage.get('google_drive_gapi_client_token');
 			if (!tokenJson) throw new Error('No Google account token saved in local storage');
@@ -93,15 +97,9 @@ export const google_drive = {
 			console.warn('NOT logged in due to invalid local Google account token\n', error);
 		}
 
-		configSyncIsSignedIn.set(false);
+		// @TODO Check expiration of token
 
-		/*
-		// No token, so we need to get one
-		google_drive.tokenClient.callback = function () {
-			google_drive.checkSyncAndChangeDates();
-		};
-		google_drive.tokenClient.requestAccessToken({ prompt: '' });
-		*/
+		configSyncIsSignedIn.set(false);
 	},
 
 	/**
@@ -150,6 +148,37 @@ export const google_drive = {
 			// Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
 			throw new Error(error.body);
 		}
+	},
+
+	/**
+	 * If signed in, check sync and change dates, maybe alert
+	 * - Listens for login state to change
+	 * - Listens for config data to change
+	 */
+	checkSyncAndChangeDates: async function (changed_data) {
+		// Whether signed into Google Drive
+		const is_signed_in =
+			typeof changed_data == 'boolean' ? changed_data : get(configSyncIsSignedIn);
+
+		// Local Config Data
+		const config_data = util.isObject(changed_data) ? changed_data : get(configData);
+		const local_updated_at = config_data.upated_at ?? 0;
+		const local_synced_at = config_data.sync?.google_drive?.synced_at ?? 0;
+
+		// If not currently signed in and never synced before, don't show any warnings
+		if (!is_signed_in && !local_synced_at) {
+			return false;
+		}
+
+		// If no new local changes, check remote updated date
+		if (!local_updated_after_sync) {
+			remote_updated_at = await google_drive.getRemoteUpdatedAt();
+			remote_updated_after_sync = remote_updated_at > local_synced_at;
+		}
+
+		let local_updated_after_sync = false;
+		let remote_updated_after_sync = false;
+		let remote_updated_at = 0;
 	},
 
 	/**
