@@ -152,8 +152,8 @@ export const google_drive = {
 
 	/**
 	 * If signed in, check sync and change dates, maybe alert
-	 * - Listens for login state to change
-	 * - Listens for config data to change
+	 * - Listens for login state to change -> boolean passed
+	 * - Listens for config data to change -> object passed
 	 */
 	checkSyncAndChangeDates: async function (changed_data) {
 		// Whether signed into Google Drive
@@ -164,21 +164,52 @@ export const google_drive = {
 		const config_data = util.isObject(changed_data) ? changed_data : get(configData);
 		const local_updated_at = config_data.upated_at ?? 0;
 		const local_synced_at = config_data.sync?.google_drive?.synced_at ?? 0;
+		const local_updated_after_sync = local_updated_at > local_synced_at;
+
+		// Remote sync data - (will return 0 if not signed in)
+		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
 
 		// If not currently signed in and never synced before, don't show any warnings
+		// - wait for them to log in
 		if (!is_signed_in && !local_synced_at) {
 			return false;
 		}
 
-		// If no new local changes, check remote updated date
-		if (!local_updated_after_sync) {
-			remote_updated_at = await google_drive.getRemoteUpdatedAt();
-			remote_updated_after_sync = remote_updated_at > local_synced_at;
+		if (local_updated_after_sync || remote_updated_at > local_synced_at) {
+			configSyncAlert(
+				(local_updated_after_sync ? 'Local' : 'Remote') +
+					' changes made since last sync.  You may wish to sync now.'
+			);
+		}
+	},
+
+	/**
+	 * Get Remote updated date
+	 * - Only fetch once and cache in property to avoid extra calls
+	 * - Used to determine whether sync might be needed
+	 */
+	getRemoteUpdatedAt: async function () {
+		if (google_drive.remote_updated_at == null) {
+			const signed_in = get(configSyncIsSignedIn);
+			if (!signed_in) {
+				return 0;
+			}
+
+			const local_data = get(configData);
+			const config_file_id = local_data.sync?.google_drive?.file_id ?? 0;
+
+			if (config_file_id !== 0) {
+				const drive_data = await google_drive.readConfig(config_file_id);
+
+				if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+					// Note: we only cache if we got a value
+					// - otherwise, we should try again on the next call
+					google_drive.remote_updated_at = drive_data.updated_at;
+				}
+			}
 		}
 
-		let local_updated_after_sync = false;
-		let remote_updated_after_sync = false;
-		let remote_updated_at = 0;
+		return google_drive.remote_updated_at;
 	},
 
 	/**
