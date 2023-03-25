@@ -6,9 +6,9 @@ const query_match = search_logic.checkForQuery();
 search_logic.deinit();
 
 if (!query_match) {
-  var app = new App({
-    target: document.body
-  });
+	var app = new App({
+		target: document.body
+	});
 }
 
 export default app;
