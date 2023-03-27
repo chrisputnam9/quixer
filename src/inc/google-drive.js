@@ -41,8 +41,6 @@ export const google_drive = {
 	google: null,
 	tokenClient: null,
 
-	configFileId: 0,
-
 	/**
 	 * Initialize GAPI and GIS
 	 */
@@ -195,10 +193,8 @@ export const google_drive = {
 				return 0;
 			}
 
-			const local_data = get(configData);
-			const config_file_id = local_data.sync?.google_drive?.file_id ?? 0;
-
-			if (config_file_id !== 0) {
+			const config_file_id = await google_drive.findConfig();
+			if (config_file_id) {
 				const drive_data = await google_drive.readConfig(config_file_id);
 
 				if (util.isObject(drive_data) && 'updated_at' in drive_data) {
@@ -213,11 +209,153 @@ export const google_drive = {
 	},
 
 	/**
+	 * Sync Google Drive config data with passed data param
+	 *  - Save merged data
+	 *  - Return merged data
+	 */
+	sync: async function (local_data) {
+		if (!get(configSyncIsSignedIn)) {
+			configSyncAlert(
+				'<a href="/#config">Sign in to your Google Drive account</a> to back up and sync your config.',
+				'warning'
+			);
+			configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING_LOGIN);
+			return local_data;
+		}
+
+		configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
+		configSyncAlert('Syncing config to Google Drive');
+
+		let drive_data = false;
+		let successful = true;
+
+		// If config file exists, read it in and sync the data
+		const config_file_id = await google_drive.findConfig();
+		if (config_file_id !== 0) {
+			configSyncAlert('Existing config found - reading & syncing...');
+			drive_data = await google_drive.readConfig(config_file_id);
+			if (drive_data) {
+				local_data = syncData(local_data, drive_data);
+			} else {
+				successful = false;
+			}
+		} else {
+			configSyncAlert('No existing config file found - it will be created');
+		}
+
+		// Write the synced data to Google Drive
+		// - as long as we've been successful so far
+		if (successful) {
+			configSyncAlert('Writing to Google Drive...');
+			const file_id = await google_drive.writeConfig(
+				local_data,
+				local_data.sync.google_drive.file_id
+			);
+			if (file_id === 0) {
+				successful = false;
+			} else {
+				local_data.sync.google_drive.file_id = file_id;
+				local_data.sync.google_drive.synced_at = util.timestamp();
+			}
+		}
+
+		// As long as everything has worked out so far...
+		// - If there were issues along the way, errors or warnings would already be showing
+		if (successful) {
+			// Show success, wait a bit, then show pending again
+			configSyncAlert('Sync Successful!', 'success');
+		}
+
+		window.setTimeout(function () {
+			configSyncMessageShow.set(false);
+			configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.PENDING);
+		}, 2000);
+
+		return local_data;
+	},
+
+	/**
+	 * Read config file contents from Google Drive
+	 *  - Return file contents
+	 */
+	readConfig: async function (file_id) {
+		let drive_data = false;
+
+		await google_drive.gapi.client
+			.request({
+				path:
+					'https://www.googleapis.com/drive/v3/files/' +
+					encodeURIComponent(file_id) +
+					'?alt=media',
+				method: 'GET'
+			})
+			.then(function (response) {
+				drive_data = response.result;
+			})
+			.catch(function (error) {
+				configSyncAlert('CS504 - ' + JSON.stringify(error));
+			});
+
+		return drive_data;
+	},
+
+	/**
+	 * Write config file contents to Google Drive
+	 *  - Return ID of file
+	 */
+	writeConfig: async function (data, file_id = 0) {
+		const jsonData = JSON.stringify(data);
+		const metadata = {
+			name: 'config.json',
+			mimeType: 'application/json'
+		};
+
+		if (!file_id) {
+			metadata.parents = ['appDataFolder'];
+		}
+
+		var multipart = new MultiPartBuilder()
+			.append('application/json', JSON.stringify(metadata))
+			.append(metadata.mimeType, jsonData)
+			.finish();
+
+		await google_drive.gapi.client
+			.request({
+				path:
+					'https://content.googleapis.com/upload/drive/v3/files/' +
+					(file_id ? encodeURIComponent(file_id) : '') +
+					'?uploadType=multipart&fields=id',
+				method: file_id ? 'PATCH' : 'POST',
+				params: {
+					uploadType: 'multipart',
+					supportsTeamDrives: true,
+					fields: 'id'
+				},
+				headers: { 'Content-Type': multipart.type },
+				body: multipart.body
+			})
+			.then(response => {
+				file_id = response.result.id;
+				configSyncAlert('Config saved successfully (ID ' + file_id + ')');
+			})
+			.catch(error => {
+				configSyncAlert('CS505 - ' + JSON.stringify(error), 'error');
+			});
+
+		return file_id;
+	},
+
+	/**
 	 * Find config file in Google Drive if it exists
 	 *  - Return file id if exists, otherwise 0
 	 */
 	findConfig: async function () {
-		google_drive._findConfig().catch(error => {
+		const local_data = get(configData);
+		const config_file_id = local_data.sync?.google_drive?.file_id ?? 0;
+		if (config_file_id !== 0) {
+			return config_file_id;
+		}
+		await google_drive._findConfig().catch(error => {
 			// If token expired or was invalidated, try getting a fresh one
 			console.log('ERROR: ', error);
 			google_drive
@@ -226,6 +364,8 @@ export const google_drive = {
 				.then(google_drive._findConfig)
 				.catch(console.error);
 		});
+		todo return local data value here?
+		return google_drive.configFileId;
 	},
 
 	_findConfig: async function () {
@@ -250,6 +390,7 @@ export const google_drive = {
 				);
 			}
 
+			todo set local data value here as well?
 			google_drive.configFileId = response.result.files[0].id;
 		}
 	}
