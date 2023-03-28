@@ -41,6 +41,8 @@ export const google_drive = {
 	google: null,
 	tokenClient: null,
 
+	configFileId: 0,
+
 	/**
 	 * Initialize GAPI and GIS
 	 */
@@ -154,18 +156,28 @@ export const google_drive = {
 	 * - Listens for config data to change -> object passed
 	 */
 	checkSyncAndChangeDates: async function (changed_data) {
+		console.log('checkSyncAndChangeDates');
+
 		// Whether signed into Google Drive
 		const is_signed_in =
 			typeof changed_data == 'boolean' ? changed_data : get(configSyncIsSignedIn);
 
 		// Local Config Data
 		const config_data = util.isObject(changed_data) ? changed_data : get(configData);
-		const local_updated_at = config_data.upated_at ?? 0;
+		const local_updated_at = config_data.updated_at ?? 0;
 		const local_synced_at = config_data.sync?.google_drive?.synced_at ?? 0;
 		const local_updated_after_sync = local_updated_at > local_synced_at;
 
 		// Remote sync data - (will return 0 if not signed in)
 		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
+
+		console.log({
+			config_data,
+			local_updated_at,
+			local_synced_at,
+			local_updated_after_sync,
+			remote_updated_at
+		});
 
 		// If not currently signed in and never synced before, don't show any warnings
 		// - wait for them to log in
@@ -194,7 +206,7 @@ export const google_drive = {
 			}
 
 			const config_file_id = await google_drive.findConfig();
-			if (config_file_id) {
+			if (config_file_id !== 0) {
 				const drive_data = await google_drive.readConfig(config_file_id);
 
 				if (util.isObject(drive_data) && 'updated_at' in drive_data) {
@@ -350,11 +362,21 @@ export const google_drive = {
 	 *  - Return file id if exists, otherwise 0
 	 */
 	findConfig: async function () {
-		const local_data = get(configData);
-		const config_file_id = local_data.sync?.google_drive?.file_id ?? 0;
+		// See if we already have the ID stored on this object
+		let config_file_id = google_drive.configFileId;
 		if (config_file_id !== 0) {
 			return config_file_id;
 		}
+
+		// See if we have the ID in local data
+		const local_data = get(configData);
+		config_file_id = local_data.sync.google_drive.file_id;
+		if (config_file_id !== 0) {
+			google_drive.configFileId = config_file_id;
+			return config_file_id;
+		}
+
+		// Try and find the config file
 		await google_drive._findConfig().catch(error => {
 			// If token expired or was invalidated, try getting a fresh one
 			console.log('ERROR: ', error);
@@ -364,7 +386,9 @@ export const google_drive = {
 				.then(google_drive._findConfig)
 				.catch(console.error);
 		});
-		todo return local data value here?
+
+		// Return the file ID (or 0 if not found)
+		// - will be set by _processConfig
 		return google_drive.configFileId;
 	},
 
@@ -390,7 +414,6 @@ export const google_drive = {
 				);
 			}
 
-			todo set local data value here as well?
 			google_drive.configFileId = response.result.files[0].id;
 		}
 	}
