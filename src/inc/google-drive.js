@@ -156,8 +156,6 @@ export const google_drive = {
 	 * - Listens for config data to change -> object passed
 	 */
 	checkSyncAndChangeDates: async function (changed_data) {
-		console.log('checkSyncAndChangeDates');
-
 		// Whether signed into Google Drive
 		const is_signed_in =
 			typeof changed_data == 'boolean' ? changed_data : get(configSyncIsSignedIn);
@@ -170,14 +168,6 @@ export const google_drive = {
 
 		// Remote sync data - (will return 0 if not signed in)
 		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
-
-		console.log({
-			config_data,
-			local_updated_at,
-			local_synced_at,
-			local_updated_after_sync,
-			remote_updated_at
-		});
 
 		// If not currently signed in and never synced before, don't show any warnings
 		// - wait for them to log in
@@ -205,15 +195,12 @@ export const google_drive = {
 				return 0;
 			}
 
-			const config_file_id = await google_drive.findConfig();
-			if (config_file_id !== 0) {
-				const drive_data = await google_drive.readConfig(config_file_id);
+			const drive_data = await google_drive.readConfig();
 
-				if (util.isObject(drive_data) && 'updated_at' in drive_data) {
-					// Note: we only cache if we got a value
-					// - otherwise, we should try again on the next call
-					google_drive.remote_updated_at = drive_data.updated_at;
-				}
+			if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+				// Note: we only cache if we got a value
+				// - otherwise, we should try again on the next call
+				google_drive.remote_updated_at = drive_data.updated_at;
 			}
 		}
 
@@ -241,18 +228,16 @@ export const google_drive = {
 		let drive_data = false;
 		let successful = true;
 
-		// If config file exists, read it in and sync the data
-		const config_file_id = await google_drive.findConfig();
-		if (config_file_id !== 0) {
-			configSyncAlert('Existing config found - reading & syncing...');
-			drive_data = await google_drive.readConfig(config_file_id);
-			if (drive_data) {
-				local_data = syncData(local_data, drive_data);
-			} else {
-				successful = false;
-			}
+		// Attempt to read in remote config file
+		drive_data = await google_drive.readConfig();
+		if (util.isObject(drive_data)) {
+			configSyncAlert('Existing remote config found - reading & syncing...');
+			local_data = syncData(local_data, drive_data);
+		} else if (drive_data === false) {
+			configSyncAlert('No existing remote config file found - it will be created');
 		} else {
-			configSyncAlert('No existing config file found - it will be created');
+			configSyncAlert('CS506 - Remote config file found, but failed to read it', 'error');
+			successful = false;
 		}
 
 		// Write the synced data to Google Drive
@@ -290,25 +275,41 @@ export const google_drive = {
 	 * Read config file contents from Google Drive
 	 *  - Return file contents
 	 */
-	readConfig: async function (file_id) {
-		let drive_data = false;
+	readConfig: async function () {
+		// Try and read the config file
+		return await google_drive._readConfig().catch(error => {
+			// If token expired or was invalidated, try getting a fresh one
+			return (
+				google_drive
+					.getToken(error)
+					// Then try again to read config
+					.then(google_drive._readConfig)
+					.catch(function (error) {
+						configSyncAlert('CS504 - ' + JSON.stringify(error), 'error');
+					})
+			);
+		});
+	},
 
-		await google_drive.gapi.client
+	_readConfig: async function () {
+		const config_file_id = await google_drive.findConfig();
+		if (config_file_id === 0) {
+			return false;
+		}
+
+		return google_drive.gapi.client
 			.request({
 				path:
 					'https://www.googleapis.com/drive/v3/files/' +
-					encodeURIComponent(file_id) +
+					encodeURIComponent(config_file_id) +
 					'?alt=media',
 				method: 'GET'
 			})
-			.then(function (response) {
-				drive_data = response.result;
-			})
-			.catch(function (error) {
-				configSyncAlert('CS504 - ' + JSON.stringify(error));
-			});
+			.then(google_drive._processReadConfig);
+	},
 
-		return drive_data;
+	_processReadConfig: async function (response) {
+		return response.result ?? null;
 	},
 
 	/**
@@ -379,21 +380,21 @@ export const google_drive = {
 		// Try and find the config file
 		await google_drive._findConfig().catch(error => {
 			// If token expired or was invalidated, try getting a fresh one
-			console.log('ERROR: ', error);
 			google_drive
 				.getToken(error)
 				// Then try again to find config
 				.then(google_drive._findConfig)
-				.catch(console.error);
+				.catch(function (error) {
+					configSyncAlert('CS507 - ' + JSON.stringify(error), 'error');
+				});
 		});
 
 		// Return the file ID (or 0 if not found)
-		// - will be set by _processConfig
+		// - will be set by _processFindConfig
 		return google_drive.configFileId;
 	},
 
 	_findConfig: async function () {
-		console.log('_findConfig');
 		return google_drive.gapi.client.drive.files
 			.list({
 				spaces: 'appDataFolder',
@@ -401,11 +402,10 @@ export const google_drive = {
 				fields: 'nextPageToken,files(*)',
 				pageSize: 10
 			})
-			.then(google_drive._processConfig);
+			.then(google_drive._processFindConfig);
 	},
 
-	_processConfig: function (response) {
-		console.log('config: ', response);
+	_processFindConfig: function (response) {
 		if (response.result.files && response.result.files.length > 0) {
 			if (response.result.files.length > 1) {
 				configSyncAlert(
