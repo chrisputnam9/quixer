@@ -26,9 +26,11 @@
 		<span class="hover-on">💚</span>
 	</a>
 
-	<span class="publish-date align-right" title="Quixer current version publish date"
-		>{current_date_stamp}</span
-	>
+	<small class="publish-date align-right" title="Quixer current version publish date">
+		<a href="https://github.com/chrisputnam9/quixer" target="_blank">
+			App Updated: {current_date_stamp} (UTC)
+		</a>
+	</small>
 </nav>
 
 <style>
