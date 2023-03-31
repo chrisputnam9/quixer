@@ -88,16 +88,30 @@ export const google_drive = {
 		try {
 			const tokenJson = local_storage.get('google_drive_gapi_client_token');
 			if (!tokenJson) throw new Error('No Google account token saved in local storage');
+
 			const token = JSON.parse(tokenJson);
 			if (!token) throw new Error('Invalid JSON saved for Google account token');
+
 			google_drive.gapi.client.setToken(token);
 			configSyncIsSignedIn.set(true);
+
+			// See if the token has expired
+			// - if so, we'll try to get a new one right away
+			// - as opposed to waiting for a failed request
+			const token_expires = local_storage.get('google_drive_gapi_client_token_expires');
+			if (token_expires !== null) {
+				if (Math.ceil(Date.now() / 1000) > parseInt(token_expires)) {
+					console.warn(
+						'The Google account token in local storage has expired - attempting to get a new one'
+					);
+					google_drive.getToken();
+				}
+			}
+
 			return;
 		} catch (error) {
 			console.warn('NOT logged in due to invalid local Google account token\n', error);
 		}
-
-		// @TODO Check expiration of token
 
 		configSyncIsSignedIn.set(false);
 	},
@@ -115,6 +129,7 @@ export const google_drive = {
 	logOut: function () {
 		google_drive.gapi.client.setToken(null);
 		local_storage.remove('google_drive_gapi_client_token');
+		local_storage.remove('google_drive_gapi_client_token_expires');
 		configSyncIsSignedIn.set(false);
 	},
 
@@ -136,6 +151,9 @@ export const google_drive = {
 						const token = google_drive.gapi.client.getToken();
 						// We save it into local storage for next time
 						local_storage.set('google_drive_gapi_client_token', JSON.stringify(token));
+						// Note when the token will expire
+						const token_expires = Math.floor(Date.now() / 1000) + token.expires_in;
+						local_storage.set('google_drive_gapi_client_token_expires', token_expires);
 						configSyncIsSignedIn.set(true);
 						resolve(resp);
 					};
