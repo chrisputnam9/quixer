@@ -30,13 +30,6 @@ import MultiPartBuilder from './multipart.js';
  */
 
 export const google_drive = {
-	/**
-	 * Time at which remote data was updated
-	 * - Set after syncing, and based on remote at page load (effectively)
-	 * - Checked to see if sync might be needed
-	 */
-	remote_updated_at: null,
-
 	gapi: null,
 	google: null,
 	tokenClient: null,
@@ -187,6 +180,16 @@ export const google_drive = {
 		// Remote sync data - (will return 0 if not signed in)
 		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
 
+		// Debugging output
+		console.log('checkSyncAndChangeDates:', {
+			is_signed_in,
+			config_data,
+			local_updated_at,
+			local_synced_at,
+			local_updated_after_sync,
+			remote_updated_at
+		});
+
 		// If not currently signed in and never synced before, don't show any warnings
 		// - wait for them to log in
 		if (!is_signed_in && !local_synced_at) {
@@ -207,22 +210,22 @@ export const google_drive = {
 	 * - Used to determine whether sync might be needed
 	 */
 	getRemoteUpdatedAt: async function () {
-		if (google_drive.remote_updated_at == null) {
-			const signed_in = get(configSyncIsSignedIn);
-			if (!signed_in) {
-				return 0;
-			}
+		let remote_updated_at = 0;
 
-			const drive_data = await google_drive.readConfig();
-
-			if (util.isObject(drive_data) && 'updated_at' in drive_data) {
-				// Note: we only cache if we got a value
-				// - otherwise, we should try again on the next call
-				google_drive.remote_updated_at = drive_data.updated_at;
-			}
+		const signed_in = get(configSyncIsSignedIn);
+		if (!signed_in) {
+			return 0;
 		}
 
-		return google_drive.remote_updated_at;
+		const drive_data = await google_drive.readConfig();
+
+		if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+			// Note: we only cache if we got a value
+			// - otherwise, we should try again on the next call
+			remote_updated_at = drive_data.updated_at;
+		}
+
+		return remote_updated_at;
 	},
 
 	/**
