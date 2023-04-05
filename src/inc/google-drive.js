@@ -30,13 +30,6 @@ import MultiPartBuilder from './multipart.js';
  */
 
 export const google_drive = {
-	/**
-	 * Time at which remote data was updated
-	 * - Set after syncing, and based on remote at page load (effectively)
-	 * - Checked to see if sync might be needed
-	 */
-	remote_updated_at: null,
-
 	gapi: null,
 	google: null,
 	tokenClient: null,
@@ -88,16 +81,30 @@ export const google_drive = {
 		try {
 			const tokenJson = local_storage.get('google_drive_gapi_client_token');
 			if (!tokenJson) throw new Error('No Google account token saved in local storage');
+
 			const token = JSON.parse(tokenJson);
 			if (!token) throw new Error('Invalid JSON saved for Google account token');
+
 			google_drive.gapi.client.setToken(token);
 			configSyncIsSignedIn.set(true);
+
+			// See if the token has expired
+			// - if so, we'll try to get a new one right away
+			// - as opposed to waiting for a failed request
+			const token_expires = local_storage.get('google_drive_gapi_client_token_expires');
+			if (token_expires !== null) {
+				if (Math.ceil(Date.now() / 1000) > parseInt(token_expires)) {
+					console.warn(
+						'The Google account token in local storage has expired - attempting to get a new one'
+					);
+					google_drive.getToken();
+				}
+			}
+
 			return;
 		} catch (error) {
 			console.warn('NOT logged in due to invalid local Google account token\n', error);
 		}
-
-		// @TODO Check expiration of token
 
 		configSyncIsSignedIn.set(false);
 	},
@@ -115,6 +122,7 @@ export const google_drive = {
 	logOut: function () {
 		google_drive.gapi.client.setToken(null);
 		local_storage.remove('google_drive_gapi_client_token');
+		local_storage.remove('google_drive_gapi_client_token_expires');
 		configSyncIsSignedIn.set(false);
 	},
 
@@ -136,6 +144,9 @@ export const google_drive = {
 						const token = google_drive.gapi.client.getToken();
 						// We save it into local storage for next time
 						local_storage.set('google_drive_gapi_client_token', JSON.stringify(token));
+						// Note when the token will expire
+						const token_expires = Math.floor(Date.now() / 1000) + token.expires_in;
+						local_storage.set('google_drive_gapi_client_token_expires', token_expires);
 						configSyncIsSignedIn.set(true);
 						resolve(resp);
 					};
@@ -169,6 +180,16 @@ export const google_drive = {
 		// Remote sync data - (will return 0 if not signed in)
 		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
 
+		// Debugging output
+		console.log('checkSyncAndChangeDates:', {
+			is_signed_in,
+			config_data,
+			local_updated_at,
+			local_synced_at,
+			local_updated_after_sync,
+			remote_updated_at
+		});
+
 		// If not currently signed in and never synced before, don't show any warnings
 		// - wait for them to log in
 		if (!is_signed_in && !local_synced_at) {
@@ -189,22 +210,22 @@ export const google_drive = {
 	 * - Used to determine whether sync might be needed
 	 */
 	getRemoteUpdatedAt: async function () {
-		if (google_drive.remote_updated_at == null) {
-			const signed_in = get(configSyncIsSignedIn);
-			if (!signed_in) {
-				return 0;
-			}
+		let remote_updated_at = 0;
 
-			const drive_data = await google_drive.readConfig();
-
-			if (util.isObject(drive_data) && 'updated_at' in drive_data) {
-				// Note: we only cache if we got a value
-				// - otherwise, we should try again on the next call
-				google_drive.remote_updated_at = drive_data.updated_at;
-			}
+		const signed_in = get(configSyncIsSignedIn);
+		if (!signed_in) {
+			return 0;
 		}
 
-		return google_drive.remote_updated_at;
+		const drive_data = await google_drive.readConfig();
+
+		if (util.isObject(drive_data) && 'updated_at' in drive_data) {
+			// Note: we only cache if we got a value
+			// - otherwise, we should try again on the next call
+			remote_updated_at = drive_data.updated_at;
+		}
+
+		return remote_updated_at;
 	},
 
 	/**
