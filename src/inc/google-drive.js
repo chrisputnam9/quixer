@@ -1,7 +1,7 @@
 /* global GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_CLIENT_ID */
 //import MultiPartBuilder from 'multipart.js';
 import { get } from 'svelte/store';
-import { syncData } from './sync-logic.js';
+import { syncData, didSyncResultInChange } from './sync-logic.js';
 import { util } from './util.js';
 import { local_storage } from './local-storage.js';
 import {
@@ -246,34 +246,48 @@ export const google_drive = {
 		configSyncSaveState.set(CONFIG_SYNC_SAVE_STATE.SAVING);
 		configSyncAlert('Syncing config to Google Drive');
 
-		let drive_data = false;
-		let successful = true;
+		let successful = false;
+		let data_changed = false;
+
+		// Note data before sync
+		const drive_data = await google_drive.readConfig();
+		const local_data_before = util.objectClone(local_data);
+
+		// Set sync time assuming success
+		const local_synced_at = local_data.sync?.google_drive?.synced_at ?? 0;
+		local_data.sync.google_drive.synced_at = util.timestamp();
 
 		// Attempt to read in remote config file
-		drive_data = await google_drive.readConfig();
 		if (util.isObject(drive_data)) {
 			configSyncAlert('Existing remote config found - reading & syncing...');
 			local_data = syncData(local_data, drive_data);
+			data_changed =
+				didSyncResultInChange(local_data, local_data_before) ||
+				didSyncResultInChange(local_data, drive_data);
+			successful = true;
 		} else if (drive_data === false) {
 			configSyncAlert('No existing remote config file found - it will be created');
 		} else {
 			configSyncAlert('CS506 - Remote config file found, but failed to read it', 'error');
-			successful = false;
+		}
+
+		// Set updated date if data did change
+		if (data_changed) {
+			local_data.updated_at = util.timestamp();
 		}
 
 		// Write the synced data to Google Drive
 		// - as long as we've been successful so far
 		if (successful) {
+			successful = false;
 			configSyncAlert('Writing to Google Drive...');
 			const file_id = await google_drive.writeConfig(
 				local_data,
 				local_data.sync.google_drive.file_id
 			);
-			if (file_id === 0) {
-				successful = false;
-			} else {
+			if (file_id !== 0) {
+				successful = true;
 				local_data.sync.google_drive.file_id = file_id;
-				local_data.sync.google_drive.synced_at = util.timestamp();
 			}
 		}
 
@@ -282,6 +296,8 @@ export const google_drive = {
 		if (successful) {
 			// Show success, wait a bit, then show pending again
 			configSyncAlert('Sync Successful!', 'success');
+		} else {
+			local_data.sync.google_drive.synced_at = local_synced_at;
 		}
 
 		window.setTimeout(function () {
