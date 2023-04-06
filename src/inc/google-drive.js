@@ -36,13 +36,15 @@ export const google_drive = {
 
 	configFileId: 0,
 
+	syncNeeded: null,
+
 	/**
 	 * Initialize GAPI and GIS
 	 */
 	init: async function () {
 		// Listen for sign in or data change and check for possible sync needed
-		configSyncIsSignedIn.subscribe(google_drive.checkSyncAndChangeDates);
-		configData.subscribe(google_drive.checkSyncAndChangeDates);
+		configSyncIsSignedIn.subscribe(google_drive.maybeShowSyncNeededAlert);
+		configData.subscribe(google_drive.maybeShowSyncNeededAlert);
 
 		// Load and initialize gapi.client
 		google_drive.gapi = await util.newWindowVarPromise('gapi');
@@ -162,11 +164,34 @@ export const google_drive = {
 	},
 
 	/**
+	 * Check if a sync is needed and show alert if so
+	 */
+	maybeShowSyncNeededAlert: async function (changed_data) {
+		const syncNeeded = await google_drive.isSyncNeeded(changed_data);
+		if (syncNeeded) {
+			configSyncAlert(
+				'There have been ' +
+					syncNeeded +
+					' changes made since the last sync.<br><b>You may wish to sync now.</b>'
+			);
+		}
+	},
+
+	/**
 	 * If signed in, check sync and change dates, maybe alert
 	 * - Listens for login state to change -> boolean passed
 	 * - Listens for config data to change -> object passed
 	 */
-	checkSyncAndChangeDates: async function (changed_data) {
+	isSyncNeeded: async function (changed_data) {
+		// If we already know sync is needed, no need to check again
+		// until after a sync is done
+		if (google_drive.syncNeeded) {
+			return google_drive.syncNeeded;
+		}
+
+		// Default false - no sync needed
+		google_drive.syncNeeded = false;
+
 		// Whether signed into Google Drive
 		const is_signed_in =
 			typeof changed_data == 'boolean' ? changed_data : get(configSyncIsSignedIn);
@@ -181,7 +206,7 @@ export const google_drive = {
 		const remote_updated_at = await google_drive.getRemoteUpdatedAt();
 
 		// Debugging output
-		console.log('checkSyncAndChangeDates:', {
+		console.log('isSyncNeeded - fresh check:', {
 			is_signed_in,
 			config_data,
 			local_updated_at,
@@ -191,17 +216,21 @@ export const google_drive = {
 		});
 
 		// If not currently signed in and never synced before, don't show any warnings
-		// - wait for them to log in
+		// - wait for them to log in before we let them know sync is needed
 		if (!is_signed_in && !local_synced_at) {
-			return false;
+			return google_drive.syncNeeded;
 		}
 
-		if (local_updated_after_sync || remote_updated_at > local_synced_at) {
-			configSyncAlert(
-				(local_updated_after_sync ? 'Local' : 'Remote') +
-					' changes made since last sync.  You may wish to sync now.'
-			);
+		const syncNeeded = [];
+		if (local_updated_after_sync) {
+			syncNeeded.push('local');
 		}
+		if (remote_updated_at > local_synced_at) {
+			syncNeeded.push('remote');
+		}
+		google_drive.syncNeeded = syncNeeded.join(' & ');
+
+		return google_drive.syncNeeded;
 	},
 
 	/**
@@ -271,11 +300,6 @@ export const google_drive = {
 			configSyncAlert('CS506 - Remote config file found, but failed to read it', 'error');
 		}
 
-		// Set updated date if data did change
-		if (data_changed) {
-			local_data.updated_at = util.timestamp();
-		}
-
 		// Write the synced data to Google Drive
 		// - as long as we've been successful so far
 		if (successful) {
@@ -294,6 +318,11 @@ export const google_drive = {
 		// As long as everything has worked out so far...
 		// - If there were issues along the way, errors or warnings would already be showing
 		if (successful) {
+			// Set updated date to match synced date if data did change
+			if (data_changed) {
+				local_data.updated_at = local_data.sync.google_drive.synced_at;
+			}
+
 			// Show success, wait a bit, then show pending again
 			configSyncAlert('Sync Successful!', 'success');
 		} else {
