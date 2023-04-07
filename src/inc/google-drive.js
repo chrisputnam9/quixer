@@ -62,6 +62,12 @@ export const google_drive = {
 			});
 
 		// Load the GIS client
+		// Not building UX for this for now
+		// - but email could be saved here to make future logins faster
+		const email = local_storage.get('google_drive_user_login_email');
+		if (email === null) {
+			local_storage.set('google_drive_user_login_email', '');
+		}
 		google_drive.google = await util.newWindowVarPromise('google');
 		await new Promise((resolve, reject) => {
 			try {
@@ -69,6 +75,7 @@ export const google_drive = {
 					client_id: GOOGLE_DRIVE_CLIENT_ID,
 					scope:
 						'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file',
+					hint: email,
 					callback: '' // defined at request time in await/promise scope.
 				});
 				resolve();
@@ -152,6 +159,25 @@ export const google_drive = {
 						configSyncIsSignedIn.set(true);
 						resolve(resp);
 					};
+
+					// Handle errors
+					google_drive.tokenClient.error_callback = error => {
+						switch (error.type) {
+							case 'popup_closed':
+								reject('Google login canceled by closing popup');
+								break;
+							case 'popup_failed_to_open':
+								reject(
+									'Google account connection failed because popup window did not open.<br>Check browser settings for popups on this site.'
+								);
+								break;
+							default:
+								reject(error.message);
+								break;
+						}
+					};
+
+					// Request the token now that callbacks are in place
 					google_drive.tokenClient.requestAccessToken({ prompt: '' });
 				} catch (error) {
 					console.error(error);
@@ -276,28 +302,37 @@ export const google_drive = {
 		configSyncAlert('Syncing config to Google Drive');
 
 		let successful = false;
-		let data_changed = false;
+		let local_data_changed = false;
+		let remote_data_changed = false;
 
 		// Note data before sync
 		const drive_data = await google_drive.readConfig();
 		const local_data_before = util.objectClone(local_data);
 
-		// Set sync time assuming success
+		// Make note of sync time before starting
 		const local_synced_at = local_data.sync?.google_drive?.synced_at ?? 0;
-		local_data.sync.google_drive.synced_at = util.timestamp();
 
 		// Attempt to read in remote config file
 		if (util.isObject(drive_data)) {
 			configSyncAlert('Existing remote config found - reading & syncing...');
 			local_data = syncData(local_data, drive_data);
-			data_changed =
-				didSyncResultInChange(local_data, local_data_before) ||
-				didSyncResultInChange(local_data, drive_data);
+			local_data_changed = didSyncResultInChange(local_data, local_data_before);
+			remote_data_changed = didSyncResultInChange(local_data, drive_data);
 			successful = true;
 		} else if (drive_data === false) {
 			configSyncAlert('No existing remote config file found - it will be created');
 		} else {
 			configSyncAlert('CS506 - Remote config file found, but failed to read it', 'error');
+		}
+
+		// Set new sync time assuming success
+		local_data.sync.google_drive.synced_at = util.timestamp();
+
+		// Set updated date to match synced date if data changed significantly from prior *remote*
+		// - Set here so that it syncs to remote data
+		// - See below for check if local data changed
+		if (remote_data_changed) {
+			local_data.updated_at = local_data.sync.google_drive.synced_at;
 		}
 
 		// Write the synced data to Google Drive
@@ -315,14 +350,16 @@ export const google_drive = {
 			}
 		}
 
+		// Set local updated date to match synced date if data changed significantly from prior *remote*
+		// - Set here so it *doesn't* sync to remote data
+		// - See above for check if remote data changed
+		if (local_data_changed) {
+			local_data.updated_at = local_data.sync.google_drive.synced_at;
+		}
+
 		// As long as everything has worked out so far...
 		// - If there were issues along the way, errors or warnings would already be showing
 		if (successful) {
-			// Set updated date to match synced date if data did change
-			if (data_changed) {
-				local_data.updated_at = local_data.sync.google_drive.synced_at;
-			}
-
 			// Show success, wait a bit, then show pending again
 			configSyncAlert('Sync Successful!', 'success');
 		} else {

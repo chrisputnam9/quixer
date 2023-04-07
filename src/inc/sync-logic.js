@@ -54,12 +54,16 @@ export const syncData = (local_data, remote_data) => {
  * Confirm if there was any actual change from a sync
  */
 export const didSyncResultInChange = (data1, data2) => {
+	const preferences_changed = !util.objectsSame(
+		data1.preferences ?? {},
+		data2.preferences ?? {}
+	);
 	const services_changed = !util.objectsSame(data1.services ?? {}, data2.services ?? {});
 	const trash_changed = !util.objectsSame(
 		data1.__trash?.services ?? {},
 		data2.__trash?.services ?? {}
 	);
-	return services_changed || trash_changed;
+	return preferences_changed || services_changed || trash_changed;
 };
 
 /**
