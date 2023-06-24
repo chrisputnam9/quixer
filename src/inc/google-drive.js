@@ -195,6 +195,11 @@ export const google_drive = {
 	 * Check if a sync is needed and show alert if so
 	 */
 	maybeShowSyncNeededAlert: async function (changed_data) {
+		const saveState = configSyncSaveState.get();
+		if (saveState === CONFIG_SYNC_SAVE_STATE.ERROR) {
+			// Don't override an error alert
+			return;
+		}
 		const syncNeeded = await google_drive.isSyncNeeded(changed_data);
 		if (syncNeeded) {
 			configSyncAlert(
@@ -323,6 +328,7 @@ export const google_drive = {
 			successful = true;
 		} else if (drive_data === false) {
 			configSyncAlert('No existing remote config file found - it will be created');
+			successful = true;
 		} else {
 			configSyncAlert('CS506 - Remote config file found, but failed to read it', 'error');
 		}
@@ -490,7 +496,10 @@ export const google_drive = {
 				// Then try again to find config
 				.then(google_drive._findConfig)
 				.catch(function (error) {
-					configSyncAlert('CS507 - ' + JSON.stringify(error), 'error');
+					configSyncAlert(
+						'CS507 - Error finding config file ' + JSON.stringify(error),
+						'error'
+					);
 				});
 		});
 
