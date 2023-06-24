@@ -180,8 +180,10 @@ export const google_drive = {
 					// Request the token now that callbacks are in place
 					google_drive.tokenClient.requestAccessToken({ prompt: '' });
 				} catch (error) {
-					console.error(error);
+					reject(error);
 				}
+			}).catch(error => {
+				configSyncAlert(error, 'error');
 			});
 		} else {
 			// Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
