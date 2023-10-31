@@ -359,8 +359,7 @@ export const default_config = {
 			alias: ['gmc'],
 			name: 'Google Mail (GMail) Compose',
 			action: {
-				url: 'https://mail.google.com/mail/?view=cm&fs=1&to=%s',
-				url_no_search: 'https://mail.google.com/mail/?view=cm&fs=1'
+				url: 'https://mail.google.com/mail/u/0/#drafts?compose=new'
 			},
 			active: true
 		},
